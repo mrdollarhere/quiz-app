@@ -192,7 +192,59 @@ tailwind.config = {
     </div>
   </div>
 
-  <!-- ═══ QUIZ HEADER ═══ -->
+  <!-- ═══ MODE SCREEN ═══ -->
+  <div id="modeScreen" class="hidden w-full max-w-lg animate-fadeUp">
+    <div class="bg-surface border border-border rounded-2xl p-8 text-center relative overflow-hidden card-accent">
+      <div id="modeTestBadge" class="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 text-accent font-semibold text-sm px-4 py-1.5 rounded-full mb-5">📝 Test</div>
+      <h2 class="font-heading text-2xl font-extrabold tracking-tight mb-2">Choose Your Mode</h2>
+      <p class="text-muted text-sm font-light mb-7 leading-relaxed">How do you want to take this test?</p>
+      <!-- Mode cards -->
+      <div class="flex flex-col gap-3 mb-7">
+        <!-- Train -->
+        <div id="mode_train" onclick="selectMode('train')"
+          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent3 hover:bg-accent3/5 text-left group">
+          <div class="text-3xl">📖</div>
+          <div class="flex-1">
+            <div class="font-heading font-bold text-base mb-0.5">Train</div>
+            <div class="text-muted text-xs leading-relaxed">Questions in order, no time pressure. Review answers at the end.</div>
+          </div>
+          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
+        </div>
+        <!-- Test -->
+        <div id="mode_test" onclick="selectMode('test')"
+          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent hover:bg-accent/5 text-left group">
+          <div class="text-3xl">📝</div>
+          <div class="flex-1">
+            <div class="font-heading font-bold text-base mb-0.5">Test</div>
+            <div class="text-muted text-xs leading-relaxed">Questions in random order. Submit all at the end for your score.</div>
+          </div>
+          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
+        </div>
+        <!-- Race -->
+        <div id="mode_race" onclick="selectMode('race')"
+          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent2 hover:bg-accent2/5 text-left group">
+          <div class="text-3xl">⚡</div>
+          <div class="flex-1">
+            <div class="font-heading font-bold text-base mb-0.5">Race</div>
+            <div class="text-muted text-xs leading-relaxed">Random order. Answer instantly — correct moves forward, wrong restarts from the beginning!</div>
+          </div>
+          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
+        </div>
+      </div>
+      <button id="startModeBtn" onclick="launchQuiz()"
+        class="w-full font-heading font-bold text-base py-4 rounded-2xl bg-accent text-white opacity-40 pointer-events-none transition-all hover:bg-[#9580ff] hover:-translate-y-px">
+        Start →
+      </button>
+      <a onclick="goBackToName()" class="block mt-4 text-sm text-muted hover:text-accent cursor-pointer transition-colors">← Back</a>
+    </div>
+  </div>
+
+  <!-- ═══ RACE FEEDBACK OVERLAY ═══ -->
+  <div id="raceFeedback" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center" style="background:rgba(0,0,0,.85)">
+    <div id="raceFeedbackIcon" class="text-8xl mb-6 animate-bounceIn"></div>
+    <div id="raceFeedbackText" class="font-heading text-2xl font-extrabold mb-2"></div>
+    <div id="raceFeedbackSub" class="text-muted text-sm"></div>
+  </div>
   <div id="quizHeader" class="hidden w-full max-w-2xl text-center mb-9 animate-fadeUp">
     <span id="quizTag" class="inline-block font-heading text-[11px] font-bold uppercase tracking-[.2em] text-accent bg-accent/10 border border-accent/30 px-4 py-1.5 rounded-full mb-4">🎯 Quiz</span>
     <h1 id="quizTitle" class="font-heading text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-2">
@@ -297,13 +349,15 @@ tailwind.config = {
 // ═══════════════════════════════════════════════════
 //  CONFIG — change URL here when you redeploy
 // ═══════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxr5A0j7zigk9qTnJCf8N6qJoK4K-4oIbdlJsN1ET2QrcNDFdgaypjY6lmzuCVsObm4/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAuEkoaeG4uDFtp7TtHFdKgXcBRD-DVFy9nYXOoaI3XC9D1AMKV4CvH2fpmnu0wBaN/exec';
 
 // ═══════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════
 let allTests=[], selectedTest=null;
 let questions=[], currentIdx=0, answers={}, mode='survey', respondentName='';
+let quizMode='train'; // 'train' | 'test' | 'race'
+let raceCorrectCount=0; // tracks streak in race mode
 
 // ═══════════════════════════════════════════════════
 //  DEMO DATA
@@ -365,7 +419,7 @@ const show=id=>{$(id).style.display='block';};
 const hide=id=>{$(id).style.display='none';};
 const showFlex=id=>{$(id).style.display='flex';};
 function hideAll(){
-  ['testSelector','nameScreen','quizHeader','progressBar','navRow','resultScreen'].forEach(hide);
+  ['testSelector','nameScreen','modeScreen','quizHeader','progressBar','navRow','resultScreen'].forEach(hide);
   $('skeletonLoad').style.display='none';
   $('questionContainer').innerHTML='';
 }
@@ -467,14 +521,64 @@ function onNameType(val){
   $('nameError').style.display='none';
   $('nameGreeting').textContent=val.trim().length>=2?`${msgs[val.trim().length%msgs.length]} Ready, ${val.trim().split(' ')[0]}?`:'';
 }
+function goToModeScreen(){
+  // Called after name is confirmed — shows the mode picker
+  hide('nameScreen');
+  $('modeTestBadge').textContent=`${selectedTest.icon||'📝'} ${selectedTest.title}`;
+  // Reset mode selection UI
+  quizMode='train';
+  ['train','test','race'].forEach(m=>resetModeCard(m));
+  $('startModeBtn').classList.add('opacity-40','pointer-events-none');
+  show('modeScreen');
+}
+function goBackToName(){
+  hide('modeScreen');
+  show('nameScreen');
+  setTimeout(()=>$('nameInput').focus(),80);
+}
+function selectMode(m){
+  quizMode=m;
+  ['train','test','race'].forEach(id=>resetModeCard(id));
+  const colors={train:'accent3',test:'accent',race:'accent2'};
+  const card=$(`mode_${m}`);
+  const colorMap={
+    train:{border:'border-accent3',bg:'bg-accent3/10',check:'border-accent3 bg-accent3'},
+    test: {border:'border-accent', bg:'bg-accent/10',  check:'border-accent bg-accent'},
+    race: {border:'border-accent2',bg:'bg-accent2/10', check:'border-accent2 bg-accent2'},
+  };
+  const s=colorMap[m];
+  card.classList.remove('border-border','bg-surface2');
+  card.classList.add(s.border,s.bg);
+  const chk=card.querySelector('.mode-check');
+  chk.classList.remove('border-border');
+  chk.classList.add(...s.check.split(' '));
+  chk.innerHTML='<span class="text-white text-xs font-bold">✓</span>';
+  // Enable start button
+  $('startModeBtn').classList.remove('opacity-40','pointer-events-none');
+}
+function resetModeCard(m){
+  const card=$(`mode_${m}`);
+  card.className='mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all text-left '
+    +{train:'hover:border-accent3 hover:bg-accent3/5',test:'hover:border-accent hover:bg-accent/5',race:'hover:border-accent2 hover:bg-accent2/5'}[m];
+  const chk=card.querySelector('.mode-check');
+  chk.className='mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all';
+  chk.innerHTML='';
+}
 
 // ═══════════════════════════════════════════════════
 //  LOAD QUESTIONS + INIT QUIZ
 // ═══════════════════════════════════════════════════
 async function startQuiz(){
+  // startQuiz is now called from name screen — validate name then go to mode
   const nm=$('nameInput').value.trim();
   if(!nm){$('nameError').style.display='block';$('nameInput').focus();return;}
-  respondentName=nm; hide('nameScreen');
+  respondentName=nm;
+  goToModeScreen();
+}
+
+async function launchQuiz(){
+  // Called from mode screen — actually load questions
+  hide('modeScreen');
   showStatus('Loading questions<span class="ldots"></span>','loading');
   let qs;
   try{
@@ -484,17 +588,31 @@ async function startQuiz(){
     qs=data.questions;
   }catch(err){
     showStatus(`❌ ${err.message}`,'error');
-    setTimeout(()=>{hideStatus();show('nameScreen');},2000);return;
+    setTimeout(()=>{hideStatus();show('modeScreen');},2000);return;
   }
   hideStatus();initQuiz(qs);
 }
 
 function initQuiz(qs){
-  questions=qs; currentIdx=0; answers={};
+  questions=qs; currentIdx=0; answers={}; raceCorrectCount=0;
   mode=questions.some(q=>q.correct&&String(q.correct).trim()!=='')?'quiz':'survey';
-  $('quizTag').textContent=mode==='quiz'?'🎯 Quiz':'📋 Survey';
+
+  // Apply mode ordering
+  if(quizMode==='test'||quizMode==='race'){
+    questions=shuffle([...questions]);
+  }
+  // (train = original order, already set)
+
+  const modeLabels={train:'📖 Train',test:'📝 Test',race:'⚡ Race'};
+  const modeColors={train:'text-accent3 bg-accent3/10 border-accent3/30',test:'text-accent bg-accent/10 border-accent/30',race:'text-accent2 bg-accent2/10 border-accent2/30'};
+  $('quizTag').className=`inline-block font-heading text-[11px] font-bold uppercase tracking-[.2em] px-4 py-1.5 rounded-full mb-4 border ${modeColors[quizMode]}`;
+  $('quizTag').textContent=modeLabels[quizMode];
   $('quizTitle').innerHTML=`${escH(selectedTest.title)}<br><span class="grad-text">Question by Question</span>`;
-  $('quizDesc').textContent=`Good luck, ${respondentName.split(' ')[0]}! · ${questions.length} questions · ${mode==='quiz'?'Scored':'Survey'}`;
+  $('quizDesc').textContent=`Good luck, ${respondentName.split(' ')[0]}! · ${questions.length} questions · ${quizMode==='race'?'Race mode — restart on wrong!':mode==='quiz'?'Scored':'Survey'}`;
+
+  // Hide prev button in race and test mode (no going back)
+  $('prevBtn').style.display=(quizMode==='race')?'none':'';
+
   show('quizHeader'); show('progressBar'); showFlex('navRow');
   renderQ();
 }
@@ -618,12 +736,18 @@ function renderQ(){
   // Nav button states
   $('prevBtn').style.opacity=currentIdx===0?'0.3':'1';
   $('prevBtn').disabled=currentIdx===0;
+  $('prevBtn').style.display=(quizMode==='race')?'none':'';
   const last=currentIdx===questions.length-1;
   const nb=$('nextBtn');
-  nb.textContent=last?'✓ Submit':'Next →';
-  nb.className=last
-    ?'flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl bg-green-500 text-[#052e16] hover:bg-green-400 transition-all hover:-translate-y-px'
-    :'flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px';
+  if(quizMode==='race'){
+    nb.textContent='Check Answer ⚡';
+    nb.className='flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl bg-accent2 text-white hover:bg-pink-500 transition-all hover:-translate-y-px';
+  }else{
+    nb.textContent=last?'✓ Submit':'Next →';
+    nb.className=last
+      ?'flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl bg-green-500 text-[#052e16] hover:bg-green-400 transition-all hover:-translate-y-px'
+      :'flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px';
+  }
 }
 
 function updateProg(){
@@ -884,6 +1008,7 @@ function selTF(id,val,el){
 function navigate(dir){
   const q=questions[currentIdx];
   if(dir===1){
+    // Validate required
     if(String(q.required).toUpperCase()==='TRUE'){
       let missing=false;
       if(q.type==='mtf'){const stmts=String(q.options).split('|').filter(Boolean);const cur=answers[q.id]?answers[q.id].split('|'):[];missing=stmts.some((_,i)=>!cur[i]);}
@@ -891,11 +1016,56 @@ function navigate(dir){
       else missing=!answers[q.id]||!String(answers[q.id]).trim();
       if(missing){showStatus('⚠️ This question is required — please answer all parts.','error');setTimeout(hideStatus,2400);return;}
     }
+
+    // ── Race mode: check answer immediately ──
+    if(quizMode==='race'){
+      const sc=scoreQuestion(q);
+      if(sc.hasCorrect){
+        if(sc.isCorrect){
+          // Correct — show green flash then move forward
+          raceCorrectCount++;
+          showRaceFeedback(true, raceCorrectCount, questions.length);
+          setTimeout(()=>{
+            hideRaceFeedback();
+            if(currentIdx===questions.length-1){submit();return;}
+            currentIdx++; hideStatus(); renderQ();
+          },1200);
+        }else{
+          // Wrong — show red flash then restart
+          showRaceFeedback(false, raceCorrectCount, questions.length);
+          setTimeout(()=>{
+            hideRaceFeedback();
+            // Reset and restart from question 1 with a new shuffle
+            currentIdx=0; answers={}; raceCorrectCount=0;
+            questions=shuffle([...questions]);
+            hideStatus(); renderQ();
+          },2000);
+        }
+        return; // don't fall through
+      }
+    }
+
+    // Normal / Train / Test navigation
     if(currentIdx===questions.length-1){submit();return;}
     currentIdx++;
-  }else{if(currentIdx===0)return;currentIdx--;}
+  }else{
+    if(currentIdx===0)return;
+    currentIdx--;
+  }
   hideStatus();renderQ();
 }
+
+function showRaceFeedback(correct, streak, total){
+  const el=$('raceFeedback');
+  $('raceFeedbackIcon').textContent=correct?'✅':'❌';
+  $('raceFeedbackText').textContent=correct?`Correct! ${streak} of ${total}`:'Wrong! Starting over...';
+  $('raceFeedbackText').style.color=correct?'#4ade80':'#f87171';
+  $('raceFeedbackSub').textContent=correct
+    ?streak===total?'🏆 Last one — submitting!':'Keep going!'
+    :`You had ${streak} correct. Try again!`;
+  el.style.display='flex';
+}
+function hideRaceFeedback(){$('raceFeedback').style.display='none';}
 
 // ═══════════════════════════════════════════════════
 //  SCORE ENGINE
@@ -1018,12 +1188,16 @@ function backToSelector(){
   const btn=$('startTestBtn');
   btn.classList.add('opacity-40','pointer-events-none');
   btn.textContent='Continue →';
-  selectedTest=null;
+  selectedTest=null; quizMode='train'; raceCorrectCount=0;
 }
 function retakeSame(){
   hide('resultScreen');
-  $('nameInput').value='';$('nameGreeting').textContent='';$('nameError').style.display='none';
-  show('nameScreen');setTimeout(()=>$('nameInput').focus(),80);
+  // Go back to mode screen so they can change mode or keep the same
+  $('modeTestBadge').textContent=`${selectedTest.icon||'📝'} ${selectedTest.title}`;
+  ['train','test','race'].forEach(m=>resetModeCard(m));
+  $('startModeBtn').classList.add('opacity-40','pointer-events-none');
+  quizMode='train'; raceCorrectCount=0;
+  show('modeScreen');
 }
 </script>
 </body>
