@@ -72,8 +72,8 @@ const hide=id=>{$(id).style.display='none';};
 const showFlex=id=>{$(id).style.display='flex';};
 function hideAll(){
   ['testSelector','nameScreen','modeScreen','quizHeader','progressBar','navRow','resultScreen'].forEach(hide);
-  $('skeletonLoad').style.display='none';
-  $('questionContainer').innerHTML='';
+  const sk=$('skeletonLoad'); if(sk)sk.style.display='none';
+  const qc=$('questionContainer'); if(qc)qc.innerHTML='';
 }
 function showStatus(msg,type){
   const el=$('statusMsg');el.innerHTML=msg;el.style.display='block';
@@ -89,7 +89,7 @@ function escJ(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
 function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
 
 // ═══════════════════════════════════════════════════
-//  LOAD TESTS  — auto-runs on page open
+//  LOAD TESTS  — auto-runs when tests.html opens
 // ═══════════════════════════════════════════════════
 async function loadTests(){
   $('skeletonLoad').style.display='grid';
@@ -98,13 +98,18 @@ async function loadTests(){
     const res=await fetch(`${SCRIPT_URL}?action=getTests`);
     const data=await res.json();
     if(!data.tests||!data.tests.length)throw new Error('No tests found in Tests tab');
-    hideStatus();$('skeletonLoad').style.display='none';renderSelector(data.tests);
+    hideStatus();$('skeletonLoad').style.display='none';
+    allTests=data.tests;
+    renderSelector(data.tests);
   }catch(err){
     $('skeletonLoad').style.display='none';
     showStatus(`❌ Failed to load: ${err.message}. Check your Apps Script deployment.`,'error');
   }
 }
-window.addEventListener('load',loadTests);
+// Only auto-load if we're on tests.html (not landing page)
+if(document.getElementById('testSelector')){
+  window.addEventListener('load',loadTests);
+}
 
 // ═══════════════════════════════════════════════════
 //  TEST SELECTOR
@@ -830,21 +835,30 @@ function toggleReview(){
 // ═══════════════════════════════════════════════════
 //  SCREEN NAVIGATION
 // ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+//  SCREEN NAVIGATION
+// ═══════════════════════════════════════════════════
 function backToSelector(){
-  hideAll();hide('scoreCard');show('testSelector');
+  // From name/mode/quiz — go back to test selector on same page
+  hideAll(); hide('scoreCard');
+  selectedTest=null; quizMode='train'; raceCorrectCount=0;
   document.querySelectorAll('[id^="tc_"]').forEach(c=>{
     c.style.borderColor='';
-    c.querySelector('.tc-check')?.classList.add('opacity-0');
-    c.querySelector('.tc-check')?.classList.remove('opacity-100');
+    c.querySelector?.('.tc-check')?.classList.add('opacity-0');
+    c.querySelector?.('.tc-check')?.classList.remove('opacity-100');
   });
   const btn=$('startTestBtn');
-  btn.classList.add('opacity-40','pointer-events-none');
-  btn.textContent='Continue →';
-  selectedTest=null; quizMode='train'; raceCorrectCount=0;
+  if(btn){btn.classList.add('opacity-40','pointer-events-none');btn.textContent='Continue →';}
+  show('testSelector');
+}
+function backToHome(){
+  window.location.href='index.html';
+}
+function goToTests(){
+  window.location.href='tests.html';
 }
 function retakeSame(){
   hide('resultScreen');
-  // Go back to mode screen so they can change mode or keep the same
   $('modeTestBadge').textContent=`${selectedTest.icon||'📝'} ${selectedTest.title}`;
   ['train','test','race'].forEach(m=>resetModeCard(m));
   $('startModeBtn').classList.add('opacity-40','pointer-events-none');
