@@ -335,7 +335,152 @@ table.sheet-table{width:100%;border-collapse:collapse;font-size:12px;}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .loading-dots::after{content:'';animation:dots 1.4s infinite;}
 @keyframes dots{0%{content:'.';}33%{content:'..';}66%{content:'...'}}
-</style>
+
+/* ══════════════════════════════════════
+   RESPONSIVE — DESKTOP WIDE (≥1100px)
+══════════════════════════════════════ */
+@media(min-width:1100px){
+  .app{padding:60px 40px 100px;}
+  .question-card,.progress-bar,.nav-row,.quiz-header,
+  .config-panel,.result-screen,.review-section{max-width:760px;}
+  .skeleton-grid,.test-selector{max-width:980px;}
+  .tests-grid{grid-template-columns:repeat(3,1fr);}
+  .q-text{font-size:22px;}
+  .score-stats{gap:20px;}
+  .stat-box{max-width:130px;padding:20px 12px;}
+  .stat-num{font-size:34px;}
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — TABLET (600–1099px)
+══════════════════════════════════════ */
+@media(min-width:600px) and (max-width:1099px){
+  .app{padding:40px 24px 80px;}
+  .tests-grid{grid-template-columns:repeat(2,1fr);}
+  .question-card{padding:32px 28px;}
+  .name-card{padding:40px 32px;}
+  .score-stats{gap:14px;}
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — MOBILE (≤599px)
+══════════════════════════════════════ */
+@media(max-width:599px){
+  .app{padding:20px 14px 70px;}
+
+  /* Config */
+  .config-panel{padding:20px 16px;border-radius:12px;}
+  .config-row{flex-direction:column;}
+  .config-row .btn{width:100%;}
+
+  /* Test selector */
+  .tests-grid{grid-template-columns:1fr;gap:12px;}
+  .test-selector{max-width:100%;}
+  .selector-title{font-size:26px;}
+  .btn-start-test{padding:14px 24px;font-size:15px;width:100%;}
+  .selector-nav{flex-direction:column-reverse;align-items:stretch;gap:10px;}
+  .selector-nav .btn{text-align:center;}
+
+  /* Name screen */
+  .name-screen{max-width:100%;}
+  .name-card{padding:32px 20px;}
+  .name-title{font-size:22px;}
+  .name-input{font-size:16px;padding:14px 16px;}
+
+  /* Quiz header */
+  .quiz-title{font-size:22px;}
+  .quiz-desc{font-size:14px;}
+
+  /* Question card */
+  .question-card{padding:22px 16px;border-radius:12px;}
+  .q-text{font-size:17px;margin-bottom:18px;}
+  .q-type-badge{font-size:10px;padding:3px 10px;}
+
+  /* Options */
+  .option-item{padding:14px 12px;gap:10px;}
+  .option-label{font-size:14px;}
+
+  /* Rating — smaller so all fit one row */
+  .rating-btn{width:44px;height:44px;font-size:15px;border-radius:10px;}
+
+  /* True/False */
+  .tf-btn{padding:14px 8px;font-size:15px;}
+
+  /* Matching — stack vertically on mobile */
+  .matching-grid{grid-template-columns:1fr;gap:10px;}
+  .matching-bank{margin-top:12px;}
+  .bank-chip{font-size:13px;padding:8px 12px;}
+  .drop-item-text{font-size:13px;}
+
+  /* MTF */
+  .mtf-row{padding:12px 14px;}
+  .mtf-statement{font-size:14px;}
+  .mtf-btn{font-size:13px;padding:10px 8px;}
+
+  /* Matrix */
+  .matrix-wrap{border-radius:10px;border:1px solid var(--border);}
+  .matrix-th{font-size:10px;padding:8px 5px;white-space:normal;word-break:break-word;min-width:48px;}
+  .matrix-th-blank{width:32%;padding:8px 8px;font-size:11px;}
+  .matrix-td-label{font-size:13px;padding:10px 8px;}
+  .matrix-td{padding:10px 5px;}
+  .matrix-radio{width:20px;height:20px;}
+  .matrix-radio.sel::after{width:7px;height:7px;}
+
+  /* Hotspot */
+  .hotspot-instruction{font-size:12px;padding:8px 12px;}
+  .hotspot-zone-label{font-size:10px;padding:2px 8px;}
+
+  /* Nav */
+  .nav-row{gap:10px;}
+  .nav-row .btn{flex:1;text-align:center;padding:13px 10px;font-size:13px;}
+
+  /* Result */
+  .result-screen{max-width:100%;}
+  .result-hero{padding:28px 20px;}
+  .result-title{font-size:24px;}
+  .score-ring-wrap{width:120px;height:120px;}
+  .score-ring{width:120px;height:120px;}
+  .ring-pct{font-size:22px;}
+  .score-stats{gap:8px;}
+  .stat-box{padding:12px 6px;border-radius:10px;flex:1;}
+  .stat-num{font-size:22px;}
+  .stat-lbl{font-size:10px;}
+  .grade-badge{font-size:13px;padding:7px 18px;}
+
+  /* Review */
+  .review-section{max-width:100%;}
+  .review-header{padding:14px 16px;}
+  .review-item{padding:16px 16px;}
+  .review-answers{margin-left:28px;}
+  .answer-label{min-width:52px;font-size:10px;}
+  .answer-val{font-size:12px;padding:3px 8px;}
+
+  /* Result buttons */
+  .result-btns{flex-direction:column;align-items:stretch;}
+  .result-btns .btn{text-align:center;}
+
+  /* Sheet guide table */
+  .sheet-format{padding:20px 14px;}
+  .sheet-table th,.sheet-table td{padding:6px 8px;font-size:10px;}
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — VERY SMALL (≤374px)
+   iPhone SE, older Android
+══════════════════════════════════════ */
+@media(max-width:374px){
+  .app{padding:14px 10px 60px;}
+  .question-card{padding:18px 12px;}
+  .q-text{font-size:16px;}
+  .option-item{padding:12px 10px;}
+  .rating-btn{width:38px;height:38px;font-size:14px;}
+  .tf-btn{font-size:14px;padding:12px 4px;}
+  .mtf-btn{font-size:12px;padding:9px 6px;}
+  .name-card{padding:24px 14px;}
+  .result-hero{padding:22px 14px;}
+  .stat-num{font-size:20px;}
+  .result-title{font-size:21px;}
+}
 </head>
 <body>
 <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
@@ -347,7 +492,7 @@ table.sheet-table{width:100%;border-collapse:collapse;font-size:12px;}
   <div class="config-row">
     <div class="config-field">
       <label>📋 Google Apps Script Web App URL</label>
-      <input type="text" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbxBysnU4BdxEmn6JErAQhllMO9NM_O3OLipRm9caselewF2MnwVqyGBZjttV5XCh4Qv/exec"/>
+      <input type="text" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbxBysnU4BdxEmn6JErAQhllMO9NM_O3OLipRm9caselewF2MnwVqyGBZjttV5XCh4Qv/exec" placeholder="https://script.google.com/macros/s/.../exec"/>
     </div>
     <button class="btn btn-primary" onclick="loadTests()">Load Tests</button>
   </div>
