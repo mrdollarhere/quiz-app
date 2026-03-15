@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuizFlow Admin</title>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+tailwind.config={theme:{extend:{
+  colors:{bg:'#060608',surface:'#0f0f14',surface2:'#18181f',border:'#252533',accent:'#7c6af7',accent2:'#f76a8a',accent3:'#6af7c4',muted:'#6b6b85'},
+  fontFamily:{sans:['"DM Sans"','sans-serif'],heading:['"Syne"','sans-serif'],mono:['"JetBrains Mono"','monospace']},
+}}}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#060608;color:#e2e2f0;font-family:'DM Sans',sans-serif;min-height:100vh;}
+  ::-webkit-scrollbar{width:4px;height:4px;} ::-webkit-scrollbar-track{background:#0f0f14;} ::-webkit-scrollbar-thumb{background:#252533;border-radius:2px;}
+
+  /* ── LOGIN ── */
+  #loginScreen{position:fixed;inset:0;background:#060608;display:flex;align-items:center;justify-content:center;z-index:100;
+    background-image:linear-gradient(rgba(124,106,247,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,106,247,.04) 1px,transparent 1px);background-size:60px 60px;}
+  .login-card{background:#0f0f14;border:1px solid #252533;border-radius:20px;padding:44px 40px;width:100%;max-width:420px;text-align:center;position:relative;overflow:hidden;}
+  .login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7c6af7,#f76a8a,#6af7c4);}
+  .login-logo{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:white;margin:0 auto 20px;background:linear-gradient(135deg,#7c6af7,#f76a8a);}
+  .login-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;letter-spacing:-.02em;}
+  .login-sub{color:#6b6b85;font-size:13px;margin-bottom:28px;}
+  .login-input{width:100%;background:#18181f;border:2px solid #252533;border-radius:12px;padding:14px 16px;color:#e2e2f0;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;text-align:center;letter-spacing:.12em;}
+  .login-input:focus{border-color:#7c6af7;box-shadow:0 0 0 4px rgba(124,106,247,.1);}
+  .login-btn{width:100%;margin-top:16px;padding:14px;border-radius:12px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:white;background:linear-gradient(135deg,#7c6af7,#9580ff);transition:all .2s;}
+  .login-btn:hover{transform:translateY(-1px);box-shadow:0 0 24px rgba(124,106,247,.4);}
+  .login-error{color:#f87171;font-size:12px;margin-top:10px;min-height:18px;}
+
+  /* ── APP LAYOUT ── */
+  #appScreen{display:none;}
+  .admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
+  @media(max-width:768px){.admin-layout{grid-template-columns:1fr;}.sidebar{display:none;}}
+
+  /* ── SIDEBAR ── */
+  .sidebar{background:#0a0a0f;border-right:1px solid #252533;display:flex;flex-direction:column;padding:0;position:sticky;top:0;height:100vh;overflow:hidden;}
+  .sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid #252533;display:flex;align-items:center;gap:10px;}
+  .sidebar-logo-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:white;background:linear-gradient(135deg,#7c6af7,#f76a8a);flex-shrink:0;}
+  .sidebar-logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:white;}
+  .sidebar-logo-sub{font-size:10px;color:#6b6b85;font-weight:500;}
+  .sidebar-nav{padding:16px 10px;flex:1;display:flex;flex-direction:column;gap:4px;}
+  .nav-tab{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:#6b6b85;transition:all .2s;border:none;background:none;text-align:left;width:100%;}
+  .nav-tab:hover{background:#18181f;color:#e2e2f0;}
+  .nav-tab.active{background:rgba(124,106,247,.12);color:#7c6af7;font-weight:600;}
+  .nav-tab-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+  .sidebar-footer{padding:14px 10px;border-top:1px solid #252533;}
+  .sidebar-back{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;color:#6b6b85;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;text-decoration:none;}
+  .sidebar-back:hover{background:#18181f;color:#e2e2f0;}
+  .logout-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;color:#f87171;font-size:12px;font-weight:500;cursor:pointer;background:none;border:none;width:100%;margin-top:4px;transition:all .2s;}
+  .logout-btn:hover{background:rgba(248,113,113,.08);}
+
+  /* ── MAIN CONTENT ── */
+  .main-content{padding:28px 32px;overflow-y:auto;}
+  @media(max-width:768px){.main-content{padding:20px 16px;}}
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+  .page-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.02em;}
+  .page-sub{color:#6b6b85;font-size:13px;margin-top:2px;}
+
+  /* ── TOP BAR (mobile) ── */
+  .topbar{display:none;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #252533;background:#0a0a0f;position:sticky;top:0;z-index:40;}
+  @media(max-width:768px){.topbar{display:flex;}}
+  .topbar-tabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px;}
+  .topbar-tab{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;color:#6b6b85;background:none;border:none;transition:all .2s;}
+  .topbar-tab.active{background:rgba(124,106,247,.15);color:#7c6af7;}
+
+  /* ── BUTTONS ── */
+  .btn-primary{padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:white;background:#7c6af7;transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .btn-primary:hover{background:#9580ff;transform:translateY(-1px);}
+  .btn-secondary{padding:9px 18px;border-radius:10px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:600;font-size:13px;color:#6b6b85;background:transparent;border:1px solid #252533;transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .btn-secondary:hover{border-color:#7c6af7;color:#7c6af7;}
+  .btn-danger{padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:white;background:#f87171;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+  .btn-danger:hover{background:#ef4444;}
+  .btn-icon{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:7px;font-size:14px;transition:all .15s;}
+  .btn-edit:hover{background:rgba(124,106,247,.15);}
+  .btn-delete:hover{background:rgba(248,113,113,.12);}
+  .btn-view:hover{background:rgba(106,247,196,.1);}
+  .btn-questions{font-size:11px;font-family:'Syne',sans-serif;font-weight:600;color:#6af7c4;padding:4px 10px;border-radius:6px;background:rgba(106,247,196,.08);border:1px solid rgba(106,247,196,.2);cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .btn-questions:hover{background:rgba(106,247,196,.15);}
+
+  /* ── TABLE ── */
+  .table-wrap{overflow-x:auto;border-radius:14px;border:1px solid #252533;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{background:#13131a;padding:11px 14px;text-align:left;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6b6b85;white-space:nowrap;border-bottom:1px solid #252533;}
+  tbody tr{border-bottom:1px solid rgba(37,37,51,.7);transition:background .15s;}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:#13131a;}
+  tbody td{padding:11px 14px;vertical-align:middle;}
+  .empty-row{text-align:center;color:#6b6b85;padding:32px !important;font-style:italic;}
+  .text-muted{color:#6b6b85;}
+  .text-center{text-align:center;}
+  .small-cell{font-size:12px;}
+  .action-cell{white-space:nowrap;display:flex;gap:4px;align-items:center;}
+  .emoji-cell{font-size:22px;}
+  .code-pill{background:#18181f;border:1px solid #252533;border-radius:6px;padding:2px 8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#7c6af7;}
+
+  /* Badges */
+  .badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;border:1px solid;}
+  .type-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:500;}
+  .type-radio{background:rgba(124,106,247,.1);color:#7c6af7;}
+  .type-checkbox{background:rgba(247,106,138,.1);color:#f76a8a;}
+  .type-text{background:rgba(106,247,196,.1);color:#6af7c4;}
+  .type-rating{background:rgba(251,191,36,.1);color:#fbbf24;}
+  .type-dropdown{background:rgba(56,189,248,.1);color:#38bdf8;}
+  .type-truefalse{background:rgba(52,211,153,.1);color:#34d399;}
+  .type-ordering{background:rgba(251,146,60,.1);color:#fb923c;}
+  .type-matching{background:rgba(192,132,252,.1);color:#c084fc;}
+  .type-hotspot{background:rgba(236,72,153,.1);color:#ec4899;}
+  .type-mtf{background:rgba(20,184,166,.1);color:#14b8a6;}
+  .type-matrix{background:rgba(245,158,11,.1);color:#f59e0b;}
+  .has-correct{color:#4ade80;font-size:11px;font-weight:600;}
+  .no-correct{color:#6b6b85;font-size:11px;}
+  .required-dot{color:#7c6af7;font-size:11px;font-weight:600;}
+  .grade-pill{display:inline-block;padding:2px 10px;border-radius:100px;font-size:12px;font-weight:700;border:1px solid;}
+
+  /* Stats */
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px;}
+  .stat-card{background:#0f0f14;border:1px solid #252533;border-radius:14px;padding:18px 20px;}
+  .stat-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:2px;}
+  .stat-label{font-size:11px;color:#6b6b85;font-weight:500;text-transform:uppercase;letter-spacing:.08em;}
+
+  /* Filter bar */
+  .filter-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+  .filter-input{background:#18181f;border:1px solid #252533;border-radius:9px;padding:8px 14px;color:#e2e2f0;font-size:13px;outline:none;transition:border-color .2s;}
+  .filter-input:focus{border-color:#7c6af7;}
+  .filter-input::placeholder{color:#6b6b85;}
+  .filter-select{background:#18181f;border:1px solid #252533;border-radius:9px;padding:8px 14px;color:#e2e2f0;font-size:13px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6b85' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+
+  /* ── MODALS ── */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;}
+  .modal-backdrop.open{display:flex;}
+  .modal{background:#0f0f14;border:1px solid #252533;border-radius:20px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;position:relative;}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 18px;border-bottom:1px solid #252533;position:sticky;top:0;background:#0f0f14;z-index:1;}
+  .modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;}
+  .modal-close{background:none;border:none;color:#6b6b85;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:8px;line-height:1;transition:all .2s;}
+  .modal-close:hover{background:#18181f;color:#e2e2f0;}
+  .modal-body{padding:24px;}
+  .modal-footer{padding:16px 24px;border-top:1px solid #252533;display:flex;justify-content:flex-end;gap:10px;}
+
+  /* ── FORM FIELDS ── */
+  .form-row{margin-bottom:18px;}
+  .form-row.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .form-row.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  @media(max-width:500px){.form-row.two-col,.form-row.three-col{grid-template-columns:1fr;}}
+  .form-label{display:block;font-size:11px;font-weight:700;color:#6b6b85;text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;}
+  .form-label span{color:#f87171;margin-left:3px;}
+  .form-input{width:100%;background:#18181f;border:1px solid #252533;border-radius:10px;padding:11px 14px;color:#e2e2f0;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+  .form-input:focus{border-color:#7c6af7;box-shadow:0 0 0 3px rgba(124,106,247,.08);}
+  .form-input::placeholder{color:#6b6b85;}
+  .form-textarea{resize:vertical;min-height:80px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;}
+  .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6b85' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;padding-right:36px;}
+  .form-hint{font-size:11px;color:#6b6b85;margin-top:5px;font-family:'JetBrains Mono',monospace;line-height:1.5;}
+  .form-checkbox-row{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#18181f;border:1px solid #252533;border-radius:10px;cursor:pointer;}
+  .form-checkbox-row input[type=checkbox]{width:16px;height:16px;accent-color:#7c6af7;cursor:pointer;}
+  .form-checkbox-label{font-size:13px;color:#e2e2f0;cursor:pointer;}
+  .color-row{display:flex;align-items:center;gap:10px;}
+  .color-input{width:48px;height:40px;border-radius:8px;border:1px solid #252533;cursor:pointer;background:#18181f;padding:3px;}
+  .section-divider{height:1px;background:#252533;margin:20px 0;}
+
+  /* Detail modal */
+  .detail-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+  .detail-row{display:flex;align-items:flex-start;gap:12px;}
+  .detail-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b85;min-width:110px;padding-top:2px;flex-shrink:0;}
+  .detail-val{font-size:14px;color:#e2e2f0;flex:1;}
+  .detail-answers-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#6b6b85;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;padding-top:4px;border-top:1px solid #252533;}
+  .detail-answers{display:flex;flex-direction:column;gap:6px;}
+  .detail-answer-row{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;background:#18181f;border-radius:8px;}
+  .detail-answer-key{font-size:12px;color:#6b6b85;min-width:120px;flex-shrink:0;text-transform:capitalize;font-style:italic;}
+  .detail-answer-val{font-size:13px;color:#e2e2f0;font-family:'JetBrains Mono',monospace;word-break:break-word;}
+
+  /* Back breadcrumb */
+  .breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:20px;font-size:13px;color:#6b6b85;}
+  .breadcrumb a{color:#6b6b85;cursor:pointer;hover:color:#e2e2f0;transition:color .2s;}
+  .breadcrumb a:hover{color:#e2e2f0;}
+  .breadcrumb-sep{color:#252533;}
+  .breadcrumb-current{color:#e2e2f0;font-weight:600;}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.22,1,.36,1);pointer-events:none;max-width:320px;}
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast.success{background:#0f2418;border:1px solid rgba(74,222,128,.3);color:#4ade80;}
+  .toast.error{background:#1f0f0f;border:1px solid rgba(248,113,113,.3);color:#f87171;}
+
+  /* Section display */
+  #sectionQuestions,#sectionResponses{display:none;}
+</style>
+</head>
+
+<body>
+
+<!-- ════ LOGIN ════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">Q</div>
+    <div class="login-title">Admin Panel</div>
+    <div class="login-sub">QuizFlow management console</div>
+    <input type="password" id="passwordInput" class="login-input" placeholder="••••••••" autocomplete="current-password"/>
+    <button class="login-btn" onclick="login()">Enter →</button>
+    <div id="loginError" class="login-error" style="display:none"></div>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #252533;">
+      <a href="index.html" style="color:#6b6b85;font-size:12px;text-decoration:none;hover:color:#e2e2f0">← Back to QuizFlow</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════ APP ════ -->
+<div id="appScreen">
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">Q</div>
+        <div>
+          <div class="sidebar-logo-text">QuizFlow</div>
+          <div class="sidebar-logo-sub">Admin Panel</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <button id="tab_tests" class="nav-tab active" onclick="showSection('sectionTests')">
+          <span class="nav-tab-icon">📋</span> Tests
+        </button>
+        <button id="tab_questions" class="nav-tab" onclick="showSection('sectionQuestions')">
+          <span class="nav-tab-icon">❓</span> Questions
+        </button>
+        <button id="tab_responses" class="nav-tab" onclick="showSection('sectionResponses')">
+          <span class="nav-tab-icon">📊</span> Responses
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="tests.html" class="sidebar-back">
+          <span>🎯</span> Take a Test
+        </a>
+        <a href="index.html" class="sidebar-back">
+          <span>🏠</span> Back to Home
+        </a>
+        <button class="logout-btn" onclick="logout()">
+          <span>🔒</span> Lock Admin
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+      <!-- Mobile topbar -->
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#7c6af7,#f76a8a);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;color:white">Q</div>
+          <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">Admin</span>
+        </div>
+        <div class="topbar-tabs">
+          <button id="mobtab_tests" class="topbar-tab active" onclick="showSection('sectionTests')">Tests</button>
+          <button id="mobtab_questions" class="topbar-tab" onclick="showSection('sectionQuestions')">Questions</button>
+          <button id="mobtab_responses" class="topbar-tab" onclick="showSection('sectionResponses')">Responses</button>
+        </div>
+      </div>
+
+      <!-- ══ TESTS SECTION ══ -->
+      <div id="sectionTests">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Tests</div>
+            <div class="page-sub">Manage your test cards shown in the quiz selector</div>
+          </div>
+          <button class="btn-primary" onclick="openTestForm()">+ New Test</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Icon</th><th>Title</th><th>Description</th>
+                <th>Difficulty</th><th>Duration</th><th>Sheet Tab</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="testsTableBody">
+              <tr><td colspan="7" class="empty-row">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ QUESTIONS SECTION ══ -->
+      <div id="sectionQuestions">
+        <div class="breadcrumb">
+          <a onclick="goBackToTests()">Tests</a>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-current" id="questionsTestTitle">Questions</span>
+        </div>
+        <div class="page-header">
+          <div>
+            <div class="page-title" id="questionsTestTitle2">Questions</div>
+            <div class="page-sub">Sheet tab: <code class="code-pill" id="questionsSheetName">—</code></div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn-secondary" onclick="goBackToTests()">← Tests</button>
+            <button class="btn-primary" onclick="openQuestionForm()">+ Add Question</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Question</th><th>Type</th><th>Scoring</th><th>Required</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="questionsTableBody">
+              <tr><td colspan="6" class="empty-row">Select a test to view questions.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ RESPONSES SECTION ══ -->
+      <div id="sectionResponses">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Responses</div>
+            <div class="page-sub">All quiz submissions from your Google Sheet</div>
+          </div>
+          <button class="btn-secondary" onclick="exportResponses()">⬇️ Export CSV</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-num" id="statTotalResponses">—</div>
+            <div class="stat-label">Total Responses</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" style="color:#7c6af7" id="statAvgScore">—</div>
+            <div class="stat-label">Avg Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" style="font-size:16px;padding-top:6px" id="statGradeBreakdown">—</div>
+            <div class="stat-label">Grade Breakdown</div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+          <input class="filter-input" id="responseSearch" placeholder="🔍 Search by name…" oninput="renderResponsesTable()" style="flex:1;min-width:160px"/>
+          <select class="filter-select" id="responseTestFilter" onchange="renderResponsesTable()">
+            <option value="">All Tests</option>
+          </select>
+          <select class="filter-select" id="responseGradeFilter" onchange="renderResponsesTable()">
+            <option value="">All Grades</option>
+            <option value="A">A — Excellent</option>
+            <option value="B">B — Good</option>
+            <option value="C">C — Average</option>
+            <option value="D">D — Poor</option>
+            <option value="N/A">Survey (N/A)</option>
+          </select>
+          <button class="btn-secondary" onclick="loadResponses()">↻ Refresh</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th><th>Name</th><th>Test</th>
+                <th class="text-center">Score</th><th class="text-center">Grade</th>
+                <th class="text-center">Correct</th><th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="responsesTableBody">
+              <tr><td colspan="7" class="empty-row">Loading responses…</td></tr>
+            </tbody>
+          </table>
+          <div id="responsesEmpty" style="display:none;text-align:center;color:#6b6b85;padding:40px;font-style:italic">
+            No responses match your filters.
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ════ TOAST ════ -->
+<div id="toast" class="toast"></div>
+
+<!-- ════ TEST FORM MODAL ════ -->
+<div id="testFormModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="testFormTitle">+ New Test</span>
+      <button class="modal-close" onclick="closeTestForm()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="testId"/>
+      <div class="form-row two-col">
+        <div>
+          <label class="form-label">Title <span>*</span></label>
+          <input type="text" id="testTitle" class="form-input" placeholder="e.g. Science Quiz"/>
+        </div>
+        <div>
+          <label class="form-label">Icon</label>
+          <input type="text" id="testIcon" class="form-input" placeholder="🔬" maxlength="4"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Description</label>
+        <input type="text" id="testDesc" class="form-input" placeholder="Short description shown on the test card"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Sheet Tab Name <span>*</span></label>
+        <input type="text" id="testSheet" class="form-input" placeholder="e.g. Questions_Science"/>
+        <div class="form-hint">Must match the exact name of the tab in your Google Sheet</div>
+      </div>
+      <div class="form-row two-col">
+        <div>
+          <label class="form-label">Duration</label>
+          <input type="text" id="testDuration" class="form-input" placeholder="e.g. 10 min"/>
+        </div>
+        <div>
+          <label class="form-label">Difficulty</label>
+          <select id="testDifficulty" class="form-input form-select">
+            <option value="Easy">Easy</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Card Accent Colour</label>
+        <div class="color-row">
+          <input type="color" id="testColor" class="color-input" value="#7c6af7"/>
+          <span class="form-hint" style="margin:0">Choose the card highlight colour</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeTestForm()">Cancel</button>
+      <button id="saveTestBtn" class="btn-primary" onclick="saveTest()">Save Test</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ QUESTION FORM MODAL ════ -->
+<div id="questionFormModal" class="modal-backdrop">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <span class="modal-title" id="questionFormTitle">+ New Question</span>
+      <button class="modal-close" onclick="closeQuestionForm()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="qId"/>
+      <div class="form-row">
+        <label class="form-label">Question Text <span>*</span></label>
+        <input type="text" id="qQuestion" class="form-input" placeholder="Type your question here…"/>
+      </div>
+      <div class="form-row two-col">
+        <div>
+          <label class="form-label">Question Type <span>*</span></label>
+          <select id="qType" class="form-input form-select" onchange="updateQuestionFormFields()">
+            <option value="radio">🔘 radio — Single Choice</option>
+            <option value="checkbox">☑️ checkbox — Multi Select</option>
+            <option value="text">✏️ text — Free Text</option>
+            <option value="rating">⭐ rating — Rating Scale</option>
+            <option value="dropdown">▼ dropdown — Dropdown</option>
+            <option value="truefalse">⚡ truefalse — True / False</option>
+            <option value="mtf">✅ mtf — Multiple True/False</option>
+            <option value="ordering">🔀 ordering — Drag to Order</option>
+            <option value="matching">🔗 matching — Drag to Match</option>
+            <option value="matrix">🔲 matrix — Matrix Grid</option>
+            <option value="hotspot">📍 hotspot — Click Image</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Image URL <span style="color:#6b6b85;font-weight:400">(optional)</span></label>
+          <input type="text" id="qImageUrl" class="form-input" placeholder="https://…/image.jpg"/>
+        </div>
+      </div>
+
+      <!-- Options — shown for most types -->
+      <div id="fieldOptions" class="form-row">
+        <label class="form-label">Options</label>
+        <input type="text" id="qOptions" class="form-input" placeholder="A|B|C|D"/>
+        <div class="form-hint" id="optionsHint">Pipe-separated options: A|B|C|D</div>
+      </div>
+
+      <!-- Correct answer -->
+      <div id="fieldCorrect" class="form-row">
+        <label class="form-label">Correct Answer <span style="color:#6b6b85;font-weight:400">(leave blank for survey)</span></label>
+        <input type="text" id="qCorrect" class="form-input" placeholder="The correct answer"/>
+        <div class="form-hint" id="correctHint"></div>
+      </div>
+
+      <!-- Rating extra fields -->
+      <div id="fieldRating" class="form-row three-col" style="display:none">
+        <div>
+          <label class="form-label">Min Label</label>
+          <input type="text" id="qRatingMin" class="form-input" placeholder="Poor"/>
+        </div>
+        <div>
+          <label class="form-label">Max Label</label>
+          <input type="text" id="qRatingMax" class="form-input" placeholder="Excellent"/>
+        </div>
+        <div>
+          <label class="form-label">Scale</label>
+          <input type="number" id="qRatingScale" class="form-input" value="5" min="2" max="10"/>
+        </div>
+      </div>
+
+      <!-- Matrix cols -->
+      <div id="fieldMatrix" class="form-row" style="display:none">
+        <label class="form-label">Matrix Columns <span>*</span></label>
+        <input type="text" id="qMatrixCols" class="form-input" placeholder="Poor|OK|Good|Excellent"/>
+        <div class="form-hint">Pipe-separated column headers for the matrix grid</div>
+      </div>
+
+      <div class="section-divider"></div>
+      <div class="form-row">
+        <label class="form-checkbox-row" for="qRequired">
+          <input type="checkbox" id="qRequired" checked/>
+          <span class="form-checkbox-label">Required — user must answer before moving on</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeQuestionForm()">Cancel</button>
+      <button id="saveQuestionBtn" class="btn-primary" onclick="saveQuestion()">Save Question</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ RESPONSE DETAIL MODAL ════ -->
+<div id="responseDetailModal" class="modal-backdrop">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <span class="modal-title">Response Detail</span>
+      <button class="modal-close" onclick="closeResponseDetail()">✕</button>
+    </div>
+    <div class="modal-body" id="responseDetailContent"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeResponseDetail()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>
