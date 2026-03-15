@@ -3,348 +3,465 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz App</title>
+<title>QuizFlow — Smart Quiz Platform</title>
 
-<!-- Tailwind CSS — Play CDN (no build step required) -->
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <script>
 tailwind.config = {
   theme: {
     extend: {
       colors: {
-        /* ── Brand palette — change these to customise the whole app ── */
-        bg:       '#0a0a0f',
-        surface:  '#13131a',
-        surface2: '#1c1c28',
-        border:   '#2a2a3d',
-        accent:   '#7c6af7',
-        accent2:  '#f76a8a',
-        accent3:  '#6af7c4',
-        muted:    '#7a7a9a',
+        bg:'#060608', surface:'#0f0f14', surface2:'#18181f', border:'#252533',
+        accent:'#7c6af7', accent2:'#f76a8a', accent3:'#6af7c4', muted:'#6b6b85',
       },
       fontFamily: {
-        sans:    ['"DM Sans"', 'sans-serif'],
-        heading: ['"Syne"', 'sans-serif'],
+        sans:['"DM Sans"','sans-serif'],
+        heading:['"Syne"','sans-serif'],
+        mono:['"JetBrains Mono"','monospace'],
       },
       keyframes: {
-        fadeUp:    { from: { opacity:'0', transform:'translateY(20px)' }, to: { opacity:'1', transform:'translateY(0)' } },
-        bounceIn:  { '0%':{transform:'scale(.3)',opacity:'0'}, '60%':{transform:'scale(1.1)'}, '100%':{transform:'scale(1)',opacity:'1'} },
-        shimmer:   { '0%':{backgroundPosition:'200% 0'}, '100%':{backgroundPosition:'-200% 0'} },
-        pulse2:    { '0%,100%':{boxShadow:'0 0 40px rgba(124,106,247,.3)'}, '50%':{boxShadow:'0 0 80px rgba(124,106,247,.6)'} },
+        fadeUp:   {from:{opacity:'0',transform:'translateY(32px)'},to:{opacity:'1',transform:'translateY(0)'}},
+        fadeIn:   {from:{opacity:'0'},to:{opacity:'1'}},
+        bounceIn: {'0%':{transform:'scale(.3)',opacity:'0'},'60%':{transform:'scale(1.1)'},'100%':{transform:'scale(1)',opacity:'1'}},
+        shimmer:  {'0%':{backgroundPosition:'200% 0'},'100%':{backgroundPosition:'-200% 0'}},
+        float:    {'0%,100%':{transform:'translateY(0px)'},'50%':{transform:'translateY(-10px)'}},
+        ticker:   {'0%':{transform:'translateX(0)'},'100%':{transform:'translateX(-50%)'}},
+        glow:     {'0%,100%':{opacity:'.4'},'50%':{opacity:'1'}},
+        scanline: {'0%':{transform:'translateY(-100%)'},'100%':{transform:'translateY(100vh)'}},
       },
       animation: {
-        fadeUp:   'fadeUp .5s ease both',
+        fadeUp:   'fadeUp .7s cubic-bezier(.22,1,.36,1) both',
+        fadeIn:   'fadeIn .6s ease both',
         bounceIn: 'bounceIn .6s ease both',
         shimmer:  'shimmer 1.5s infinite',
-        pulse2:   'pulse2 2s infinite',
+        float:    'float 5s ease-in-out infinite',
+        ticker:   'ticker 28s linear infinite',
+        glow:     'glow 3s ease-in-out infinite',
+        scanline: 'scanline 8s linear infinite',
       },
     }
   }
 }
 </script>
 
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-  /* ── Minimal custom CSS — only things Tailwind can't do inline ── */
-  body { background-color: #0a0a0f; }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background-color:#060608;color:#e2e2f0;font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 
-  /* Grid background */
-  body::before {
-    content: '';
-    position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background-image:
-      linear-gradient(rgba(124,106,247,.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(124,106,247,.04) 1px, transparent 1px);
-    background-size: 48px 48px;
-  }
-
-  /* Gradient text */
-  .grad-text {
-    background: linear-gradient(135deg, #7c6af7, #f76a8a);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  }
+  /* Noise texture */
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+    background-repeat:repeat;background-size:128px;opacity:.4;}
 
   /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #13131a; }
-  ::-webkit-scrollbar-thumb { background: #2a2a3d; border-radius: 3px; }
+  ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:#060608;} ::-webkit-scrollbar-thumb{background:#252533;border-radius:2px;}
 
-  /* Top accent line on cards */
-  .card-accent::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, #7c6af7, #f76a8a, #6af7c4); border-radius: 16px 16px 0 0;
-  }
+  /* Gradient texts */
+  .grad{background:linear-gradient(135deg,#7c6af7 0%,#f76a8a 60%,#fbbf24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .grad-cool{background:linear-gradient(135deg,#6af7c4,#7c6af7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .grad-text{background:linear-gradient(135deg,#7c6af7,#f76a8a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
-  /* Progress bar gradient */
-  .progress-fill { background: linear-gradient(90deg, #7c6af7, #f76a8a); transition: width .5s cubic-bezier(.4,0,.2,1); }
+  /* Card accent top */
+  .card-accent::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7c6af7,#f76a8a,#6af7c4);border-radius:16px 16px 0 0;}
 
-  /* Score ring animation */
-  .ring-fill { transition: stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1); }
+  /* Animated mesh */
+  .hero-mesh{background:radial-gradient(ellipse 80% 60% at 20% 40%,rgba(124,106,247,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 20%,rgba(247,106,138,.08) 0%,transparent 55%),radial-gradient(ellipse 50% 70% at 60% 80%,rgba(106,247,196,.06) 0%,transparent 55%);}
 
-  /* Ordering drag states */
-  .drag-over  { border-color: #fb923c !important; background: rgba(251,146,60,.12) !important; transform: scale(1.01); }
-  .dragging   { opacity: .4; cursor: grabbing; }
-  .tdragging  { opacity: .4; border-style: dashed; }
+  /* Grid bg */
+  .grid-bg{background-image:linear-gradient(rgba(124,106,247,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(124,106,247,.05) 1px,transparent 1px);background-size:60px 60px;}
 
-  /* Matching drag states */
-  .dz-over    { border-color: #c084fc !important; background: rgba(192,132,252,.12) !important; }
+  /* Scanline */
+  .scanline-wrap{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+  .scanline-line{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,106,247,.15),transparent);animation:scanline 8s linear infinite;}
 
-  /* Hotspot zone */
-  .hs-zone         { position:absolute; border-radius:6px; cursor:pointer; border:2px solid transparent; transition:all .2s; }
-  .hs-zone:hover   { background:rgba(236,72,153,.18); border-color:rgba(236,72,153,.5); }
-  .hs-zone.hs-sel  { background:rgba(236,72,153,.25); border-color:#ec4899; box-shadow:0 0 0 3px rgba(236,72,153,.3); }
-  .hs-label        { position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
-                     background:#ec4899; color:white; font-size:11px; font-weight:700; padding:3px 10px;
-                     border-radius:100px; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .15s; }
-  .hs-zone:hover .hs-label, .hs-zone.hs-sel .hs-label { opacity:1; }
+  /* Ticker */
+  .ticker-track{display:flex;width:max-content;animation:ticker 28s linear infinite;}
+  .ticker-track:hover{animation-play-state:paused;}
 
-  /* Skeleton shimmer */
-  .skeleton { background: linear-gradient(90deg, #1c1c28 25%, #2a2a3d 50%, #1c1c28 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  /* Bento */
+  .bento{display:grid;gap:16px;grid-template-columns:repeat(6,1fr);}
+  .bento-1{grid-column:span 3;} .bento-2{grid-column:span 2;} .bento-3{grid-column:span 4;} .bento-4{grid-column:span 6;}
+  @media(max-width:900px){.bento-1,.bento-2,.bento-3,.bento-4{grid-column:span 6;}}
+  @media(min-width:900px) and (max-width:1100px){.bento-2{grid-column:span 3;}.bento-3{grid-column:span 3;}}
 
-  /* Loading dots */
-  .ldots::after { content:''; animation: dots 1.4s infinite; }
-  @keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+  .bento-card{background:#0f0f14;border:1px solid #252533;border-radius:20px;padding:28px;position:relative;overflow:hidden;transition:border-color .3s,transform .3s;}
+  .bento-card:hover{transform:translateY(-3px);border-color:rgba(124,106,247,.4);}
 
-  /* Select arrow */
-  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a9a' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 16px center; }
+  /* Nav blur */
+  .nav-blur{background:rgba(6,6,8,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
+
+  /* Type chip */
+  .type-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 8px;border-radius:16px;background:#0f0f14;border:1px solid #252533;transition:all .2s;cursor:default;}
+  .type-chip:hover{transform:translateY(-3px);border-color:var(--tc);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+
+  /* Stat number */
+  .stat-num{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(3rem,6vw,5rem);line-height:1;letter-spacing:-.04em;}
+
+  /* Quiz screen styles */
+  .progress-fill{background:linear-gradient(90deg,#7c6af7,#f76a8a);transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .ring-fill{transition:stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1);}
+  .drag-over{border-color:#fb923c !important;background:rgba(251,146,60,.12) !important;transform:scale(1.01);}
+  .dragging{opacity:.4;cursor:grabbing;}
+  .tdragging{opacity:.4;border-style:dashed;}
+  .dz-over{border-color:#c084fc !important;background:rgba(192,132,252,.12) !important;}
+  .hs-zone{position:absolute;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+  .hs-zone:hover{background:rgba(236,72,153,.18);border-color:rgba(236,72,153,.5);}
+  .hs-zone.hs-sel{background:rgba(236,72,153,.25);border-color:#ec4899;box-shadow:0 0 0 3px rgba(236,72,153,.3);}
+  .hs-label{position:absolute;bottom:calc(100%+6px);left:50%;transform:translateX(-50%);background:#ec4899;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;}
+  .hs-zone:hover .hs-label,.hs-zone.hs-sel .hs-label{opacity:1;}
+  .skeleton{background:linear-gradient(90deg,#18181f 25%,#252533 50%,#18181f 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
+  .ldots::after{content:'';animation:dots 1.4s infinite;}
+  @keyframes dots{0%{content:'.'}33%{content:'..'}66%{content:'...'}}
+  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b85' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;}
+
+  /* Delays */
+  .d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}.d5{animation-delay:.5s}
+
+  /* Badge float */
+  @keyframes badge-float{'0%,100%'{transform:translateY(0) rotate(-1deg)}'50%'{transform:translateY(-10px) rotate(1deg)}}
+  .badge-float{animation:badge-float 5s ease-in-out infinite;}
+
+  /* CTA glow */
+  .cta-glow{box-shadow:0 0 80px rgba(124,106,247,.2),0 0 160px rgba(247,106,138,.08);}
 </style>
 </head>
 
-<body class="font-sans text-[#e8e8f0] min-h-screen overflow-x-hidden">
+<body>
 
-<!-- Background orbs -->
-<div class="fixed w-96 h-96 rounded-full pointer-events-none z-0" style="background:rgba(124,106,247,.12);filter:blur(80px);top:-100px;left:-100px"></div>
-<div class="fixed w-72 h-72 rounded-full pointer-events-none z-0" style="background:rgba(247,106,138,.08);filter:blur(80px);bottom:-50px;right:-50px"></div>
-<div class="fixed w-48 h-48 rounded-full pointer-events-none z-0" style="background:rgba(106,247,196,.06);filter:blur(80px);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+<!-- ════════════════ LANDING PAGE ════════════════ -->
+<div id="landingPage">
 
-<!-- App wrapper -->
-<div class="relative z-10 min-h-screen flex flex-col items-center px-4 py-10 pb-20 md:px-6 md:py-16">
+<!-- NAV -->
+<header class="nav-blur sticky top-0 z-50 border-b" style="border-color:rgba(255,255,255,.06)">
+  <div class="max-w-7xl mx-auto px-5 md:px-10 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center font-heading font-extrabold text-sm text-white" style="background:linear-gradient(135deg,#7c6af7,#f76a8a)">Q</div>
+      <span class="font-heading font-extrabold text-[15px] tracking-tight text-white">QuizFlow</span>
+    </div>
+    <nav class="hidden md:flex items-center gap-1">
+      <a href="#features" class="px-4 py-2 text-sm text-muted hover:text-white transition-colors rounded-lg hover:bg-white/5">Features</a>
+      <a href="#modes"    class="px-4 py-2 text-sm text-muted hover:text-white transition-colors rounded-lg hover:bg-white/5">Modes</a>
+      <a href="#types"    class="px-4 py-2 text-sm text-muted hover:text-white transition-colors rounded-lg hover:bg-white/5">Types</a>
+      <a href="#setup"    class="px-4 py-2 text-sm text-muted hover:text-white transition-colors rounded-lg hover:bg-white/5">Setup</a>
+    </nav>
+    <button onclick="window.location.href='tests.html'" class="font-heading font-bold text-sm px-5 py-2.5 rounded-xl text-white transition-all hover:-translate-y-px" style="background:linear-gradient(135deg,#7c6af7,#9580ff);box-shadow:0 0 20px rgba(124,106,247,.4)">
+      Start Quiz →
+    </button>
+  </div>
+</header>
 
-  <!-- ═══ STATUS MESSAGE ═══ -->
-  <div id="statusMsg" class="hidden w-full max-w-2xl mb-4 px-4 py-3 rounded-xl text-sm font-medium"></div>
-
-  <!-- ═══ SKELETON LOADING ═══ -->
-  <div id="skeletonLoad" class="hidden w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <div class="bg-surface rounded-2xl p-7 border border-border">
-      <div class="skeleton h-3 w-1/2 rounded mb-3"></div>
-      <div class="skeleton h-4 w-3/4 rounded mb-6"></div>
-      <div class="skeleton h-10 rounded-xl"></div>
-    </div>
-    <div class="bg-surface rounded-2xl p-7 border border-border">
-      <div class="skeleton h-3 w-1/2 rounded mb-3"></div>
-      <div class="skeleton h-4 w-3/4 rounded mb-6"></div>
-      <div class="skeleton h-10 rounded-xl"></div>
-    </div>
-    <div class="bg-surface rounded-2xl p-7 border border-border">
-      <div class="skeleton h-3 w-1/2 rounded mb-3"></div>
-      <div class="skeleton h-4 w-3/4 rounded mb-6"></div>
-      <div class="skeleton h-10 rounded-xl"></div>
-    </div>
-    <div class="bg-surface rounded-2xl p-7 border border-border">
-      <div class="skeleton h-3 w-1/2 rounded mb-3"></div>
-      <div class="skeleton h-4 w-3/4 rounded mb-6"></div>
-      <div class="skeleton h-10 rounded-xl"></div>
-    </div>
+<!-- HERO -->
+<section class="relative hero-mesh grid-bg min-h-[92vh] flex items-center overflow-hidden">
+  <div class="scanline-wrap"><div class="scanline-line"></div></div>
+  <!-- Giant watermark -->
+  <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+    <span class="font-heading font-extrabold" style="font-size:clamp(100px,18vw,240px);letter-spacing:-.05em;white-space:nowrap;color:rgba(255,255,255,.018)">QUIZFLOW</span>
   </div>
 
-  <!-- ═══ TEST SELECTOR ═══ -->
-  <div id="testSelector" class="hidden w-full max-w-3xl animate-fadeUp">
-    <!-- Header -->
-    <div class="text-center mb-9">
-      <span class="inline-block font-heading text-[11px] font-bold uppercase tracking-[.2em] text-accent bg-accent/10 border border-accent/30 px-4 py-1.5 rounded-full mb-4">📚 Available Tests</span>
-      <h1 class="font-heading text-4xl md:text-5xl font-extrabold tracking-tight leading-none mb-2">
-        Pick Your <span class="grad-text">Test</span>
+  <div class="relative z-10 max-w-7xl mx-auto px-5 md:px-10 py-20 md:py-28 w-full">
+    <div class="max-w-3xl">
+      <!-- Eyebrow -->
+      <div class="inline-flex items-center gap-2 bg-accent/10 border border-accent/25 text-accent text-[11px] font-mono px-3 py-1.5 rounded-full mb-8 animate-fadeUp">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent animate-glow"></span>
+        Google Sheets Powered &middot; No Server Required
+      </div>
+      <!-- Headline -->
+      <h1 class="font-heading font-extrabold leading-[1.02] tracking-tight mb-6 animate-fadeUp d1" style="font-size:clamp(44px,7vw,84px)">
+        The Quiz Platform<br>Built for <span class="grad">Real Learning</span>
       </h1>
-      <p id="selectorSub" class="text-muted text-base font-light">Select one to get started</p>
-    </div>
-    <!-- Cards grid -->
-    <div id="testsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-7"></div>
-    <!-- Nav -->
-    <div class="flex justify-center">
-      <button id="startTestBtn" onclick="proceedToName()"
-        class="font-heading font-bold text-base px-12 py-4 rounded-2xl bg-accent text-white tracking-wide opacity-40 pointer-events-none transition-all duration-300">
-        Continue →
-      </button>
-    </div>
-  </div>
-
-  <!-- ═══ NAME SCREEN ═══ -->
-  <div id="nameScreen" class="hidden w-full max-w-lg animate-fadeUp">
-    <div class="bg-surface border border-border rounded-2xl p-10 text-center relative overflow-hidden card-accent">
-      <!-- Avatar -->
-      <div class="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl border-2 border-accent/30" style="background:linear-gradient(135deg,rgba(124,106,247,.2),rgba(247,106,138,.2))">👤</div>
-      <!-- Selected test badge -->
-      <div id="nameTestBadge" class="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 text-accent font-semibold text-sm px-4 py-1.5 rounded-full mb-5">📝 Test</div>
-      <h2 class="font-heading text-2xl font-extrabold tracking-tight mb-2">What's your name?</h2>
-      <p class="text-muted text-sm font-light mb-8 leading-relaxed">Your name will be saved with your responses.</p>
-      <!-- Input -->
-      <div class="text-left mb-5">
-        <label class="block text-[11px] font-bold text-muted uppercase tracking-[.12em] mb-2">Full Name</label>
-        <input type="text" id="nameInput" placeholder="e.g. Alex Johnson" maxlength="80" autocomplete="name"
-          oninput="onNameType(this.value)" onkeydown="if(event.key==='Enter')startQuiz()"
-          class="w-full bg-surface2 border-2 border-border rounded-2xl px-5 py-4 text-[#e8e8f0] font-heading text-lg font-semibold outline-none transition-all focus:border-accent focus:shadow-[0_0_0_4px_rgba(124,106,247,.1)] placeholder:text-muted placeholder:font-normal placeholder:text-base"/>
-        <p id="nameError" class="hidden text-[#f87171] text-xs mt-2">Please enter your name to continue.</p>
-      </div>
-      <p id="nameGreeting" class="text-accent3 text-sm italic min-h-[20px] mb-4"></p>
-      <button onclick="startQuiz()" class="w-full font-heading font-bold text-base py-4 rounded-2xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px mt-1">Let's Start →</button>
-      <a onclick="backToSelector()" class="block mt-4 text-sm text-muted hover:text-accent cursor-pointer transition-colors">← Back to test list</a>
-    </div>
-  </div>
-
-  <!-- ═══ MODE SCREEN ═══ -->
-  <div id="modeScreen" class="hidden w-full max-w-lg animate-fadeUp">
-    <div class="bg-surface border border-border rounded-2xl p-8 text-center relative overflow-hidden card-accent">
-      <div id="modeTestBadge" class="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 text-accent font-semibold text-sm px-4 py-1.5 rounded-full mb-5">📝 Test</div>
-      <h2 class="font-heading text-2xl font-extrabold tracking-tight mb-2">Choose Your Mode</h2>
-      <p class="text-muted text-sm font-light mb-7 leading-relaxed">How do you want to take this test?</p>
-      <!-- Mode cards -->
-      <div class="flex flex-col gap-3 mb-7">
-        <!-- Train -->
-        <div id="mode_train" onclick="selectMode('train')"
-          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent3 hover:bg-accent3/5 text-left group">
-          <div class="text-3xl">📖</div>
-          <div class="flex-1">
-            <div class="font-heading font-bold text-base mb-0.5">Train</div>
-            <div class="text-muted text-xs leading-relaxed">Questions in order, no time pressure. Review answers at the end.</div>
-          </div>
-          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
-        </div>
-        <!-- Test -->
-        <div id="mode_test" onclick="selectMode('test')"
-          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent hover:bg-accent/5 text-left group">
-          <div class="text-3xl">📝</div>
-          <div class="flex-1">
-            <div class="font-heading font-bold text-base mb-0.5">Test</div>
-            <div class="text-muted text-xs leading-relaxed">Questions in random order. Submit all at the end for your score.</div>
-          </div>
-          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
-        </div>
-        <!-- Race -->
-        <div id="mode_race" onclick="selectMode('race')"
-          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent2 hover:bg-accent2/5 text-left group">
-          <div class="text-3xl">⚡</div>
-          <div class="flex-1">
-            <div class="font-heading font-bold text-base mb-0.5">Race</div>
-            <div class="text-muted text-xs leading-relaxed">Random order. Answer instantly — correct moves forward, wrong restarts from the beginning!</div>
-          </div>
-          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
-        </div>
-      </div>
-      <button id="startModeBtn" onclick="launchQuiz()"
-        class="w-full font-heading font-bold text-base py-4 rounded-2xl bg-accent text-white opacity-40 pointer-events-none transition-all hover:bg-[#9580ff] hover:-translate-y-px">
-        Start →
-      </button>
-      <a onclick="goBackToName()" class="block mt-4 text-sm text-muted hover:text-accent cursor-pointer transition-colors">← Back</a>
-    </div>
-  </div>
-
-  <!-- ═══ RACE FEEDBACK OVERLAY ═══ -->
-  <div id="raceFeedback" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center" style="background:rgba(0,0,0,.85)">
-    <div id="raceFeedbackIcon" class="text-8xl mb-6 animate-bounceIn"></div>
-    <div id="raceFeedbackText" class="font-heading text-2xl font-extrabold mb-2"></div>
-    <div id="raceFeedbackSub" class="text-muted text-sm"></div>
-  </div>
-  <div id="quizHeader" class="hidden w-full max-w-2xl text-center mb-9 animate-fadeUp">
-    <span id="quizTag" class="inline-block font-heading text-[11px] font-bold uppercase tracking-[.2em] text-accent bg-accent/10 border border-accent/30 px-4 py-1.5 rounded-full mb-4">🎯 Quiz</span>
-    <h1 id="quizTitle" class="font-heading text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-2">
-      Answer <span class="grad-text">Every Question</span>
-    </h1>
-    <p id="quizDesc" class="text-muted text-sm font-light"></p>
-  </div>
-
-  <!-- ═══ PROGRESS BAR ═══ -->
-  <div id="progressBar" class="hidden w-full max-w-2xl mb-7 animate-fadeUp">
-    <div class="flex justify-between text-xs text-muted mb-2">
-      <span id="progressText">Question 1 of 10</span>
-      <span id="progressPct">0%</span>
-    </div>
-    <div class="h-1 bg-surface2 rounded-full overflow-hidden">
-      <div id="progressFill" class="h-full progress-fill rounded-full" style="width:0%"></div>
-    </div>
-  </div>
-
-  <!-- ═══ QUESTION CONTAINER ═══ -->
-  <div id="questionContainer"></div>
-
-  <!-- ═══ NAV BUTTONS ═══ -->
-  <div id="navRow" class="hidden w-full max-w-2xl flex gap-3 mt-1">
-    <button id="prevBtn" onclick="navigate(-1)"
-      class="flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl border border-border text-muted hover:border-accent hover:text-accent transition-all">
-      ← Previous
-    </button>
-    <button id="nextBtn" onclick="navigate(1)"
-      class="flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px">
-      Next →
-    </button>
-  </div>
-
-  <!-- ═══ RESULT SCREEN ═══ -->
-  <div id="resultScreen" class="hidden w-full max-w-2xl animate-fadeUp">
-
-    <!-- Hero card -->
-    <div class="bg-surface border border-border rounded-2xl p-10 text-center mb-4 relative overflow-hidden card-accent">
-      <span id="resultBadge" class="text-5xl block mb-4 animate-bounceIn">🎉</span>
-      <div id="resultTestName" class="inline-block font-heading text-xs font-bold text-accent bg-accent/10 border border-accent/30 rounded-full px-4 py-1 mb-3"></div>
-      <h2 id="resultTitle" class="font-heading text-3xl font-extrabold tracking-tight mb-2">All Done!</h2>
-      <p id="resultSub" class="text-muted text-sm leading-relaxed mb-6"></p>
-
-      <!-- Score card (quiz mode) -->
-      <div id="scoreCard" class="hidden flex flex-col items-center gap-6">
-        <!-- Ring -->
-        <div class="relative w-36 h-36">
-          <svg class="w-36 h-36" style="transform:rotate(-90deg)" viewBox="0 0 120 120">
-            <circle class="fill-none stroke-surface2" stroke-width="10" cx="60" cy="60" r="52"/>
-            <circle id="ringFill" class="fill-none ring-fill" stroke="#7c6af7" stroke-width="10" stroke-linecap="round" cx="60" cy="60" r="52" stroke-dasharray="0 327"/>
-          </svg>
-          <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span id="ringPct" class="font-heading text-2xl font-extrabold tracking-tight">0%</span>
-            <span class="text-[10px] text-muted font-bold uppercase tracking-widest">Score</span>
-          </div>
-        </div>
-        <!-- Stats -->
-        <div class="flex gap-3 w-full justify-center">
-          <div class="flex-1 max-w-[110px] bg-green-500/5 border border-green-500/30 rounded-2xl p-4 text-center">
-            <div id="statCorrect" class="font-heading text-3xl font-extrabold text-green-400 mb-1">0</div>
-            <div class="text-[10px] font-bold uppercase tracking-widest text-muted">Correct</div>
-          </div>
-          <div class="flex-1 max-w-[110px] bg-red-500/5 border border-red-500/30 rounded-2xl p-4 text-center">
-            <div id="statWrong" class="font-heading text-3xl font-extrabold text-[#f87171] mb-1">0</div>
-            <div class="text-[10px] font-bold uppercase tracking-widest text-muted">Wrong</div>
-          </div>
-          <div class="flex-1 max-w-[110px] bg-accent/5 border border-accent/30 rounded-2xl p-4 text-center">
-            <div id="statTotal" class="font-heading text-3xl font-extrabold text-accent mb-1">0</div>
-            <div class="text-[10px] font-bold uppercase tracking-widest text-muted">Total</div>
-          </div>
-        </div>
-        <!-- Grade badge -->
-        <div id="gradeBadge" class="font-heading font-extrabold text-base px-6 py-2 rounded-full"></div>
-      </div>
-
-      <p id="resultSaveStatus" class="mt-5 text-sm text-muted"></p>
-    </div>
-
-    <!-- Answer review -->
-    <div id="reviewSection" class="hidden bg-surface border border-border rounded-2xl mb-4 overflow-hidden">
-      <div class="flex justify-between items-center px-6 py-4">
-        <span class="font-heading text-sm font-bold">📋 Answer Review</span>
-        <button id="toggleReviewBtn" onclick="toggleReview()"
-          class="font-heading text-xs font-bold text-accent bg-accent/10 border border-accent/30 rounded-full px-4 py-1.5 hover:bg-accent/20 transition-colors">
-          Show Details ▾
+      <!-- Sub -->
+      <p class="text-muted text-lg md:text-xl font-light leading-relaxed mb-10 max-w-xl animate-fadeUp d2">
+        11 question types. 3 study modes. Powered entirely by a Google Sheet — no server, no subscription, no complexity.
+      </p>
+      <!-- CTAs -->
+      <div class="flex flex-wrap gap-4 mb-14 animate-fadeUp d3">
+        <button onclick="window.location.href='tests.html'" class="font-heading font-bold text-base px-8 py-4 rounded-2xl text-white transition-all hover:-translate-y-1" style="background:linear-gradient(135deg,#7c6af7,#9580ff);box-shadow:0 0 32px rgba(124,106,247,.5)">
+          Launch a Quiz →
         </button>
+        <a href="#features" class="font-heading font-bold text-base px-8 py-4 rounded-2xl border text-muted hover:text-white hover:border-white/25 transition-all" style="border-color:rgba(255,255,255,.1)">
+          See Features ↓
+        </a>
       </div>
-      <div id="reviewList" class="hidden border-t border-border"></div>
+      <!-- Stats row -->
+      <div class="flex flex-wrap gap-6 animate-fadeUp d4">
+        <div><div class="font-heading font-extrabold text-2xl text-white">11</div><div class="text-muted text-xs mt-0.5">Question types</div></div>
+        <div class="w-px bg-border"></div>
+        <div><div class="font-heading font-extrabold text-2xl text-white">3</div><div class="text-muted text-xs mt-0.5">Study modes</div></div>
+        <div class="w-px bg-border"></div>
+        <div><div id="heroTestCount" class="font-heading font-extrabold text-2xl text-white">—</div><div class="text-muted text-xs mt-0.5">Tests ready</div></div>
+        <div class="w-px bg-border"></div>
+        <div><div class="font-heading font-extrabold text-2xl text-white">Free</div><div class="text-muted text-xs mt-0.5">No server needed</div></div>
+      </div>
     </div>
 
-    <!-- Action buttons -->
-    <div class="flex flex-col sm:flex-row gap-3 justify-center">
-      <button onclick="backToSelector()" class="font-heading font-bold text-sm px-6 py-3 rounded-xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px text-center">← Try Another Test</button>
-      <button onclick="retakeSame()" class="font-heading font-bold text-sm px-6 py-3 rounded-xl border border-border text-muted hover:border-accent hover:text-accent transition-all text-center">↺ Retake</button>
+    <!-- Floating mode cards -->
+    <div class="hidden lg:flex flex-col gap-3 absolute right-10 top-1/2 -translate-y-1/2">
+      <div class="badge-float flex items-center gap-3 bg-surface border border-border rounded-2xl px-5 py-3.5" style="animation-delay:0s">
+        <span class="text-2xl">📖</span>
+        <div><div class="font-heading font-bold text-white text-sm">Train Mode</div><div class="text-muted text-xs">Step-by-step learning</div></div>
+      </div>
+      <div class="badge-float flex items-center gap-3 bg-surface border border-border rounded-2xl px-5 py-3.5" style="animation-delay:1.4s">
+        <span class="text-2xl">📝</span>
+        <div><div class="font-heading font-bold text-white text-sm">Test Mode</div><div class="text-muted text-xs">Random, no going back</div></div>
+      </div>
+      <div class="badge-float flex items-center gap-3 bg-surface border border-border rounded-2xl px-5 py-3.5" style="animation-delay:2.8s">
+        <span class="text-2xl">⚡</span>
+        <div><div class="font-heading font-bold text-accent2 text-sm">Race Mode</div><div class="text-muted text-xs">Wrong = restart!</div></div>
+      </div>
     </div>
   </div>
+</section>
 
-</div><!-- end .app -->
+<!-- TICKER -->
+<div class="border-y border-border py-3.5 overflow-hidden" style="background:#08080c">
+  <div class="ticker-track items-center gap-0">
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔘 Single Choice</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">☑️ Multi Select</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">✏️ Free Text</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">⭐ Rating Scale</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">▼ Dropdown</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">⚡ True / False</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">✅ Multi T/F</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔀 Drag to Order</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔗 Drag to Match</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔲 Matrix Grid</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">📍 Click Image</span><span class="text-border px-2">·</span>
+    <!-- duplicate for seamless loop -->
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔘 Single Choice</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">☑️ Multi Select</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">✏️ Free Text</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">⭐ Rating Scale</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">▼ Dropdown</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">⚡ True / False</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">✅ Multi T/F</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔀 Drag to Order</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔗 Drag to Match</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔲 Matrix Grid</span><span class="text-border px-2">·</span>
+    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">📍 Click Image</span>
+  </div>
+</div>
 
-<script src="js/main.js"></script>
+<!-- BENTO FEATURES -->
+<section id="features" class="max-w-7xl mx-auto px-5 md:px-10 py-24">
+  <div class="mb-14">
+    <div class="inline-flex items-center gap-2 text-[11px] font-mono text-accent border border-accent/25 bg-accent/8 px-3 py-1.5 rounded-full mb-5">// features</div>
+    <h2 class="font-heading font-extrabold tracking-tight leading-none mb-4" style="font-size:clamp(36px,5vw,60px)">
+      Everything built in.<br><span class="grad-cool">Nothing bolted on.</span>
+    </h2>
+    <p class="text-muted text-lg max-w-lg">No backend to manage. No subscription. Just a spreadsheet, a script, and a single HTML file.</p>
+  </div>
+
+  <div class="bento">
+    <!-- Google Sheets - wide -->
+    <div class="bento-card bento-3" style="min-height:240px">
+      <div class="absolute top-0 right-0 w-48 h-48 rounded-full pointer-events-none" style="background:radial-gradient(circle,rgba(124,106,247,.1),transparent 70%);transform:translate(30%,-30%)"></div>
+      <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-5" style="background:rgba(124,106,247,.15)">📊</div>
+      <h3 class="font-heading font-bold text-xl text-white mb-3">Google Sheets Backend</h3>
+      <p class="text-muted text-sm leading-relaxed max-w-xs">Your questions live in a spreadsheet you already know. Edit, add, reorder — changes are live instantly with zero code.</p>
+      <div class="mt-6 flex gap-2 flex-wrap">
+        <span class="text-xs font-mono px-3 py-1.5 rounded-full border border-accent/25 text-accent" style="background:rgba(124,106,247,.08)">Tests tab</span>
+        <span class="text-xs font-mono px-3 py-1.5 rounded-full border border-accent/25 text-accent" style="background:rgba(124,106,247,.08)">Questions tab</span>
+        <span class="text-xs font-mono px-3 py-1.5 rounded-full border border-accent/25 text-accent" style="background:rgba(124,106,247,.08)">Responses tab</span>
+      </div>
+    </div>
+    <!-- Auto scoring -->
+    <div class="bento-card bento-1" style="min-height:240px">
+      <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-5" style="background:rgba(247,106,138,.15)">🎯</div>
+      <h3 class="font-heading font-bold text-xl text-white mb-3">Auto Scoring & Grades</h3>
+      <p class="text-muted text-sm leading-relaxed">Animated score ring, grade A–D, and a full per-question answer review. All in the browser.</p>
+    </div>
+    <!-- 11 types stat -->
+    <div class="bento-card bento-2" style="background:linear-gradient(135deg,rgba(106,247,196,.06),rgba(124,106,247,.06))">
+      <div class="stat-num grad-cool mb-1">11</div>
+      <div class="font-heading font-bold text-white text-lg mb-1">Question Types</div>
+      <p class="text-muted text-sm">Radio, checkbox, drag-drop, hotspot, matrix, and more — all in one file.</p>
+    </div>
+    <!-- Saves responses -->
+    <div class="bento-card bento-2">
+      <div class="text-3xl mb-4">💾</div>
+      <h3 class="font-heading font-bold text-lg text-white mb-2">Saves Responses</h3>
+      <p class="text-muted text-sm leading-relaxed">Every submission writes name, score, grade, and each individual answer back to your Sheet automatically.</p>
+    </div>
+    <!-- Images -->
+    <div class="bento-card bento-2">
+      <div class="text-3xl mb-4">🖼️</div>
+      <h3 class="font-heading font-bold text-lg text-white mb-2">Image Support</h3>
+      <p class="text-muted text-sm leading-relaxed">Add images to any question. Hotspot questions let users click on the correct area of a map or diagram.</p>
+    </div>
+    <!-- Zero server stat -->
+    <div class="bento-card bento-1" style="background:linear-gradient(135deg,rgba(247,106,138,.06),rgba(251,191,36,.04))">
+      <div class="stat-num" style="background:linear-gradient(135deg,#f76a8a,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">0</div>
+      <div class="font-heading font-bold text-white text-lg mb-1 -mt-1">Servers required</div>
+      <p class="text-muted text-sm">Open the HTML file directly. No hosting needed to get started.</p>
+    </div>
+    <!-- Drag and drop -->
+    <div class="bento-card bento-2">
+      <div class="text-3xl mb-4">🔀</div>
+      <h3 class="font-heading font-bold text-lg text-white mb-2">Drag & Drop</h3>
+      <p class="text-muted text-sm leading-relaxed">Ordering and matching questions with full touch support on mobile.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STUDY MODES -->
+<section id="modes" class="py-24 border-y border-border" style="background:#08080c">
+  <div class="max-w-7xl mx-auto px-5 md:px-10">
+    <div class="mb-14">
+      <div class="inline-flex items-center gap-2 text-[11px] font-mono text-accent3 border border-accent3/25 px-3 py-1.5 rounded-full mb-5" style="background:rgba(106,247,196,.08)">// study_modes</div>
+      <h2 class="font-heading font-extrabold tracking-tight leading-none mb-4" style="font-size:clamp(36px,5vw,60px)">Three modes.<br><span class="grad-cool">One mastery.</span></h2>
+      <p class="text-muted text-lg max-w-lg">Different stages of learning need different approaches. Pick your mode before every test.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <!-- Train -->
+      <div class="bento-card">
+        <div class="flex items-start justify-between mb-6">
+          <div class="text-5xl animate-float" style="animation-delay:0s">📖</div>
+          <span class="font-mono text-[11px] text-accent3 border border-accent3/30 px-2.5 py-1 rounded-full" style="background:rgba(106,247,196,.08)">mode_01</span>
+        </div>
+        <h3 class="font-heading font-extrabold text-2xl text-white mb-3 tracking-tight">Train</h3>
+        <p class="text-muted text-sm leading-relaxed mb-6">Questions in original order. Navigate freely back and forth. Perfect for first encounters with new material.</p>
+        <div class="space-y-2.5 border-t border-border pt-5">
+          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(106,247,196,.15)"><span class="text-accent3 text-[10px]">✓</span></div><span class="text-muted">Original question order</span></div>
+          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(106,247,196,.15)"><span class="text-accent3 text-[10px]">✓</span></div><span class="text-muted">Navigate freely back & forward</span></div>
+          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(106,247,196,.15)"><span class="text-accent3 text-[10px]">✓</span></div><span class="text-muted">Full score + answer review at end</span></div>
+        </div>
+      </div>
+      <!-- Test — featured -->
+      <div class="bento-card" style="border-color:rgba(124,106,247,.4);background:linear-gradient(160deg,rgba(124,106,247,.07),#0f0f14)">
+        <div class="absolute top-0 left-0 right-0 h-0.5 rounded-t-xl" style="background:linear-gradient(90deg,#7c6af7,#f76a8a)"></div>
+        <div class="flex items-start justify-between mb-6">
+          <div class="text-5xl animate-float" style="animation-delay:1.2s">📝</div>
+          <span class="font-mono text-[11px] text-accent border border-accent/30 px-2.5 py-1 rounded-full" style="background:rgba(124,106,247,.1)">mode_02</span>
+        </div>
+        <h3 class="font-heading font-extrabold text-2xl text-white mb-3 tracking-tight">Test</h3>
+        <p class="text-muted text-sm leading-relaxed mb-6">Randomised order, no going back. Simulates a real exam environment to build confidence under pressure.</p>
+        <div class="space-y-2.5 pt-5" style="border-top:1px solid rgba(255,255,255,.08)">
+          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(124,106,247,.2)"><span class="text-accent text-[10px]">✓</span></div><span class="text-muted">Random order every time</span></div>
+          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(124,106,247,.2)"><span class="text-accent text-[10px]">✓</span></div><span class="text-muted">No going back</span></div>
+          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(124,106,247,.2)"><span class="text-accent text-[10px]">✓</span></div><span class="text-muted">Full score + answer review at end</span></div>
+        </div>
+      </div>
+      <!-- Race -->
+      <div class="bento-card">
+        <div class="flex items-start justify-between mb-6">
+          <div class="text-5xl animate-float" style="animation-delay:2.4s">⚡</div>
+          <span class="font-mono text-[11px] text-accent2 border border-accent2/30 px-2.5 py-1 rounded-full" style="background:rgba(247,106,138,.08)">mode_03</span>
+        </div>
+        <h3 class="font-heading font-extrabold text-2xl text-white mb-3 tracking-tight">Race</h3>
+        <p class="text-muted text-sm leading-relaxed mb-6">Every answer checked instantly. One wrong answer and you restart from Q1. Brutal — but nothing makes knowledge stick harder.</p>
+        <div class="space-y-2.5 border-t border-border pt-5">
+          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(247,106,138,.15)"><span class="text-accent2 text-[10px]">✓</span></div><span class="text-muted">Instant answer feedback</span></div>
+          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(247,106,138,.15)"><span class="text-accent2 text-[10px]">✓</span></div><span class="text-muted">Wrong answer = full restart</span></div>
+          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(247,106,138,.15)"><span class="text-accent2 text-[10px]">✓</span></div><span class="text-muted">Must get every question right</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUESTION TYPES -->
+<section id="types" class="max-w-7xl mx-auto px-5 md:px-10 py-24">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-14">
+    <div>
+      <div class="inline-flex items-center gap-2 text-[11px] font-mono text-accent2 border border-accent2/25 px-3 py-1.5 rounded-full mb-5" style="background:rgba(247,106,138,.08)">// question_types</div>
+      <h2 class="font-heading font-extrabold tracking-tight leading-none" style="font-size:clamp(36px,5vw,60px)">11 ways to<br><span class="grad">ask a question.</span></h2>
+    </div>
+    <p class="text-muted text-base max-w-xs leading-relaxed md:text-right">All defined in your spreadsheet. Mix and match freely across any test.</p>
+  </div>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+    <div class="type-chip" style="--tc:#7c6af7"><span class="text-3xl">🔘</span><span class="font-heading font-bold text-xs text-white">radio</span><span class="text-[10px] text-muted">Single Choice</span></div>
+    <div class="type-chip" style="--tc:#f76a8a"><span class="text-3xl">☑️</span><span class="font-heading font-bold text-xs text-white">checkbox</span><span class="text-[10px] text-muted">Multi Select</span></div>
+    <div class="type-chip" style="--tc:#6af7c4"><span class="text-3xl">✏️</span><span class="font-heading font-bold text-xs text-white">text</span><span class="text-[10px] text-muted">Free Text</span></div>
+    <div class="type-chip" style="--tc:#fbbf24"><span class="text-3xl">⭐</span><span class="font-heading font-bold text-xs text-white">rating</span><span class="text-[10px] text-muted">Rating Scale</span></div>
+    <div class="type-chip" style="--tc:#38bdf8"><span class="text-3xl">▼</span><span class="font-heading font-bold text-xs text-white">dropdown</span><span class="text-[10px] text-muted">Dropdown</span></div>
+    <div class="type-chip" style="--tc:#34d399"><span class="text-3xl">⚡</span><span class="font-heading font-bold text-xs text-white">truefalse</span><span class="text-[10px] text-muted">True / False</span></div>
+    <div class="type-chip" style="--tc:#14b8a6"><span class="text-3xl">✅</span><span class="font-heading font-bold text-xs text-white">mtf</span><span class="text-[10px] text-muted">Multi T/F</span></div>
+    <div class="type-chip" style="--tc:#fb923c"><span class="text-3xl">🔀</span><span class="font-heading font-bold text-xs text-white">ordering</span><span class="text-[10px] text-muted">Drag to Order</span></div>
+    <div class="type-chip" style="--tc:#c084fc"><span class="text-3xl">🔗</span><span class="font-heading font-bold text-xs text-white">matching</span><span class="text-[10px] text-muted">Drag to Match</span></div>
+    <div class="type-chip" style="--tc:#f59e0b"><span class="text-3xl">🔲</span><span class="font-heading font-bold text-xs text-white">matrix</span><span class="text-[10px] text-muted">Matrix Grid</span></div>
+    <div class="type-chip" style="--tc:#ec4899"><span class="text-3xl">📍</span><span class="font-heading font-bold text-xs text-white">hotspot</span><span class="text-[10px] text-muted">Click Image</span></div>
+    <div class="type-chip" style="--tc:#252533;border-style:dashed"><span class="text-3xl text-muted">+</span><span class="font-heading font-bold text-xs text-muted">more</span><span class="text-[10px] text-muted">Coming soon</span></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="setup" class="py-24 border-y border-border" style="background:#08080c">
+  <div class="max-w-7xl mx-auto px-5 md:px-10">
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-2 text-[11px] font-mono text-muted border border-border px-3 py-1.5 rounded-full mb-5">// setup_guide</div>
+      <h2 class="font-heading font-extrabold tracking-tight leading-none" style="font-size:clamp(36px,5vw,60px)">Live in <span class="grad">4 steps.</span></h2>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="bento-card">
+        <div class="font-mono text-[11px] text-accent mb-4">step_01</div>
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-heading font-extrabold text-xl text-white mb-5" style="background:rgba(124,106,247,.2)">1</div>
+        <h4 class="font-heading font-bold text-white text-lg mb-2">Create Sheet</h4>
+        <p class="text-muted text-sm leading-relaxed">Create a Google Sheet with a Tests tab and a Questions tab. Add your questions row by row.</p>
+      </div>
+      <div class="bento-card">
+        <div class="font-mono text-[11px] text-accent2 mb-4">step_02</div>
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-heading font-extrabold text-xl text-white mb-5" style="background:rgba(247,106,138,.2)">2</div>
+        <h4 class="font-heading font-bold text-white text-lg mb-2">Paste Script</h4>
+        <p class="text-muted text-sm leading-relaxed">Open Extensions → Apps Script, paste the provided Code.gs, and save.</p>
+      </div>
+      <div class="bento-card">
+        <div class="font-mono text-[11px] text-accent3 mb-4">step_03</div>
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-heading font-extrabold text-xl text-white mb-5" style="background:rgba(106,247,196,.2)">3</div>
+        <h4 class="font-heading font-bold text-white text-lg mb-2">Deploy</h4>
+        <p class="text-muted text-sm leading-relaxed">Deploy as a Web App — Execute as: Me, Access: Anyone. Copy the /exec URL.</p>
+      </div>
+      <div class="bento-card" style="border-color:rgba(124,106,247,.35)">
+        <div class="font-mono text-[11px] text-white mb-4">step_04</div>
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-heading font-extrabold text-xl text-white mb-5" style="background:rgba(124,106,247,.3)">4</div>
+        <h4 class="font-heading font-bold text-white text-lg mb-2">Open & Go</h4>
+        <p class="text-muted text-sm leading-relaxed">Open index.html in any browser. Your tests load automatically. Share with anyone.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-32 relative overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none cta-glow" style="background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(124,106,247,.1),transparent 70%)"></div>
+  <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+    <span class="font-heading font-extrabold" style="font-size:clamp(180px,30vw,360px);letter-spacing:-.05em;color:rgba(255,255,255,.018)">GO</span>
+  </div>
+  <div class="relative z-10 max-w-3xl mx-auto px-5 md:px-10 text-center">
+    <div class="text-6xl mb-8 animate-float inline-block">🚀</div>
+    <h2 class="font-heading font-extrabold tracking-tight leading-none mb-6" style="font-size:clamp(40px,6vw,72px)">Your tests are<br><span class="grad">ready to go.</span></h2>
+    <p class="text-muted text-lg mb-10 leading-relaxed">Pick a test, choose your mode, and start learning. Results save to your Sheet automatically.</p>
+    <button onclick="window.location.href='tests.html'" class="font-heading font-bold text-lg px-10 py-5 rounded-2xl text-white transition-all hover:-translate-y-1" style="background:linear-gradient(135deg,#7c6af7,#f76a8a);box-shadow:0 0 48px rgba(124,106,247,.5)">
+      Launch Quiz Platform →
+    </button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t border-border py-8 px-5 md:px-10">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2.5">
+      <div class="w-7 h-7 rounded-lg flex items-center justify-center font-heading font-extrabold text-xs text-white" style="background:linear-gradient(135deg,#7c6af7,#f76a8a)">Q</div>
+      <span class="font-heading font-bold text-sm text-white">QuizFlow</span>
+    </div>
+    <p class="text-muted text-xs text-center">Powered by Google Sheets &middot; 11 question types &middot; 3 study modes &middot; Zero servers</p>
+    <button onclick="window.location.href='tests.html'" class="text-accent text-sm font-semibold hover:underline">Start a Quiz →</button>
+  </div>
+</footer>
+
+</div><!-- END LANDING -->
+
+<script>
+// Fetch live test count for the hero stat
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzAuEkoaeG4uDFtp7TtHFdKgXcBRD-DVFy9nYXOoaI3XC9D1AMKV4CvH2fpmnu0wBaN/exec';
+fetch(`${SCRIPT_URL}?action=getTests`)
+  .then(r=>r.json())
+  .then(d=>{
+    const el=document.getElementById('heroTestCount');
+    if(el&&d.tests)el.textContent=d.tests.length;
+  }).catch(()=>{});
+</script>
 </body>
 </html>
