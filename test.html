@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuizFlow — Take a Test</title>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        bg:'#060608', surface:'#0f0f14', surface2:'#18181f', border:'#252533',
+        accent:'#7c6af7', accent2:'#f76a8a', accent3:'#6af7c4', muted:'#6b6b85',
+      },
+      fontFamily: {
+        sans:['"DM Sans"','sans-serif'],
+        heading:['"Syne"','sans-serif'],
+        mono:['"JetBrains Mono"','monospace'],
+      },
+      keyframes: {
+        fadeUp:   {from:{opacity:'0',transform:'translateY(24px)'},to:{opacity:'1',transform:'translateY(0)'}},
+        bounceIn: {'0%':{transform:'scale(.3)',opacity:'0'},'60%':{transform:'scale(1.1)'},'100%':{transform:'scale(1)',opacity:'1'}},
+        shimmer:  {'0%':{backgroundPosition:'200% 0'},'100%':{backgroundPosition:'-200% 0'}},
+        float:    {'0%,100%':{transform:'translateY(0)'},'50%':{transform:'translateY(-8px)'}},
+      },
+      animation: {
+        fadeUp:   'fadeUp .5s ease both',
+        bounceIn: 'bounceIn .6s ease both',
+        shimmer:  'shimmer 1.5s infinite',
+        float:    'float 5s ease-in-out infinite',
+      },
+    }
+  }
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background-color:#060608;color:#e2e2f0;font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+
+  /* Noise texture */
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+    background-repeat:repeat;background-size:128px;opacity:.35;}
+
+  /* Grid bg */
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(124,106,247,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,106,247,.04) 1px,transparent 1px);
+    background-size:60px 60px;}
+
+  /* Orbs */
+  .orb1{position:fixed;width:500px;height:500px;border-radius:50%;background:rgba(124,106,247,.08);filter:blur(100px);top:-150px;left:-150px;pointer-events:none;z-index:0;}
+  .orb2{position:fixed;width:350px;height:350px;border-radius:50%;background:rgba(247,106,138,.06);filter:blur(80px);bottom:-100px;right:-100px;pointer-events:none;z-index:0;}
+
+  /* Gradient text */
+  .grad-text{background:linear-gradient(135deg,#7c6af7,#f76a8a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+  /* Card top accent */
+  .card-accent::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7c6af7,#f76a8a,#6af7c4);border-radius:16px 16px 0 0;}
+
+  /* Quiz screen helpers */
+  .progress-fill{background:linear-gradient(90deg,#7c6af7,#f76a8a);transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .ring-fill{transition:stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1);}
+  .drag-over{border-color:#fb923c !important;background:rgba(251,146,60,.12) !important;transform:scale(1.01);}
+  .dragging{opacity:.4;cursor:grabbing;}
+  .tdragging{opacity:.4;border-style:dashed;}
+  .dz-over{border-color:#c084fc !important;background:rgba(192,132,252,.12) !important;}
+  .hs-zone{position:absolute;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+  .hs-zone:hover{background:rgba(236,72,153,.18);border-color:rgba(236,72,153,.5);}
+  .hs-zone.hs-sel{background:rgba(236,72,153,.25);border-color:#ec4899;box-shadow:0 0 0 3px rgba(236,72,153,.3);}
+  .hs-label{position:absolute;bottom:calc(100%+6px);left:50%;transform:translateX(-50%);background:#ec4899;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;}
+  .hs-zone:hover .hs-label,.hs-zone.hs-sel .hs-label{opacity:1;}
+  .skeleton{background:linear-gradient(90deg,#18181f 25%,#252533 50%,#18181f 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
+  .ldots::after{content:'';animation:dots 1.4s infinite;}
+  @keyframes dots{0%{content:'.'}33%{content:'..'}66%{content:'...'}}
+  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b85' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;}
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:#060608;} ::-webkit-scrollbar-thumb{background:#252533;border-radius:2px;}
+</style>
+</head>
+
+<body class="min-h-screen">
+
+<!-- Background -->
+<div class="orb1"></div>
+<div class="orb2"></div>
+
+<!-- ── TOP NAV ── -->
+<header class="sticky top-0 z-50 border-b flex items-center justify-between px-5 md:px-10 h-14"
+  style="background:rgba(6,6,8,.9);backdrop-filter:blur(20px);border-color:rgba(255,255,255,.06)">
+  <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+    <div class="w-7 h-7 rounded-lg flex items-center justify-center font-heading font-extrabold text-xs text-white"
+      style="background:linear-gradient(135deg,#7c6af7,#f76a8a)">Q</div>
+    <span class="font-heading font-bold text-sm text-white">QuizFlow</span>
+  </a>
+  <a href="index.html" class="text-muted text-sm hover:text-white transition-colors font-medium">← Home</a>
+</header>
+
+<!-- ── MAIN APP WRAPPER ── -->
+<div class="relative z-10 min-h-screen flex flex-col items-center px-4 py-10 pb-20 md:px-6 md:py-12">
+
+  <!-- STATUS -->
+  <div id="statusMsg" class="hidden w-full max-w-2xl mb-4"></div>
+
+  <!-- SKELETON -->
+  <div id="skeletonLoad" class="hidden w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="bg-surface rounded-2xl p-7 border border-border"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
+    <div class="bg-surface rounded-2xl p-7 border border-border"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
+    <div class="bg-surface rounded-2xl p-7 border border-border"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
+    <div class="bg-surface rounded-2xl p-7 border border-border"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
+  </div>
+
+  <!-- TEST SELECTOR -->
+  <div id="testSelector" class="hidden w-full max-w-3xl animate-fadeUp">
+    <div class="text-center mb-9">
+      <span class="inline-block font-heading text-[11px] font-bold uppercase tracking-[.2em] text-accent bg-accent/10 border border-accent/30 px-4 py-1.5 rounded-full mb-4">📚 Available Tests</span>
+      <h1 class="font-heading text-4xl md:text-5xl font-extrabold tracking-tight leading-none mb-2">
+        Pick Your <span class="grad-text">Test</span>
+      </h1>
+      <p id="selectorSub" class="text-muted text-base font-light">Select one to get started</p>
+    </div>
+    <div id="testsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-7"></div>
+    <div class="flex justify-center">
+      <button id="startTestBtn" onclick="proceedToName()"
+        class="font-heading font-bold text-base px-12 py-4 rounded-2xl bg-accent text-white tracking-wide opacity-40 pointer-events-none transition-all duration-300">
+        Continue →
+      </button>
+    </div>
+  </div>
+
+  <!-- NAME SCREEN -->
+  <div id="nameScreen" class="hidden w-full max-w-lg animate-fadeUp">
+    <div class="bg-surface border border-border rounded-2xl p-10 text-center relative overflow-hidden card-accent">
+      <div class="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl border-2 border-accent/30"
+        style="background:linear-gradient(135deg,rgba(124,106,247,.2),rgba(247,106,138,.2))">👤</div>
+      <div id="nameTestBadge" class="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 text-accent font-semibold text-sm px-4 py-1.5 rounded-full mb-5">📝 Test</div>
+      <h2 class="font-heading text-2xl font-extrabold tracking-tight mb-2">What's your name?</h2>
+      <p class="text-muted text-sm font-light mb-8 leading-relaxed">Your name will be saved with your responses.</p>
+      <div class="text-left mb-5">
+        <label class="block text-[11px] font-bold text-muted uppercase tracking-[.12em] mb-2">Full Name</label>
+        <input type="text" id="nameInput" placeholder="e.g. Alex Johnson" maxlength="80" autocomplete="name"
+          oninput="onNameType(this.value)" onkeydown="if(event.key==='Enter')startQuiz()"
+          class="w-full bg-surface2 border-2 border-border rounded-2xl px-5 py-4 text-[#e2e2f0] font-heading text-lg font-semibold outline-none transition-all focus:border-accent focus:shadow-[0_0_0_4px_rgba(124,106,247,.1)] placeholder:text-muted placeholder:font-normal placeholder:text-base"/>
+        <p id="nameError" class="hidden text-[#f87171] text-xs mt-2">Please enter your name to continue.</p>
+      </div>
+      <p id="nameGreeting" class="text-accent3 text-sm italic min-h-[20px] mb-4"></p>
+      <button onclick="startQuiz()"
+        class="w-full font-heading font-bold text-base py-4 rounded-2xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px mt-1">
+        Let's Start →
+      </button>
+      <a onclick="backToSelector()" class="block mt-4 text-sm text-muted hover:text-accent cursor-pointer transition-colors">← Back to tests</a>
+    </div>
+  </div>
+
+  <!-- MODE SCREEN -->
+  <div id="modeScreen" class="hidden w-full max-w-lg animate-fadeUp">
+    <div class="bg-surface border border-border rounded-2xl p-8 text-center relative overflow-hidden card-accent">
+      <div id="modeTestBadge" class="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 text-accent font-semibold text-sm px-4 py-1.5 rounded-full mb-5">📝 Test</div>
+      <h2 class="font-heading text-2xl font-extrabold tracking-tight mb-2">Choose Your Mode</h2>
+      <p class="text-muted text-sm font-light mb-7 leading-relaxed">How do you want to take this test?</p>
+      <div class="flex flex-col gap-3 mb-7">
+        <!-- Train -->
+        <div id="mode_train" onclick="selectMode('train')"
+          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent3 hover:bg-accent3/5 text-left">
+          <div class="text-3xl">📖</div>
+          <div class="flex-1">
+            <div class="font-heading font-bold text-base mb-0.5">Train</div>
+            <div class="text-muted text-xs leading-relaxed">Questions in order, no time pressure. Navigate freely.</div>
+          </div>
+          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
+        </div>
+        <!-- Test -->
+        <div id="mode_test" onclick="selectMode('test')"
+          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent hover:bg-accent/5 text-left">
+          <div class="text-3xl">📝</div>
+          <div class="flex-1">
+            <div class="font-heading font-bold text-base mb-0.5">Test</div>
+            <div class="text-muted text-xs leading-relaxed">Random order. Submit all at the end for your score.</div>
+          </div>
+          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
+        </div>
+        <!-- Race -->
+        <div id="mode_race" onclick="selectMode('race')"
+          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent2 hover:bg-accent2/5 text-left">
+          <div class="text-3xl">⚡</div>
+          <div class="flex-1">
+            <div class="font-heading font-bold text-base mb-0.5">Race</div>
+            <div class="text-muted text-xs leading-relaxed">Instant check — correct moves forward, wrong restarts!</div>
+          </div>
+          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
+        </div>
+      </div>
+      <button id="startModeBtn" onclick="launchQuiz()"
+        class="w-full font-heading font-bold text-base py-4 rounded-2xl bg-accent text-white opacity-40 pointer-events-none transition-all hover:bg-[#9580ff] hover:-translate-y-px">
+        Start →
+      </button>
+      <a onclick="goBackToName()" class="block mt-4 text-sm text-muted hover:text-accent cursor-pointer transition-colors">← Back</a>
+    </div>
+  </div>
+
+  <!-- RACE FEEDBACK OVERLAY -->
+  <div id="raceFeedback" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center" style="background:rgba(0,0,0,.88)">
+    <div id="raceFeedbackIcon" class="text-8xl mb-6 animate-bounceIn"></div>
+    <div id="raceFeedbackText" class="font-heading text-2xl font-extrabold mb-2"></div>
+    <div id="raceFeedbackSub" class="text-muted text-sm"></div>
+  </div>
+
+  <!-- QUIZ HEADER -->
+  <div id="quizHeader" class="hidden w-full max-w-2xl text-center mb-9 animate-fadeUp">
+    <span id="quizTag" class="inline-block font-heading text-[11px] font-bold uppercase tracking-[.2em] text-accent bg-accent/10 border border-accent/30 px-4 py-1.5 rounded-full mb-4">🎯 Quiz</span>
+    <h1 id="quizTitle" class="font-heading text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-2">
+      Answer <span class="grad-text">Every Question</span>
+    </h1>
+    <p id="quizDesc" class="text-muted text-sm font-light"></p>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div id="progressBar" class="hidden w-full max-w-2xl mb-7 animate-fadeUp">
+    <div class="flex justify-between text-xs text-muted mb-2">
+      <span id="progressText">Question 1 of 10</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="h-1 bg-surface2 rounded-full overflow-hidden">
+      <div id="progressFill" class="h-full progress-fill rounded-full" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- QUESTION -->
+  <div id="questionContainer"></div>
+
+  <!-- NAV BUTTONS -->
+  <div id="navRow" class="hidden w-full max-w-2xl flex gap-3 mt-1">
+    <button id="prevBtn" onclick="navigate(-1)"
+      class="flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl border border-border text-muted hover:border-accent hover:text-accent transition-all">
+      ← Previous
+    </button>
+    <button id="nextBtn" onclick="navigate(1)"
+      class="flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px">
+      Next →
+    </button>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="resultScreen" class="hidden w-full max-w-2xl animate-fadeUp">
+
+    <!-- Hero result card -->
+    <div class="bg-surface border border-border rounded-2xl p-10 text-center mb-4 relative overflow-hidden card-accent">
+      <span id="resultBadge" class="text-5xl block mb-4 animate-bounceIn">🎉</span>
+      <div id="resultTestName" class="inline-block font-heading text-xs font-bold text-accent bg-accent/10 border border-accent/30 rounded-full px-4 py-1 mb-3"></div>
+      <h2 id="resultTitle" class="font-heading text-3xl font-extrabold tracking-tight mb-2">All Done!</h2>
+      <p id="resultSub" class="text-muted text-sm leading-relaxed mb-6"></p>
+
+      <!-- Score ring -->
+      <div id="scoreCard" class="hidden flex flex-col items-center gap-6">
+        <div class="relative w-36 h-36">
+          <svg class="w-36 h-36" style="transform:rotate(-90deg)" viewBox="0 0 120 120">
+            <circle class="fill-none" stroke="#18181f" stroke-width="10" cx="60" cy="60" r="52"/>
+            <circle id="ringFill" class="fill-none ring-fill" stroke="#7c6af7" stroke-width="10" stroke-linecap="round" cx="60" cy="60" r="52" stroke-dasharray="0 327"/>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span id="ringPct" class="font-heading text-2xl font-extrabold tracking-tight">0%</span>
+            <span class="text-[10px] text-muted font-bold uppercase tracking-widest">Score</span>
+          </div>
+        </div>
+        <div class="flex gap-3 w-full justify-center">
+          <div class="flex-1 max-w-[110px] bg-green-500/5 border border-green-500/25 rounded-2xl p-4 text-center">
+            <div id="statCorrect" class="font-heading text-3xl font-extrabold text-green-400 mb-1">0</div>
+            <div class="text-[10px] font-bold uppercase tracking-widest text-muted">Correct</div>
+          </div>
+          <div class="flex-1 max-w-[110px] bg-red-500/5 border border-red-500/25 rounded-2xl p-4 text-center">
+            <div id="statWrong" class="font-heading text-3xl font-extrabold text-[#f87171] mb-1">0</div>
+            <div class="text-[10px] font-bold uppercase tracking-widest text-muted">Wrong</div>
+          </div>
+          <div class="flex-1 max-w-[110px] bg-accent/5 border border-accent/25 rounded-2xl p-4 text-center">
+            <div id="statTotal" class="font-heading text-3xl font-extrabold text-accent mb-1">0</div>
+            <div class="text-[10px] font-bold uppercase tracking-widest text-muted">Total</div>
+          </div>
+        </div>
+        <div id="gradeBadge" class="font-heading font-extrabold text-base px-6 py-2 rounded-full"></div>
+      </div>
+      <p id="resultSaveStatus" class="mt-5 text-sm text-muted"></p>
+    </div>
+
+    <!-- Answer review -->
+    <div id="reviewSection" class="hidden bg-surface border border-border rounded-2xl mb-4 overflow-hidden">
+      <div class="flex justify-between items-center px-6 py-4">
+        <span class="font-heading text-sm font-bold">📋 Answer Review</span>
+        <button id="toggleReviewBtn" onclick="toggleReview()"
+          class="font-heading text-xs font-bold text-accent bg-accent/10 border border-accent/30 rounded-full px-4 py-1.5 hover:bg-accent/20 transition-colors">
+          Show Details ▾
+        </button>
+      </div>
+      <div id="reviewList" class="hidden border-t border-border"></div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <button onclick="backToSelector()"
+        class="font-heading font-bold text-sm px-6 py-3 rounded-xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px text-center">
+        ← Pick Another Test
+      </button>
+      <button onclick="retakeSame()"
+        class="font-heading font-bold text-sm px-6 py-3 rounded-xl border border-border text-muted hover:border-accent hover:text-accent transition-all text-center">
+        ↺ Retake
+      </button>
+      <a href="index.html"
+        class="font-heading font-bold text-sm px-6 py-3 rounded-xl border border-border text-muted hover:border-white/20 hover:text-white transition-all text-center">
+        🏠 Home
+      </a>
+    </div>
+  </div>
+
+</div><!-- end app wrapper -->
+
+<script src="js/main.js"></script>
+</body>
+</html>
