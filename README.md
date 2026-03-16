@@ -97,7 +97,7 @@ Everything is read dynamically — no rebuild needed when you add or edit questi
 
 ### Step 4 — Open the App
 
-1.  **Locate your Web App URL**: Ensure you have the URL copied from the Google Apps Script deployment in Step 2 (it should end in `/exec`).
+1.  **Locate your Web App URL**: Ensure you have the URL copied from the Google Apps Script deployment in Step 3 (it should end in `/exec`).
 2.  **Update `index.html`**:
     * Open `index.html` in your text editor.
     * Find the line that defines the script URL (typically within the `<script>` tag at the top or bottom):
