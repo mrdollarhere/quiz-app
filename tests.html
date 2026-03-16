@@ -210,40 +210,89 @@ tailwind.config = {
     <div id="raceFeedbackSub" class="text-muted text-sm"></div>
   </div>
 
-  <!-- QUIZ HEADER -->
-  <div id="quizHeader" class="hidden w-full max-w-2xl text-center mb-9 animate-fadeUp">
-    <span id="quizTag" class="inline-block font-heading text-[11px] font-bold uppercase tracking-[.2em] text-accent bg-accent/10 border border-accent/30 px-4 py-1.5 rounded-full mb-4">🎯 Quiz</span>
-    <h1 id="quizTitle" class="font-heading text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-2">
-      Answer <span class="grad-text">Every Question</span>
-    </h1>
-    <p id="quizDesc" class="text-muted text-sm font-light"></p>
+  <!-- ═══ QUIZ TOOLBAR (sticky, shown during quiz) ═══ -->
+  <div id="quizToolbar" class="hidden fixed top-14 left-0 right-0 z-40"
+    style="background:rgba(6,6,8,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07)">
+
+    <!-- Progress fill bar — very top -->
+    <div class="h-0.5 w-full bg-surface2">
+      <div id="progressFill" class="h-full rounded-full" style="width:0%;background:linear-gradient(90deg,#7c6af7,#f76a8a);transition:width .5s cubic-bezier(.4,0,.2,1)"></div>
+    </div>
+
+    <!-- Toolbar row -->
+    <div class="flex items-center gap-3 px-4 md:px-6 h-14">
+
+      <!-- Prev button -->
+      <button id="prevBtn" onclick="navigate(-1)"
+        class="flex items-center gap-1.5 font-heading font-bold text-sm px-4 py-2 rounded-xl border border-border text-muted hover:border-accent hover:text-accent transition-all flex-shrink-0">
+        ← Prev
+      </button>
+
+      <!-- Center info -->
+      <div class="flex-1 flex flex-col items-center min-w-0">
+        <div class="flex items-center gap-2 mb-0.5">
+          <span id="quizTag" class="font-heading text-[10px] font-bold uppercase tracking-widest text-accent">🎯 Quiz</span>
+          <span class="text-border text-xs">·</span>
+          <span id="progressText" class="font-mono text-xs text-muted">Q 1 / 10</span>
+          <span class="text-border text-xs">·</span>
+          <span id="progressPct" class="font-mono text-xs text-muted">0%</span>
+        </div>
+        <div id="quizTitleSmall" class="font-heading font-bold text-sm text-white truncate max-w-xs md:max-w-md leading-tight"></div>
+      </div>
+
+      <!-- TOC toggle button -->
+      <button id="tocToggleBtn" onclick="toggleToc()"
+        class="flex items-center gap-1.5 font-heading font-bold text-sm px-4 py-2 rounded-xl border border-border text-muted hover:border-accent hover:text-accent transition-all flex-shrink-0">
+        <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><rect x="0" y="0" width="6" height="2" rx="1" fill="currentColor"/><rect x="0" y="5" width="9" height="2" rx="1" fill="currentColor"/><rect x="0" y="10" width="7" height="2" rx="1" fill="currentColor"/></svg>
+        <span class="hidden sm:inline">Contents</span>
+      </button>
+
+      <!-- Next / Submit button -->
+      <button id="nextBtn" onclick="navigate(1)"
+        class="flex items-center gap-1.5 font-heading font-bold text-sm px-4 py-2 rounded-xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px flex-shrink-0">
+        Next →
+      </button>
+    </div>
   </div>
 
-  <!-- PROGRESS BAR -->
-  <div id="progressBar" class="hidden w-full max-w-2xl mb-7 animate-fadeUp">
-    <div class="flex justify-between text-xs text-muted mb-2">
-      <span id="progressText">Question 1 of 10</span>
-      <span id="progressPct">0%</span>
+  <!-- ═══ TOC SIDEBAR ═══ -->
+  <!-- Backdrop -->
+  <div id="tocBackdrop" class="hidden fixed inset-0 z-[45]" style="background:rgba(0,0,0,.5);backdrop-filter:blur(2px)" onclick="closeToc()"></div>
+  <!-- Panel -->
+  <div id="tocPanel" class="fixed top-0 right-0 bottom-0 z-[46] flex flex-col"
+    style="width:min(320px,90vw);background:#0a0a0f;border-left:1px solid #252533;transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1)">
+
+    <!-- TOC header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b" style="border-color:#252533">
+      <div>
+        <div class="font-heading font-bold text-sm text-white">Table of Contents</div>
+        <div id="tocAnsweredCount" class="text-muted text-xs mt-0.5">0 of 0 answered</div>
+      </div>
+      <button onclick="closeToc()" class="w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:text-white hover:bg-surface2 transition-all text-lg">✕</button>
     </div>
-    <div class="h-1 bg-surface2 rounded-full overflow-hidden">
-      <div id="progressFill" class="h-full progress-fill rounded-full" style="width:0%"></div>
+
+    <!-- TOC test info -->
+    <div class="px-5 py-3 border-b" style="border-color:#252533;background:#0f0f14">
+      <div id="tocTestName" class="font-heading font-bold text-sm text-white mb-0.5"></div>
+      <div id="tocModeBadge" class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border"></div>
+    </div>
+
+    <!-- TOC question list -->
+    <div class="flex-1 overflow-y-auto py-3 px-3" id="tocList"></div>
+
+    <!-- TOC legend -->
+    <div class="px-5 py-4 border-t flex items-center gap-4 flex-wrap" style="border-color:#252533">
+      <div class="flex items-center gap-2 text-xs text-muted"><div class="w-3 h-3 rounded-sm" style="background:#7c6af7"></div>Current</div>
+      <div class="flex items-center gap-2 text-xs text-muted"><div class="w-3 h-3 rounded-sm" style="background:rgba(74,222,128,.3)"></div>Answered</div>
+      <div class="flex items-center gap-2 text-xs text-muted"><div class="w-3 h-3 rounded-sm border" style="border-color:#252533"></div>Not answered</div>
     </div>
   </div>
+
+  <!-- Spacer so content doesn't hide under toolbar (added when quiz starts) -->
+  <div id="quizToolbarSpacer" class="hidden" style="height:56px"></div>
 
   <!-- QUESTION -->
   <div id="questionContainer"></div>
-
-  <!-- NAV BUTTONS -->
-  <div id="navRow" class="hidden w-full max-w-2xl flex gap-3 mt-1">
-    <button id="prevBtn" onclick="navigate(-1)"
-      class="flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl border border-border text-muted hover:border-accent hover:text-accent transition-all">
-      ← Previous
-    </button>
-    <button id="nextBtn" onclick="navigate(1)"
-      class="flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px">
-      Next →
-    </button>
-  </div>
 
   <!-- RESULT SCREEN -->
   <div id="resultScreen" class="hidden w-full max-w-2xl animate-fadeUp">
