@@ -67,13 +67,14 @@ const DEMO_QS={
 //  UTILITIES
 // ═══════════════════════════════════════════════════
 const $=id=>document.getElementById(id);
-const show=id=>{$(id).style.display='block';};
-const hide=id=>{$(id).style.display='none';};
-const showFlex=id=>{$(id).style.display='flex';};
+const show=id=>{const e=$(id);if(e)e.style.display='block';};
+const hide=id=>{const e=$(id);if(e)e.style.display='none';};
+const showFlex=id=>{const e=$(id);if(e)e.style.display='flex';};
 function hideAll(){
-  ['testSelector','nameScreen','modeScreen','quizHeader','progressBar','navRow','resultScreen'].forEach(hide);
+  ['testSelector','nameScreen','modeScreen','resultScreen'].forEach(hide);
   const sk=$('skeletonLoad'); if(sk)sk.style.display='none';
   const qc=$('questionContainer'); if(qc)qc.innerHTML='';
+  hideQuizToolbar();
 }
 function showStatus(msg,type){
   const el=$('statusMsg');el.innerHTML=msg;el.style.display='block';
@@ -255,22 +256,33 @@ function initQuiz(qs){
   mode=questions.some(q=>q.correct&&String(q.correct).trim()!=='')?'quiz':'survey';
 
   // Apply mode ordering
-  if(quizMode==='test'||quizMode==='race'){
-    questions=shuffle([...questions]);
-  }
-  // (train = original order, already set)
+  if(quizMode==='test'||quizMode==='race') questions=shuffle([...questions]);
 
+  // Update toolbar info
   const modeLabels={train:'📖 Train',test:'📝 Test',race:'⚡ Race'};
-  const modeColors={train:'text-accent3 bg-accent3/10 border-accent3/30',test:'text-accent bg-accent/10 border-accent/30',race:'text-accent2 bg-accent2/10 border-accent2/30'};
-  $('quizTag').className=`inline-block font-heading text-[11px] font-bold uppercase tracking-[.2em] px-4 py-1.5 rounded-full mb-4 border ${modeColors[quizMode]}`;
-  $('quizTag').textContent=modeLabels[quizMode];
-  $('quizTitle').innerHTML=`${escH(selectedTest.title)}<br><span class="grad-text">Question by Question</span>`;
-  $('quizDesc').textContent=`Good luck, ${respondentName.split(' ')[0]}! · ${questions.length} questions · ${quizMode==='race'?'Race mode — restart on wrong!':mode==='quiz'?'Scored':'Survey'}`;
+  const modeColors={
+    train:{bg:'rgba(106,247,196,.1)',color:'#6af7c4',border:'rgba(106,247,196,.3)'},
+    test: {bg:'rgba(124,106,247,.1)',color:'#7c6af7',border:'rgba(124,106,247,.3)'},
+    race: {bg:'rgba(247,106,138,.1)',color:'#f76a8a',border:'rgba(247,106,138,.3)'},
+  };
+  const mc=modeColors[quizMode];
+  const quizTag=$('quizTag');
+  if(quizTag){quizTag.textContent=modeLabels[quizMode];quizTag.style.color=mc.color;}
 
-  // Hide prev button in race and test mode (no going back)
-  $('prevBtn').style.display=(quizMode==='race')?'none':'';
+  const titleSmall=$('quizTitleSmall');
+  if(titleSmall)titleSmall.textContent=selectedTest?.title||'Quiz';
 
-  show('quizHeader'); show('progressBar'); showFlex('navRow');
+  const tocTestName=$('tocTestName');
+  if(tocTestName)tocTestName.textContent=`${selectedTest?.icon||'📝'} ${selectedTest?.title||'Quiz'}`;
+
+  const tocModeBadge=$('tocModeBadge');
+  if(tocModeBadge){
+    tocModeBadge.textContent=modeLabels[quizMode];
+    tocModeBadge.style.background=mc.bg;tocModeBadge.style.color=mc.color;tocModeBadge.style.borderColor=mc.border;
+  }
+
+  // Show toolbar + spacer
+  showQuizToolbar();
   renderQ();
 }
 
@@ -391,27 +403,135 @@ function renderQ(){
   if(q.type==='matching') initMatchingDrag(q);
 
   // Nav button states
-  $('prevBtn').style.opacity=currentIdx===0?'0.3':'1';
-  $('prevBtn').disabled=currentIdx===0;
-  $('prevBtn').style.display=(quizMode==='race')?'none':'';
+  const pb=$('prevBtn');
+  if(pb){
+    pb.style.opacity=currentIdx===0?'0.35':'1';
+    pb.disabled=currentIdx===0;
+    pb.style.display=(quizMode==='race')?'none':'';
+  }
   const last=currentIdx===questions.length-1;
   const nb=$('nextBtn');
-  if(quizMode==='race'){
-    nb.textContent='Check Answer ⚡';
-    nb.className='flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl bg-accent2 text-white hover:bg-pink-500 transition-all hover:-translate-y-px';
-  }else{
-    nb.textContent=last?'✓ Submit':'Next →';
-    nb.className=last
-      ?'flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl bg-green-500 text-[#052e16] hover:bg-green-400 transition-all hover:-translate-y-px'
-      :'flex-1 font-heading font-bold text-sm py-3 px-4 rounded-xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px';
+  if(nb){
+    if(quizMode==='race'){
+      nb.textContent='Check ⚡';
+      nb.style.background='linear-gradient(135deg,#f76a8a,#f94c81)';
+      nb.style.boxShadow='0 0 16px rgba(247,106,138,.4)';
+    }else{
+      nb.style.boxShadow='';
+      nb.textContent=last?'✓ Submit':'Next →';
+      nb.style.background=last?'#22c55e':'#7c6af7';
+    }
   }
+  // Update TOC
+  renderToc();
 }
 
 function updateProg(){
   const pct=Math.round((currentIdx/questions.length)*100);
-  $('progressText').textContent=`Question ${currentIdx+1} of ${questions.length}`;
-  $('progressPct').textContent=pct+'%';
-  $('progressFill').style.width=pct+'%';
+  const pt=$('progressText'); if(pt)pt.textContent=`Q ${currentIdx+1} / ${questions.length}`;
+  const pp=$('progressPct'); if(pp)pp.textContent=pct+'%';
+  const pf=$('progressFill'); if(pf)pf.style.width=pct+'%';
+}
+
+// ═══════════════════════════════════════════════════
+//  QUIZ TOOLBAR — show/hide
+// ═══════════════════════════════════════════════════
+function showQuizToolbar(){
+  const tb=$('quizToolbar');const sp=$('quizToolbarSpacer');
+  if(tb)tb.style.display='block';
+  if(sp)sp.style.display='block';
+}
+function hideQuizToolbar(){
+  const tb=$('quizToolbar');const sp=$('quizToolbarSpacer');
+  if(tb)tb.style.display='none';
+  if(sp)sp.style.display='none';
+  closeToc();
+}
+
+// ═══════════════════════════════════════════════════
+//  TABLE OF CONTENTS
+// ═══════════════════════════════════════════════════
+function toggleToc(){
+  const panel=$('tocPanel');
+  if(!panel)return;
+  const isOpen=panel.style.transform==='translateX(0px)'||panel.style.transform==='translateX(0%)';
+  if(isOpen)closeToc();else openToc();
+}
+function openToc(){
+  const panel=$('tocPanel'),backdrop=$('tocBackdrop');
+  if(panel){panel.style.transform='translateX(0)';}
+  if(backdrop){backdrop.style.display='block';}
+  renderToc();
+}
+function closeToc(){
+  const panel=$('tocPanel'),backdrop=$('tocBackdrop');
+  if(panel){panel.style.transform='translateX(100%)';}
+  if(backdrop){backdrop.style.display='none';}
+}
+
+function renderToc(){
+  const list=$('tocList');
+  const countEl=$('tocAnsweredCount');
+  if(!list||!questions.length)return;
+
+  const TYPE_ICONS={radio:'🔘',checkbox:'☑️',text:'✏️',rating:'⭐',dropdown:'▼',truefalse:'⚡',ordering:'🔀',matching:'🔗',hotspot:'📍',mtf:'✅',matrix:'🔲'};
+
+  const answered=questions.filter(q=>answers[q.id]&&String(answers[q.id]).trim()!=='').length;
+  if(countEl)countEl.textContent=`${answered} of ${questions.length} answered`;
+
+  // Race mode — show notice, no jumping
+  if(quizMode==='race'){
+    list.innerHTML=`<div style="padding:16px 12px;text-align:center;color:#6b6b85;font-size:12px;line-height:1.6">
+      <div style="font-size:22px;margin-bottom:8px">⚡</div>
+      <strong style="color:#f76a8a;font-family:'Syne',sans-serif">Race Mode</strong><br>
+      You can't jump to questions in Race mode.<br>Answer each one to proceed.
+      <div style="margin-top:12px;padding:10px;background:rgba(247,106,138,.08);border:1px solid rgba(247,106,138,.2);border-radius:10px;font-size:11px">
+        Correct streak: <strong style="color:#f76a8a">${raceCorrectCount} / ${questions.length}</strong>
+      </div>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML=questions.map((q,i)=>{
+    const isCurrent=i===currentIdx;
+    const isAnswered=answers[q.id]&&String(answers[q.id]).trim()!=='';
+    const icon=TYPE_ICONS[q.type]||'❓';
+
+    let bg='background:#18181f;border-color:#252533';
+    let numBg='background:#252533;color:#6b6b85';
+    let textColor='color:#e2e2f0';
+
+    if(isCurrent){
+      bg='background:rgba(124,106,247,.12);border-color:#7c6af7';
+      numBg='background:#7c6af7;color:white';
+    }else if(isAnswered){
+      bg='background:rgba(74,222,128,.06);border-color:rgba(74,222,128,.25)';
+      numBg='background:rgba(74,222,128,.2);color:#4ade80';
+    }
+
+    return `<button onclick="jumpToQuestion(${i})"
+      style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid;${bg};cursor:pointer;transition:all .15s;text-align:left;margin-bottom:5px">
+      <div style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:11px;font-weight:800;flex-shrink:0;${numBg}">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;${textColor};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3">${escH(String(q.question).substring(0,48))}${q.question.length>48?'…':''}</div>
+        <div style="font-size:10px;color:#6b6b85;margin-top:1px">${icon} ${q.type}${isAnswered?' · answered':''}</div>
+      </div>
+      ${isCurrent?'<div style="width:6px;height:6px;border-radius:50%;background:#7c6af7;flex-shrink:0"></div>':''}
+      ${isAnswered&&!isCurrent?'<div style="width:6px;height:6px;border-radius:50%;background:#4ade80;flex-shrink:0"></div>':''}
+    </button>`;
+  }).join('');
+}
+
+function jumpToQuestion(idx){
+  // Race mode — no jumping allowed
+  if(quizMode==='race')return;
+  currentIdx=idx;
+  closeToc();
+  hideStatus();
+  renderQ();
+  // Scroll to top of question
+  const qc=$('questionContainer');
+  if(qc)setTimeout(()=>qc.scrollIntoView({behavior:'smooth',block:'start'}),60);
 }
 
 // ═══════════════════════════════════════════════════
@@ -745,7 +865,7 @@ function scoreQuestion(q){
 // ═══════════════════════════════════════════════════
 async function submit(){
   showStatus('Saving your responses<span class="ldots"></span>','loading');
-  hide('navRow');
+  closeToc();
   let correct=0,wrong=0,total=0;
   const reviewData=questions.map(q=>{const sc=scoreQuestion(q);if(sc.hasCorrect){total++;if(sc.isCorrect)correct++;else wrong++;}return{q,...sc};});
   const pct=total>0?Math.round((correct/total)*100):null;
@@ -759,7 +879,8 @@ async function submit(){
     saved=true;
   }catch(e){}
   setTimeout(()=>{
-    hideStatus();$('questionContainer').innerHTML='';hide('progressBar');hide('quizHeader');show('resultScreen');
+    hideStatus();$('questionContainer').innerHTML='';
+    hideQuizToolbar();show('resultScreen');
     const badges={A:'🏆',B:'⭐',C:'📖',D:'💡',null:'🎉'};
     $('resultBadge').textContent=badges[grade]||'🎉';
     $('resultTestName').textContent=`${selectedTest?.icon||'📝'} ${selectedTest?.title||'Test'}`;
