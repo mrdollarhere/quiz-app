@@ -8,6 +8,13 @@
 ![Google Sheets](https://img.shields.io/badge/Data-Google%20Sheets-orange)
 
 ---
+## 🔗 Live Demo
+Check out the application in action: **[https://quiz-app-dntrng.vercel.app/](https://quiz-app-dntrng.vercel.app/)**
+
+*Note: You can click **"Load Tests"** without a URL to explore the built-in demo datasets.*
+
+---
+
 
 ## ✨ Features
 
