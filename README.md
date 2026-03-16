@@ -97,10 +97,20 @@ Everything is read dynamically — no rebuild needed when you add or edit questi
 
 ### Step 4 — Open the App
 
-1. Open `index.html` in any browser (double-click, or serve it from any web host).
-2. Paste your Apps Script URL and click **Load Tests**.
-3. Select a test, enter a name, pick a mode, and start quizzing.
-
+1.  **Locate your Web App URL**: Ensure you have the URL copied from the Google Apps Script deployment in Step 2 (it should end in `/exec`).
+2.  **Update `index.html`**:
+    * Open `index.html` in your text editor.
+    * Find the line that defines the script URL (typically within the `<script>` tag at the top or bottom):
+    ```javascript
+    const SCRIPT_URL = ''; // Paste your URL between the quotes
+    ```
+3.  **Update `js/main.js`**:
+    * Open the `js/main.js` file.
+    * Locate the same constant definition at the top of the file:
+    ```javascript
+    const SCRIPT_URL = ''; // Paste your URL here as well
+    ```
+4.  **Save and Deploy**: Save both files. If you are hosting on GitHub Pages or Vercel, commit and push these changes to make your quiz live.
 ---
 
 ## 📋 Sheet Structure
