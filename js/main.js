@@ -137,7 +137,7 @@ function renderSelector(tests){
       <div class="tc-check" style="position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:${t.color||'var(--accent)'};display:flex;align-items:center;justify-content:center;font-size:13px;color:white;opacity:0;transition:opacity .2s">✓</div>
       <!-- content -->
       <div style="font-size:36px;margin-bottom:12px">${t.icon||'📝'}</div>
-      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:7px;line-height:1.2;color:var(--text)">${escH(t.title)}</div>
+      <div style="font-family:'Be Vietnam Pro',sans-serif;font-size:17px;font-weight:700;margin-bottom:7px;line-height:1.2;color:var(--text)">${escH(t.title)}</div>
       <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px">${escH(t.description||'')}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${t.duration?`<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px;background:var(--surface2);color:var(--muted);border:1px solid var(--border)">⏱ ${escH(String(t.duration))}</span>`:''}
@@ -485,7 +485,7 @@ function renderToc(){
   if(quizMode==='race'){
     list.innerHTML=`<div style="padding:16px 12px;text-align:center;color:#6b6b85;font-size:12px;line-height:1.6">
       <div style="font-size:22px;margin-bottom:8px">⚡</div>
-      <strong style="color:#f76a8a;font-family:'Syne',sans-serif">Race Mode</strong><br>
+      <strong style="color:#f76a8a;font-family:'Be Vietnam Pro',sans-serif">Race Mode</strong><br>
       You can't jump to questions in Race mode.<br>Answer each one to proceed.
       <div style="margin-top:12px;padding:10px;background:rgba(247,106,138,.08);border:1px solid rgba(247,106,138,.2);border-radius:10px;font-size:11px">
         Correct streak: <strong style="color:#f76a8a">${raceCorrectCount} / ${questions.length}</strong>
@@ -512,7 +512,7 @@ function renderToc(){
 
     return `<button onclick="jumpToQuestion(${i})"
       style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid;${bg};cursor:pointer;transition:all .15s;text-align:left;margin-bottom:5px">
-      <div style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:11px;font-weight:800;flex-shrink:0;${numBg}">${i+1}</div>
+      <div style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Be Vietnam Pro',sans-serif;font-size:11px;font-weight:800;flex-shrink:0;${numBg}">${i+1}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3">${escH(String(q.question).substring(0,48))}${q.question.length>48?'…':''}</div>
         <div style="font-size:10px;color:var(--muted);margin-top:1px">${icon} ${q.type}${isAnswered?' · answered':''}</div>
@@ -546,7 +546,7 @@ function buildOrderingHTML(q){
     ${ordered.map((item,i)=>`
       <div class="ordering-item" style="display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:grab;user-select:none;transition:all .2s" draggable="true" data-item="${escH(item)}" data-idx="${i}">
         <span style="color:var(--muted);font-size:18px;cursor:grab;flex-shrink:0;letter-spacing:-2px">⠿</span>
-        <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:12px;font-weight:800;flex-shrink:0;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.3);color:#fb923c">${i+1}</div>
+        <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Be Vietnam Pro',sans-serif;font-size:12px;font-weight:800;flex-shrink:0;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.3);color:#fb923c">${i+1}</div>
         <span style="font-size:14px;color:var(--text);flex:1;line-height:1.4">${escH(item)}</span>
       </div>`).join('')}
   </div>`;
@@ -583,7 +583,7 @@ function buildMatchingHTML(q){
   const shuffledAnswers=shuffle(pairs.map(p=>p.answer));
   const promptsHTML=pairs.map((p,i)=>`
     <div class="matching-prompt" style="display:flex;align-items:center;gap:10px;padding:11px 14px;min-height:50px;font-size:14px">
-      <div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;flex-shrink:0;background:rgba(192,132,252,.2);color:#c084fc">${letters[i]}</div>
+      <div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Be Vietnam Pro',sans-serif;font-size:11px;font-weight:700;flex-shrink:0;background:rgba(192,132,252,.2);color:#c084fc">${letters[i]}</div>
       <span style="color:var(--text)">${escH(p.prompt)}</span>
     </div>`).join('');
   const dropsHTML=pairs.map((p,i)=>{const matched=savedMap[p.prompt]||'';
@@ -603,10 +603,10 @@ function buildMatchingHTML(q){
       ondragstart="chipDragStart(event,${q.id})" ondragend="chipDragEnd(event)">${escH(a)}</div>`).join('');
   return `<p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5">Drag each answer chip onto the matching prompt. Tap ✕ to remove.</p>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-    <div><p style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">Prompts</p><div style="display:flex;flex-direction:column;gap:8px">${promptsHTML}</div></div>
-    <div><p style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">Drop Here</p><div style="display:flex;flex-direction:column;gap:8px">${dropsHTML}</div></div>
+    <div><p style="font-family:'Be Vietnam Pro',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">Prompts</p><div style="display:flex;flex-direction:column;gap:8px">${promptsHTML}</div></div>
+    <div><p style="font-family:'Be Vietnam Pro',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">Drop Here</p><div style="display:flex;flex-direction:column;gap:8px">${dropsHTML}</div></div>
   </div>
-  <div><p style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">Answer Bank</p><div style="display:flex;flex-wrap:wrap;gap:8px" id="bank_${q.id}">${bankHTML}</div></div>`;
+  <div><p style="font-family:'Be Vietnam Pro',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">Answer Bank</p><div style="display:flex;flex-wrap:wrap;gap:8px" id="bank_${q.id}">${bankHTML}</div></div>`;
 }
 function initMatchingDrag(q){
   const bank=document.getElementById(`bank_${q.id}`);if(!bank)return;
@@ -902,7 +902,7 @@ async function submit(){
         D:`background:rgba(232,67,147,.1);color:var(--error);border:1px solid rgba(232,67,147,.3)`,
       };
       $('gradeBadge').textContent=`Grade ${grade} — ${gradeLabel[grade]}`;
-      $('gradeBadge').style.cssText=`font-family:'Syne',sans-serif;font-weight:800;font-size:15px;padding:8px 24px;border-radius:100px;letter-spacing:.05em;${gradeStyles[grade]}`;
+      $('gradeBadge').style.cssText=`font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:15px;padding:8px 24px;border-radius:100px;letter-spacing:.05em;${gradeStyles[grade]}`;
     }else hide('scoreCard');
     buildReview(reviewData);show('reviewSection');
   },900);
@@ -950,7 +950,7 @@ function buildReview(reviewData){
     return `<div class="review-item">
       <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
         <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:1px;background:${iconBg};color:${iconColor}">${icon}</div>
-        <p style="font-family:'Syne',sans-serif;font-size:14px;font-weight:600;line-height:1.4;flex:1;color:var(--text)">Q${i+1}. ${escH(q.question)}</p>
+        <p style="font-family:'Be Vietnam Pro',sans-serif;font-size:14px;font-weight:600;line-height:1.4;flex:1;color:var(--text)">Q${i+1}. ${escH(q.question)}</p>
       </div>
       ${body}
     </div>`;
