@@ -877,9 +877,10 @@ async function submit(){
   questions.forEach(q=>{payload.answers[`q${q.id}_${String(q.question).substring(0,18).replace(/\s+/g,'_')}`]=answers[q.id]||'';});
   let saved=false;
   try{
-    await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
-    saved=true;
-  }catch(e){}
+    const res=await fetch(`${SCRIPT_URL}?action=saveResponse`,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    saved=data.success===true;
+  }catch(e){console.error('Save error:',e);}
   setTimeout(()=>{
     hideStatus();$('questionContainer').innerHTML='';
     hideQuizToolbar();show('resultScreen');
