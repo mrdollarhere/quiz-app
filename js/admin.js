@@ -261,11 +261,10 @@ function renderQuestionsTable(questions, sheetName) {
 function openQuestionForm(q = null) {
   const isEdit = !!q;
   editingQuestionId = isEdit ? q.id : null;
-  $('questionFormTitle').textContent = isEdit ? '✏️ Edit Question' : '+ New Question';
+  $('questionFormTitle').textContent = isEdit ? '✏️ Sửa câu hỏi' : '+ Câu hỏi mới';
   $('qId').value          = isEdit ? q.id       : '';
   $('qQuestion').value    = isEdit ? q.question  : '';
   $('qType').value        = isEdit ? q.type      : 'radio';
-  $('qOptions').value     = isEdit ? q.options   : '';
   $('qCorrect').value     = isEdit ? q.correct   : '';
   $('qRequired').checked  = isEdit ? String(q.required).toUpperCase()==='TRUE' : true;
   $('qImageUrl').value    = isEdit ? (q.imageUrl||'') : '';
@@ -273,6 +272,11 @@ function openQuestionForm(q = null) {
   $('qRatingMax').value   = isEdit ? (q.ratingMax||'') : '';
   $('qRatingScale').value = isEdit ? (q.ratingScale||'5') : '5';
   $('qMatrixCols').value  = isEdit ? (q.matrixCols||'') : '';
+
+  // Populate options — dynamic or raw depending on type
+  const existingOptions = isEdit ? (q.options || '') : '';
+  populateOptions(q?.type || 'radio', existingOptions);
+
   $('questionFormModal').style.display = 'flex';
   updateQuestionFormFields();
   setTimeout(() => $('qQuestion').focus(), 60);
@@ -284,55 +288,169 @@ function editQuestion(jsonStr) {
 
 function closeQuestionForm() { $('questionFormModal').style.display = 'none'; }
 
+// ── Which types use dynamic builder vs raw text ──
+const DYNAMIC_OPTION_TYPES = ['radio','checkbox','dropdown','ordering','mtf','matrix'];
+const RAW_OPTION_TYPES     = ['matching','hotspot'];
+
 function updateQuestionFormFields() {
   const type = $('qType').value;
-  const showOptions  = ['radio','checkbox','dropdown','ordering','matching','hotspot','mtf','matrix'].includes(type);
-  const showCorrect  = ['radio','checkbox','truefalse','ordering','matching','hotspot','mtf','matrix'].includes(type);
-  const showRating   = type === 'rating';
-  const showMatrix   = type === 'matrix';
 
-  $('fieldOptions').style.display  = showOptions  ? 'block' : 'none';
-  $('fieldCorrect').style.display  = showCorrect  ? 'block' : 'none';
-  $('fieldRating').style.display   = showRating   ? 'block' : 'none';
-  $('fieldMatrix').style.display   = showMatrix   ? 'block' : 'none';
+  const useDynamic = DYNAMIC_OPTION_TYPES.includes(type);
+  const useRaw     = RAW_OPTION_TYPES.includes(type);
+  const showAny    = useDynamic || useRaw;
+  const showCorrect = ['radio','checkbox','truefalse','ordering','matching','hotspot','mtf','matrix'].includes(type);
 
-  // Update hint text
-  const hints = {
-    radio:     'A|B|C|D  (pipe-separated options)',
-    checkbox:  'A|B|C|D  (pipe-separated options)',
-    dropdown:  'A|B|C  (pipe-separated options)',
-    ordering:  'Item1|Item2|Item3  (in correct order)',
-    matching:  'Prompt1::Answer1|Prompt2::Answer2',
-    hotspot:   'Label:left%,top%,width%,height%|Label2:…',
-    mtf:       'Statement1|Statement2|Statement3',
-    matrix:    'Row1|Row2|Row3  (row labels)',
-    truefalse: '',text:'',rating:'',
+  $('fieldOptionsDynamic').style.display = useDynamic ? 'block' : 'none';
+  $('fieldOptionsRaw').style.display     = useRaw     ? 'block' : 'none';
+  $('fieldCorrect').style.display        = showCorrect ? 'block' : 'none';
+  $('fieldRating').style.display         = type === 'rating' ? 'block' : 'none';
+  $('fieldMatrix').style.display         = type === 'matrix' ? 'block' : 'none';
+
+  // Update hint texts
+  const rawHints = {
+    matching: 'Tên::Đáp án|Tên2::Đáp án2  (phân cách bằng |)',
+    hotspot:  'Nhãn:left%,top%,width%,height%|Nhãn2:…',
+    matrix:   'Hàng1|Hàng2|Hàng3  (tên các hàng)',
+  };
+  const dynamicHints = {
+    radio:    'Mỗi dòng là một lựa chọn',
+    checkbox: 'Mỗi dòng là một lựa chọn',
+    dropdown: 'Mỗi dòng là một lựa chọn',
+    ordering: 'Nhập theo thứ tự đúng từ trên xuống',
+    mtf:      'Mỗi dòng là một mệnh đề Đúng/Sai',
+    matrix:   'Mỗi dòng là một nhãn hàng (row) của bảng',
   };
   const correctHints = {
-    radio:'The correct option text',checkbox:'Opt1|Opt2 (pipe-separated)',
-    truefalse:'TRUE or FALSE',ordering:'Item1|Item2|Item3 (correct sequence)',
-    matching:'P1::A1|P2::A2 (same as options)',hotspot:'Zone label',
-    mtf:'TRUE|FALSE|TRUE (one per statement)',matrix:'Row::Col|Row2::Col2 (or blank for survey)',
+    radio:     'Nhập đúng nội dung của lựa chọn đúng',
+    checkbox:  'Opt1|Opt2 (phân cách bằng |)',
+    truefalse: 'TRUE hoặc FALSE',
+    ordering:  'Item1|Item2|Item3 (thứ tự đúng)',
+    matching:  'P1::A1|P2::A2 (giống cột options)',
+    hotspot:   'Tên zone đúng',
+    mtf:       'TRUE|FALSE|TRUE (mỗi mệnh đề)',
+    matrix:    'Hàng::Cột|Hàng2::Cột2 (hoặc để trống nếu là khảo sát)',
   };
-  const optHint = $('optionsHint');
+  const hint = $('optionsHint');
+  if (hint) hint.textContent = dynamicHints[type] || '';
+  const rawHint = $('optionsHintRaw');
+  if (rawHint) rawHint.textContent = rawHints[type] || '';
   const corHint = $('correctHint');
-  if (optHint) optHint.textContent = hints[type] || '';
   if (corHint) corHint.textContent = correctHints[type] || '';
+}
+
+// ── Populate options when opening form ──
+function populateOptions(type, existingValue) {
+  if (DYNAMIC_OPTION_TYPES.includes(type)) {
+    const items = existingValue ? existingValue.split('|').filter(Boolean) : [];
+    renderOptionRows(items.length ? items : ['', '']); // min 2 empty rows for new
+  } else {
+    const rawInput = $('qOptionsRaw');
+    if (rawInput) rawInput.value = existingValue || '';
+  }
+}
+
+// ── Re-render all option rows ──
+function renderOptionRows(items) {
+  const list = $('optionsList'); if (!list) return;
+  list.innerHTML = '';
+  items.forEach((val, i) => addOptionRow(val, i));
+  renumberOptionRows();
+}
+
+// ── Add one option row ──
+function addOptionRow(value = '', index = null) {
+  const list = $('optionsList'); if (!list) return;
+  const row = document.createElement('div');
+  row.className = 'option-row';
+  row.draggable = true;
+  row.innerHTML = `
+    <span class="option-row-handle" title="Kéo để sắp xếp">⠿</span>
+    <span class="option-row-num">1</span>
+    <input type="text" placeholder="Nhập lựa chọn…" value="${escH(String(value))}"/>
+    <button type="button" class="option-row-remove" onclick="removeOptionRow(this)" title="Xóa">✕</button>`;
+  list.appendChild(row);
+  renumberOptionRows();
+  initOptionRowDrag(row);
+}
+
+// ── Remove an option row (keep minimum 1) ──
+function removeOptionRow(btn) {
+  const list = $('optionsList');
+  if (list.children.length <= 1) return; // keep at least 1
+  btn.closest('.option-row').remove();
+  renumberOptionRows();
+}
+
+// ── Update the number badges ──
+function renumberOptionRows() {
+  const rows = $('optionsList')?.querySelectorAll('.option-row');
+  rows?.forEach((row, i) => {
+    const num = row.querySelector('.option-row-num');
+    if (num) num.textContent = i + 1;
+  });
+}
+
+// ── Drag to reorder ──
+function initOptionRowDrag(row) {
+  const list = $('optionsList');
+  let dragSrc = null;
+  row.addEventListener('dragstart', e => {
+    dragSrc = row; row.style.opacity = '.4';
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  row.addEventListener('dragend', () => {
+    row.style.opacity = '';
+    list.querySelectorAll('.option-row').forEach(r => r.style.borderTop = '');
+  });
+  row.addEventListener('dragover', e => {
+    e.preventDefault();
+    if (row !== dragSrc) row.style.borderTop = '2px solid #2563eb';
+  });
+  row.addEventListener('dragleave', () => row.style.borderTop = '');
+  row.addEventListener('drop', e => {
+    e.preventDefault(); row.style.borderTop = '';
+    if (dragSrc && dragSrc !== row) {
+      const all = [...list.querySelectorAll('.option-row')];
+      all.indexOf(dragSrc) < all.indexOf(row)
+        ? list.insertBefore(dragSrc, row.nextSibling)
+        : list.insertBefore(dragSrc, row);
+      renumberOptionRows();
+    }
+  });
+}
+
+// ── Read current options value as pipe-separated string ──
+function getOptionsValue() {
+  const type = $('qType').value;
+  if (RAW_OPTION_TYPES.includes(type)) {
+    return $('qOptionsRaw')?.value.trim() || '';
+  }
+  // Dynamic: collect all input values
+  const inputs = $('optionsList')?.querySelectorAll('input');
+  return [...(inputs||[])]
+    .map(inp => inp.value.trim())
+    .filter(Boolean)
+    .join('|');
 }
 
 async function saveQuestion() {
   const sheetName = $('questionsSheetName').textContent;
   const question  = $('qQuestion').value.trim();
   const type      = $('qType').value;
-  if (!question) { toast('Question text is required', 'error'); return; }
-  if (!sheetName) { toast('No sheet selected', 'error'); return; }
+  if (!question) { toast('Vui lòng nhập nội dung câu hỏi', 'error'); return; }
+  if (!sheetName) { toast('Chưa chọn sheet', 'error'); return; }
+
+  const options = getOptionsValue();
+  if (DYNAMIC_OPTION_TYPES.includes(type) && !options) {
+    toast('Vui lòng thêm ít nhất một lựa chọn', 'error'); return;
+  }
 
   const payload = {
     sheet:      sheetName,
     id:         $('qId').value.trim() || String(Date.now()),
     question,
     type,
-    options:    $('qOptions').value.trim(),
+    options,
     correct:    $('qCorrect').value.trim(),
     required:   $('qRequired').checked ? 'TRUE' : 'FALSE',
     imageUrl:   $('qImageUrl').value.trim(),
