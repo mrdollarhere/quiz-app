@@ -1,8 +1,6 @@
 // ═══════════════════════════════════════════════════
-//  CONFIG
+//  NOTE: SCRIPT_URL and ADMIN_PASSWORD are defined in js/config.js
 // ═══════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0YSPyzR7wvG_nxMS15ALWP6Z6yTAl6m4OdlYeQA79N9Oqfcyv7kTEYwg_qSKXgN-o/exec';
-const ADMIN_PASSWORD = 'admin123'; // ← change this to your password
 
 // ═══════════════════════════════════════════════════
 //  STATE
