@@ -243,6 +243,10 @@ tailwind.config={theme:{extend:{
         <button class="logout-btn" onclick="logout()">
           <span>🔒</span> Lock Admin
         </button>
+        <!-- Theme toggle -->
+        <button onclick="toggleAdminTheme()" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;color:#6b6b85;font-size:12px;font-weight:500;cursor:pointer;background:none;border:none;width:100%;margin-top:4px;transition:all .2s" onmouseover="this.style.background='#18181f'" onmouseout="this.style.background='none'">
+          <span id="adminThemeIcon">☀️</span> <span id="adminThemeLabel">Light Mode</span>
+        </button>
         <!-- Watermark -->
         <div style="margin-top:16px;padding-top:14px;border-top:1px solid #252533;text-align:center">
           <span style="font-size:10px;color:#6b6b85;letter-spacing:.04em;display:block;margin-bottom:3px">Built by</span>
@@ -550,6 +554,36 @@ tailwind.config={theme:{extend:{
   </div>
 </div>
 
+<script>
+function toggleAdminTheme() {
+  const saved = localStorage.getItem('qf-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const current = saved || (prefersDark ? 'dark' : 'light');
+  const next = current === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('qf-theme', next);
+  applyAdminTheme(next);
+}
+function applyAdminTheme(theme) {
+  const icon  = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if (theme === 'light') {
+    document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+    document.querySelectorAll('img').forEach(el => el.style.filter = 'invert(1) hue-rotate(180deg)');
+    if (icon)  icon.textContent  = '🌙';
+    if (label) label.textContent = 'Dark Mode';
+  } else {
+    document.body.style.filter = '';
+    document.querySelectorAll('img').forEach(el => el.style.filter = '');
+    if (icon)  icon.textContent  = '☀️';
+    if (label) label.textContent = 'Light Mode';
+  }
+}
+(function() {
+  const saved = localStorage.getItem('qf-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyAdminTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+</script>
 <script src="js/admin.js"></script>
 </body>
 </html>
