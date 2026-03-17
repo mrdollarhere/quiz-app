@@ -4,6 +4,16 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAuEkoaeG4uDFtp7TtHFdKgXcBRD-DVFy9nYXOoaI3XC9D1AMKV4CvH2fpmnu0wBaN/exec';
 
 // ═══════════════════════════════════════════════════
+//  THEME — apply saved preference immediately
+// ═══════════════════════════════════════════════════
+(function(){
+  const saved = localStorage.getItem('qf-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+
+// ═══════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════
 let allTests=[], selectedTest=null;
@@ -77,10 +87,11 @@ function hideAll(){
   hideQuizToolbar();
 }
 function showStatus(msg,type){
-  const el=$('statusMsg');el.innerHTML=msg;el.style.display='block';
+  const el=$('statusMsg');if(!el)return;
+  el.innerHTML=msg;
   const styles={
-    error:'background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#f87171',
-    loading:'background:rgba(124,106,247,.1);border:1px solid rgba(124,106,247,.3);color:#7c6af7',
+    error:'background:rgba(232,67,147,.1);border:1px solid rgba(232,67,147,.3);color:var(--error)',
+    loading:'background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.3);color:var(--accent)',
   };
   el.style.cssText=`display:block;padding:14px 18px;border-radius:12px;font-size:14px;margin-bottom:16px;${styles[type]||styles.loading}`;
 }
@@ -117,22 +128,20 @@ if(document.getElementById('testSelector')){
 // ═══════════════════════════════════════════════════
 function renderSelector(tests){
   allTests=tests; selectedTest=null;
-  const diffColor={Easy:'#4ade80',Medium:'#fbbf24',Hard:'#f87171'};
+  const diffColor={Easy:'#00b894',Medium:'#fbbf24',Hard:'#e84393'};
   $('testsGrid').innerHTML=tests.map(t=>`
-    <div id="tc_${t.id}" onclick="selectTest('${t.id}')"
-      class="relative bg-surface border-2 border-border rounded-2xl p-7 cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-xl overflow-hidden select-none group"
-      style="--cc:${t.color||'#7c6af7'}">
+    <div id="tc_${t.id}" onclick="selectTest('${t.id}')" class="test-card" style="--card-color:${t.color||'var(--accent)'}">
       <!-- top accent bar -->
-      <div class="absolute top-0 left-0 right-0 h-[3px] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200" style="background:${t.color||'#7c6af7'}"></div>
+      <div class="tc-bar" style="position:absolute;top:0;left:0;right:0;height:3px;background:${t.color||'var(--accent)'};transform:scaleX(0);transition:transform .25s;transform-origin:left;border-radius:16px 16px 0 0"></div>
       <!-- check -->
-      <div class="tc-check absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center text-sm text-white opacity-0 transition-opacity" style="background:${t.color||'#7c6af7'}">✓</div>
+      <div class="tc-check" style="position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:${t.color||'var(--accent)'};display:flex;align-items:center;justify-content:center;font-size:13px;color:white;opacity:0;transition:opacity .2s">✓</div>
       <!-- content -->
-      <div class="text-4xl mb-3">${t.icon||'📝'}</div>
-      <div class="font-heading text-lg font-bold tracking-tight mb-2 leading-tight">${escH(t.title)}</div>
-      <div class="text-muted text-xs leading-relaxed mb-4">${escH(t.description||'')}</div>
-      <div class="flex gap-2 flex-wrap">
-        ${t.duration?`<span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-surface2 text-muted">⏱ ${escH(String(t.duration))}</span>`:''}
-        ${t.difficulty?`<span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-surface2" style="color:${diffColor[t.difficulty]||'#7a7a9a'}">${escH(String(t.difficulty))}</span>`:''}
+      <div style="font-size:36px;margin-bottom:12px">${t.icon||'📝'}</div>
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:7px;line-height:1.2;color:var(--text)">${escH(t.title)}</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px">${escH(t.description||'')}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${t.duration?`<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px;background:var(--surface2);color:var(--muted);border:1px solid var(--border)">⏱ ${escH(String(t.duration))}</span>`:''}
+        ${t.difficulty?`<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px;background:var(--surface2);border:1px solid var(--border);color:${diffColor[t.difficulty]||'var(--muted)'}">${escH(String(t.difficulty))}</span>`:''}
       </div>
     </div>`).join('');
   $('selectorSub').textContent=`${tests.length} test${tests.length!==1?'s':''} available`;
@@ -141,25 +150,22 @@ function renderSelector(tests){
 
 function selectTest(id){
   selectedTest=allTests.find(t=>String(t.id)===String(id));
-  // deselect all
+  // Deselect all
   document.querySelectorAll('[id^="tc_"]').forEach(c=>{
-    c.classList.remove('border-[color:var(--cc)]');
-    c.querySelector('.tc-check').classList.add('opacity-0');
-    c.querySelector('.tc-check').classList.remove('opacity-100');
-    // remove top bar scale
-    c.querySelector('div.absolute.top-0').classList.remove('scale-x-100');
-    c.querySelector('div.absolute.top-0').classList.add('scale-x-0');
+    c.style.borderColor='';
+    c.querySelector('.tc-check').style.opacity='0';
+    c.querySelector('.tc-bar').style.transform='scaleX(0)';
   });
-  // select this one
+  // Select this one
   const card=$(`tc_${id}`);
-  card.style.borderColor=selectedTest.color||'#7c6af7';
-  card.querySelector('.tc-check').classList.remove('opacity-0');
-  card.querySelector('.tc-check').classList.add('opacity-100');
-  card.querySelector('div.absolute.top-0').classList.remove('scale-x-0');
-  card.querySelector('div.absolute.top-0').classList.add('scale-x-100');
-  // enable start btn
+  card.style.borderColor=selectedTest.color||'var(--accent)';
+  card.querySelector('.tc-check').style.opacity='1';
+  card.querySelector('.tc-bar').style.transform='scaleX(1)';
+  // Enable button
   const btn=$('startTestBtn');
-  btn.classList.remove('opacity-40','pointer-events-none');
+  btn.classList.remove('disabled');
+  btn.style.opacity='1';
+  btn.style.pointerEvents='all';
   btn.textContent=`Start "${selectedTest.title}" →`;
 }
 
@@ -197,30 +203,26 @@ function goBackToName(){
 function selectMode(m){
   quizMode=m;
   ['train','test','race'].forEach(id=>resetModeCard(id));
-  const colors={train:'accent3',test:'accent',race:'accent2'};
+  const colorVar={train:'var(--accent3)',test:'var(--accent)',race:'var(--accent2)'};
+  const c=colorVar[m];
   const card=$(`mode_${m}`);
-  const colorMap={
-    train:{border:'border-accent3',bg:'bg-accent3/10',check:'border-accent3 bg-accent3'},
-    test: {border:'border-accent', bg:'bg-accent/10',  check:'border-accent bg-accent'},
-    race: {border:'border-accent2',bg:'bg-accent2/10', check:'border-accent2 bg-accent2'},
-  };
-  const s=colorMap[m];
-  card.classList.remove('border-border','bg-surface2');
-  card.classList.add(s.border,s.bg);
+  card.style.borderColor=c;
+  card.style.background=`color-mix(in srgb,${c} 8%,var(--surface2))`;
   const chk=card.querySelector('.mode-check');
-  chk.classList.remove('border-border');
-  chk.classList.add(...s.check.split(' '));
-  chk.innerHTML='<span class="text-white text-xs font-bold">✓</span>';
-  // Enable start button
-  $('startModeBtn').classList.remove('opacity-40','pointer-events-none');
+  chk.style.borderColor=c;
+  chk.style.background=c;
+  chk.innerHTML='<span style="color:white;font-size:11px;font-weight:700">✓</span>';
+  $('startModeBtn').classList.remove('disabled');
+  $('startModeBtn').style.opacity='1';
+  $('startModeBtn').style.pointerEvents='all';
 }
 function resetModeCard(m){
   const card=$(`mode_${m}`);
-  card.className='mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all text-left '
-    +{train:'hover:border-accent3 hover:bg-accent3/5',test:'hover:border-accent hover:bg-accent/5',race:'hover:border-accent2 hover:bg-accent2/5'}[m];
+  if(!card)return;
+  card.style.borderColor='var(--border)';
+  card.style.background='var(--surface2)';
   const chk=card.querySelector('.mode-check');
-  chk.className='mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all';
-  chk.innerHTML='';
+  if(chk){chk.style.borderColor='var(--border)';chk.style.background='transparent';chk.innerHTML='';}
 }
 
 // ═══════════════════════════════════════════════════
@@ -313,26 +315,26 @@ function renderQ(){
   let imageBlock='';
   const imgUrl=String(q.imageUrl||'').trim();
   if(imgUrl&&q.type!=='hotspot'){
-    imageBlock=`<div class="w-full mb-6 rounded-xl overflow-hidden border border-border bg-surface2">
+    imageBlock=`<div style="background:var(--surface2)">
       <img src="${escH(imgUrl)}" alt="Question image" class="w-full h-auto max-h-72 object-contain block transition-opacity duration-300" style="opacity:0"
         onload="this.style.opacity=1"
         onerror="this.parentNode.innerHTML='<div class=\\'flex items-center justify-center h-24 text-[#f87171] text-sm gap-2\\'>⚠️ Image failed to load</div>'"/>
     </div>`;
   }
 
-  const req=String(q.required).toUpperCase()==='TRUE'?'<span class="text-accent2 ml-1">*</span>':'';
+  const req=String(q.required).toUpperCase()==='TRUE'?`<span style="color:var(--accent2);margin-left:4px">*</span>`:'';
   let inputHtml='';
 
   // ── radio ──
   if(q.type==='radio'){
     const opts=String(q.options).split('|').filter(Boolean);
-    inputHtml=`<div class="flex flex-col gap-2.5">${opts.map(o=>{
+    inputHtml=`<div style="display:flex;flex-direction:column;gap:10px">${opts.map(o=>{
       const sel=answers[q.id]===o;
-      return `<div onclick="selR(${q.id},'${escJ(o)}',this)" class="flex items-center gap-3 px-4 py-3.5 bg-surface2 border ${sel?'border-accent bg-accent/10':'border-border'} rounded-xl cursor-pointer transition-all hover:border-accent hover:bg-accent/5 select-none">
-        <div class="w-5 h-5 rounded-full border-2 ${sel?'border-accent bg-accent':'border-border'} flex items-center justify-center flex-shrink-0 transition-all">
-          ${sel?'<div class="w-2 h-2 rounded-full bg-white"></div>':''}
+      return `<div onclick="selR(${q.id},'${escJ(o)}',this)" class="opt${sel?' opt sel-radio':''}" data-val="${escH(o)}">
+        <div style="width:20px;height:20px;border-radius:50%;border:2px solid ${sel?'var(--accent)':'var(--border2)'};background:${sel?'var(--accent)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .18s">
+          ${sel?'<div style="width:8px;height:8px;border-radius:50%;background:white"></div>':''}
         </div>
-        <span class="text-sm leading-snug">${escH(o)}</span>
+        <span style="font-size:14px;color:var(--text)">${escH(o)}</span>
       </div>`;
     }).join('')}</div>`;
   }
@@ -340,43 +342,43 @@ function renderQ(){
   else if(q.type==='checkbox'){
     const opts=String(q.options).split('|').filter(Boolean);
     const cur=answers[q.id]?answers[q.id].split('|'):[];
-    inputHtml=`<div class="flex flex-col gap-2.5">${opts.map(o=>{
+    inputHtml=`<div style="display:flex;flex-direction:column;gap:10px">${opts.map(o=>{
       const sel=cur.includes(o);
-      return `<div onclick="selC(${q.id},'${escJ(o)}',this)" class="flex items-center gap-3 px-4 py-3.5 bg-surface2 border ${sel?'border-accent2 bg-accent2/10':'border-border'} rounded-xl cursor-pointer transition-all hover:border-accent2 hover:bg-accent2/5 select-none">
-        <div class="w-5 h-5 rounded-md border-2 ${sel?'border-accent2 bg-accent2':'border-border'} flex items-center justify-center flex-shrink-0 transition-all">
-          ${sel?'<span class="text-white text-xs font-bold">✓</span>':''}
+      return `<div onclick="selC(${q.id},'${escJ(o)}',this)" class="opt${sel?' opt sel-check':''}" data-val="${escH(o)}">
+        <div style="width:20px;height:20px;border-radius:6px;border:2px solid ${sel?'var(--accent2)':'var(--border2)'};background:${sel?'var(--accent2)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .18s">
+          ${sel?'<span style="color:white;font-size:12px;font-weight:700">✓</span>':''}
         </div>
-        <span class="text-sm leading-snug">${escH(o)}</span>
+        <span style="font-size:14px;color:var(--text)">${escH(o)}</span>
       </div>`;
     }).join('')}</div>`;
   }
   // ── text ──
   else if(q.type==='text'){
-    inputHtml=`<textarea oninput="answers[${q.id}]=this.value" placeholder="Type your answer…"
-      class="w-full bg-surface2 border border-border rounded-xl px-4 py-3.5 text-[#e8e8f0] text-sm outline-none resize-y min-h-[80px] focus:border-accent3 placeholder:text-muted transition-colors">${escH(answers[q.id]||'')}</textarea>`;
+    inputHtml=`<textarea class="textarea-inp" placeholder="Type your answer…" oninput="answers[${q.id}]=this.value">${escH(answers[q.id]||'')}</textarea>`;
   }
   // ── rating ──
   else if(q.type==='rating'){
     const sc=parseInt(q.ratingScale)||5; const cur=answers[q.id];
-    inputHtml=`<div class="flex gap-2 flex-wrap">${Array.from({length:sc},(_,i)=>{const v=i+1;const sel=String(cur)===String(v);
-      return `<button onclick="selRat(${q.id},${v},this)" class="w-13 h-13 w-12 h-12 rounded-xl text-base font-heading font-bold transition-all border ${sel?'bg-yellow-400 border-yellow-400 text-[#1a1a00] scale-105':'bg-surface2 border-border text-muted hover:border-yellow-400 hover:text-yellow-400'}">${v}</button>`;
+    inputHtml=`<div style="display:flex;gap:8px;flex-wrap:wrap">${Array.from({length:sc},(_,i)=>{
+      const v=i+1; const sel=String(cur)===String(v);
+      return `<button class="rating-btn${sel?' sel':''}" onclick="selRat(${q.id},${v},this)">${v}</button>`;
     }).join('')}</div>
-    <div class="flex justify-between mt-2 text-[11px] text-muted"><span>${q.ratingMin||'Low'}</span><span>${q.ratingMax||'High'}</span></div>`;
+    <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--muted)"><span>${escH(q.ratingMin||'Low')}</span><span>${escH(q.ratingMax||'High')}</span></div>`;
   }
   // ── dropdown ──
   else if(q.type==='dropdown'){
     const opts=String(q.options).split('|').filter(Boolean); const cur=answers[q.id]||'';
-    inputHtml=`<select onchange="answers[${q.id}]=this.value" class="w-full bg-surface2 border border-border rounded-xl px-4 py-3.5 text-[#e8e8f0] text-sm outline-none cursor-pointer appearance-none focus:border-sky-400 transition-colors">
+    inputHtml=`<select class="styled-select" onchange="answers[${q.id}]=this.value">
       <option value="">— Select —</option>
-      ${opts.map(o=>`<option value="${escH(o)}" ${cur===o?'selected':''} class="bg-surface2">${escH(o)}</option>`).join('')}
+      ${opts.map(o=>`<option value="${escH(o)}" ${cur===o?'selected':''}>${escH(o)}</option>`).join('')}
     </select>`;
   }
   // ── truefalse ──
   else if(q.type==='truefalse'){
     const cur=answers[q.id];
-    inputHtml=`<div class="flex gap-3">
-      <button onclick="selTF(${q.id},'TRUE',this)" class="flex-1 py-4 rounded-xl border-2 font-heading font-bold text-base transition-all ${cur==='TRUE'?'bg-green-400/10 border-green-400 text-green-400':'bg-surface2 border-border text-muted hover:border-accent3'}">✓ True</button>
-      <button onclick="selTF(${q.id},'FALSE',this)" class="flex-1 py-4 rounded-xl border-2 font-heading font-bold text-base transition-all ${cur==='FALSE'?'bg-red-400/10 border-[#f87171] text-[#f87171]':'bg-surface2 border-border text-muted hover:border-accent3'}">✗ False</button>
+    inputHtml=`<div style="display:flex;gap:12px">
+      <button class="tf-btn${cur==='TRUE'?' sel-true':''}" onclick="selTF(${q.id},'TRUE',this)">✓ True</button>
+      <button class="tf-btn${cur==='FALSE'?' sel-false':''}" onclick="selTF(${q.id},'FALSE',this)">✗ False</button>
     </div>`;
   }
   // ── ordering ──
@@ -391,10 +393,10 @@ function renderQ(){
   else if(q.type==='matrix') inputHtml=buildMatrixHTML(q);
 
   $('questionContainer').innerHTML=`
-    <div class="w-full max-w-2xl bg-surface border border-border rounded-2xl p-7 md:p-9 mb-6 relative overflow-hidden card-accent animate-fadeUp">
-      <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-4 ${m.bg} ${m.text}">${m.icon} ${m.label}</span>
-      <p class="font-heading text-xs text-muted font-semibold mb-2">Question ${currentIdx+1} of ${questions.length}</p>
-      <p class="font-heading text-xl md:text-2xl font-bold leading-snug mb-6 tracking-tight">${escH(q.question)}${req}</p>
+    <div class="card w-full max-w-2xl p-7 md:p-9 mb-6 relative overflow-hidden card-accent animate-fadeUp">
+      <span class="type-badge ${m.bg} ${m.text}">${m.icon} ${m.label}</span>
+      <p class="font-heading text-xs font-semibold mb-2 mt-3" style="color:var(--muted)">Question ${currentIdx+1} of ${questions.length}</p>
+      <p class="font-heading text-xl md:text-2xl font-bold leading-snug mb-6 tracking-tight" style="color:var(--text)">${escH(q.question)}${req}</p>
       ${imageBlock}
       ${inputHtml}
     </div>`;
@@ -497,27 +499,26 @@ function renderToc(){
     const isAnswered=answers[q.id]&&String(answers[q.id]).trim()!=='';
     const icon=TYPE_ICONS[q.type]||'❓';
 
-    let bg='background:#18181f;border-color:#252533';
-    let numBg='background:#252533;color:#6b6b85';
-    let textColor='color:#e2e2f0';
-
-    if(isCurrent){
-      bg='background:rgba(124,106,247,.12);border-color:#7c6af7';
-      numBg='background:#7c6af7;color:white';
-    }else if(isAnswered){
-      bg='background:rgba(74,222,128,.06);border-color:rgba(74,222,128,.25)';
-      numBg='background:rgba(74,222,128,.2);color:#4ade80';
-    }
+    let bg=isCurrent
+      ?`background:rgba(108,92,231,.1);border-color:var(--accent)`
+      :isAnswered
+        ?`background:rgba(0,184,148,.05);border-color:rgba(0,184,148,.25)`
+        :`background:var(--surface2);border-color:var(--border)`;
+    let numBg=isCurrent
+      ?`background:var(--accent);color:white`
+      :isAnswered
+        ?`background:rgba(0,184,148,.2);color:var(--success)`
+        :`background:var(--border);color:var(--muted)`;
 
     return `<button onclick="jumpToQuestion(${i})"
       style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid;${bg};cursor:pointer;transition:all .15s;text-align:left;margin-bottom:5px">
       <div style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:11px;font-weight:800;flex-shrink:0;${numBg}">${i+1}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:12px;${textColor};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3">${escH(String(q.question).substring(0,48))}${q.question.length>48?'…':''}</div>
-        <div style="font-size:10px;color:#6b6b85;margin-top:1px">${icon} ${q.type}${isAnswered?' · answered':''}</div>
+        <div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3">${escH(String(q.question).substring(0,48))}${q.question.length>48?'…':''}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px">${icon} ${q.type}${isAnswered?' · answered':''}</div>
       </div>
-      ${isCurrent?'<div style="width:6px;height:6px;border-radius:50%;background:#7c6af7;flex-shrink:0"></div>':''}
-      ${isAnswered&&!isCurrent?'<div style="width:6px;height:6px;border-radius:50%;background:#4ade80;flex-shrink:0"></div>':''}
+      ${isCurrent?`<div style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>`:''}
+      ${isAnswered&&!isCurrent?`<div style="width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0"></div>`:''}
     </button>`;
   }).join('');
 }
@@ -540,13 +541,13 @@ function jumpToQuestion(idx){
 function buildOrderingHTML(q){
   const items=String(q.options).split('|').filter(Boolean);
   let ordered=answers[q.id]?answers[q.id].split('|'):(answers[q.id]=shuffle(items).join('|'),answers[q.id].split('|'));
-  return `<p class="text-xs text-muted mb-3 flex items-center gap-1.5"><span class="text-accent opacity-60 text-sm">☰</span>Drag items up or down to reorder</p>
-  <div class="flex flex-col gap-2" id="orderList_${q.id}" data-qid="${q.id}">
+  return `<p style="font-size:12px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px"><span style="color:var(--accent);opacity:.7;font-size:14px">☰</span>Drag items up or down to reorder</p>
+  <div style="display:flex;flex-direction:column;gap:8px" id="orderList_${q.id}" data-qid="${q.id}">
     ${ordered.map((item,i)=>`
-      <div class="flex items-center gap-3 px-4 py-3.5 bg-surface2 border-2 border-border rounded-xl cursor-grab select-none transition-all hover:border-orange-400 hover:bg-orange-400/5" draggable="true" data-item="${escH(item)}" data-idx="${i}">
-        <span class="text-muted text-lg leading-none cursor-grab" style="letter-spacing:-2px">⠿</span>
-        <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-heading font-bold flex-shrink-0" style="background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.3);color:#fb923c">${i+1}</div>
-        <span class="text-sm flex-1 leading-snug">${escH(item)}</span>
+      <div class="ordering-item" style="display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:grab;user-select:none;transition:all .2s" draggable="true" data-item="${escH(item)}" data-idx="${i}">
+        <span style="color:var(--muted);font-size:18px;cursor:grab;flex-shrink:0;letter-spacing:-2px">⠿</span>
+        <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:12px;font-weight:800;flex-shrink:0;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.3);color:#fb923c">${i+1}</div>
+        <span style="font-size:14px;color:var(--text);flex:1;line-height:1.4">${escH(item)}</span>
       </div>`).join('')}
   </div>`;
 }
@@ -581,30 +582,31 @@ function buildMatchingHTML(q){
   const usedAnswers=Object.values(savedMap);
   const shuffledAnswers=shuffle(pairs.map(p=>p.answer));
   const promptsHTML=pairs.map((p,i)=>`
-    <div class="flex items-center gap-2.5 px-3.5 py-3 rounded-xl border border-violet-400/25 min-h-[50px] text-sm" style="background:rgba(192,132,252,.06)">
-      <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-heading font-bold flex-shrink-0" style="background:rgba(192,132,252,.2);color:#c084fc">${letters[i]}</div>
-      <span>${escH(p.prompt)}</span>
+    <div class="matching-prompt" style="display:flex;align-items:center;gap:10px;padding:11px 14px;min-height:50px;font-size:14px">
+      <div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;flex-shrink:0;background:rgba(192,132,252,.2);color:#c084fc">${letters[i]}</div>
+      <span style="color:var(--text)">${escH(p.prompt)}</span>
     </div>`).join('');
   const dropsHTML=pairs.map((p,i)=>{const matched=savedMap[p.prompt]||'';
-    return `<div class="min-h-[50px] rounded-xl border-2 ${matched?'border-solid border-violet-400/40':'border-dashed border-border'} bg-surface2 flex items-center px-2.5 gap-2 transition-all"
+    return `<div class="matching-drop-zone${matched?' has-item':''}"
+      style="display:flex;align-items:center;padding:8px 10px;gap:8px;transition:all .2s"
       id="drop_${q.id}_${i}" data-qid="${q.id}" data-prompt="${escH(p.prompt)}" data-idx="${i}"
       ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event)">
       ${matched
-        ?`<span class="text-[11px] font-bold px-2 py-0.5 rounded flex-shrink-0" style="background:rgba(192,132,252,.15);color:#c084fc">${letters[i]}</span>
-           <span class="text-sm flex-1">${escH(matched)}</span>
-           <button onclick="removeMatch(${q.id},${i},'${escJ(matched)}')" class="text-muted hover:text-red-400 text-base px-1 flex-shrink-0 transition-colors">✕</button>`
-        :`<span class="text-xs text-muted italic">Drop answer here</span>`}
+        ?`<span style="font-size:11px;font-weight:700;background:rgba(192,132,252,.15);color:#c084fc;border-radius:4px;padding:2px 7px;flex-shrink:0">${letters[i]}</span>
+           <span style="font-size:14px;flex:1;color:var(--text)">${escH(matched)}</span>
+           <button onclick="removeMatch(${q.id},${i},'${escJ(matched)}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 4px;line-height:1;flex-shrink:0" onmouseover="this.style.color='var(--error)'" onmouseout="this.style.color='var(--muted)'">✕</button>`
+        :`<span style="font-size:12px;color:var(--muted);font-style:italic">Drop answer here</span>`}
     </div>`;}).join('');
   const bankHTML=shuffledAnswers.map(a=>`
-    <div class="px-3.5 py-2 bg-surface2 border-2 border-border rounded-lg text-sm cursor-grab select-none transition-all hover:border-violet-400 hover:bg-violet-400/5 bank-chip"
-      draggable="true" data-answer="${escH(a)}" ${usedAnswers.includes(a)?'style="opacity:.3;pointer-events:none;border-style:dashed"':''}
+    <div class="bank-chip" style="padding:8px 14px;font-size:14px;cursor:grab;transition:all .2s;user-select:none;color:var(--text)${usedAnswers.includes(a)?';opacity:.3;pointer-events:none;border-style:dashed':''}"
+      draggable="true" data-answer="${escH(a)}"
       ondragstart="chipDragStart(event,${q.id})" ondragend="chipDragEnd(event)">${escH(a)}</div>`).join('');
-  return `<p class="text-xs text-muted mb-4 leading-relaxed">Drag each answer chip onto the matching prompt. Tap ✕ to remove.</p>
-  <div class="grid grid-cols-2 gap-4 mb-4">
-    <div><p class="font-heading text-[10px] font-bold uppercase tracking-widest text-muted mb-2.5">Prompts</p><div class="flex flex-col gap-2">${promptsHTML}</div></div>
-    <div><p class="font-heading text-[10px] font-bold uppercase tracking-widest text-muted mb-2.5">Drop Here</p><div class="flex flex-col gap-2">${dropsHTML}</div></div>
+  return `<p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5">Drag each answer chip onto the matching prompt. Tap ✕ to remove.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div><p style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">Prompts</p><div style="display:flex;flex-direction:column;gap:8px">${promptsHTML}</div></div>
+    <div><p style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">Drop Here</p><div style="display:flex;flex-direction:column;gap:8px">${dropsHTML}</div></div>
   </div>
-  <div><p class="font-heading text-[10px] font-bold uppercase tracking-widest text-muted mb-2.5">Answer Bank</p><div class="flex flex-wrap gap-2" id="bank_${q.id}">${bankHTML}</div></div>`;
+  <div><p style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">Answer Bank</p><div style="display:flex;flex-wrap:wrap;gap:8px" id="bank_${q.id}">${bankHTML}</div></div>`;
 }
 function initMatchingDrag(q){
   const bank=document.getElementById(`bank_${q.id}`);if(!bank)return;
@@ -657,7 +659,7 @@ function buildHotspotHTML(q){
     ?`<div class="mt-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-center text-pink-400 border border-pink-400/30 bg-pink-400/8">✓ Selected: <strong>${escH(selected)}</strong></div>`
     :`<div class="mt-3 px-4 py-2.5 rounded-xl text-sm text-center text-muted italic border border-border">No zone selected yet — click on the image</div>`;
   return `<div class="text-xs text-muted mb-3 flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-pink-400/20 bg-pink-400/5">👆 Click on the correct area of the image below</div>
-  <div class="relative inline-block w-full rounded-xl overflow-hidden border-2 border-border bg-surface2 cursor-crosshair">
+  <div style="background:var(--surface2)">
     <img src="${escH(imgUrl)}" alt="Hotspot" draggable="false" class="w-full h-auto block max-h-[420px] object-contain select-none transition-opacity duration-300" style="opacity:0" onload="this.style.opacity=1"
       onerror="this.parentNode.innerHTML='<div class=\\'p-10 text-center text-[#f87171] text-sm\\'>⚠️ Image failed to load</div>'"/>
     ${zonesHTML}
@@ -678,13 +680,13 @@ function selHotspot(qid,label,el){
 function buildMtfHTML(q){
   const stmts=String(q.options).split('|').filter(Boolean);
   const cur=answers[q.id]?answers[q.id].split('|'):[];
-  return `<div class="flex flex-col gap-3">${stmts.map((stmt,i)=>{
+  return `<div style="display:flex;flex-direction:column;gap:10px">${stmts.map((stmt,i)=>{
     const val=cur[i]||'';
-    return `<div class="bg-surface2 border ${val?'border-teal-400/35':'border-border'} rounded-xl px-4 py-3.5 transition-colors" id="mtfrow_${q.id}_${i}">
-      <p class="text-sm mb-3 leading-snug">${escH(stmt)}</p>
-      <div class="flex gap-2.5">
-        <button onclick="selMtf(${q.id},${i},'TRUE',this)" class="flex-1 py-2.5 rounded-lg border-2 font-heading font-bold text-sm transition-all ${val==='TRUE'?'bg-green-400/10 border-green-400 text-green-400':'bg-surface border-border text-muted hover:border-accent3'}">✓ True</button>
-        <button onclick="selMtf(${q.id},${i},'FALSE',this)" class="flex-1 py-2.5 rounded-lg border-2 font-heading font-bold text-sm transition-all ${val==='FALSE'?'bg-red-400/10 border-[#f87171] text-[#f87171]':'bg-surface border-border text-muted hover:border-accent3'}">✗ False</button>
+    return `<div class="mtf-row" id="mtfrow_${q.id}_${i}">
+      <p style="font-size:14px;margin-bottom:10px;line-height:1.45;color:var(--text)">${escH(stmt)}</p>
+      <div style="display:flex;gap:10px">
+        <button class="mtf-btn${val==='TRUE'?' sel-true':''}" onclick="selMtf(${q.id},${i},'TRUE',this)">✓ True</button>
+        <button class="mtf-btn${val==='FALSE'?' sel-false':''}" onclick="selMtf(${q.id},${i},'FALSE',this)">✗ False</button>
       </div>
     </div>`;}).join('')}</div>`;
 }
@@ -696,9 +698,8 @@ function selMtf(qid,idx,val,btn){
   cur[idx]=val; answers[qid]=cur.join('|');
   const row=document.getElementById(`mtfrow_${qid}_${idx}`);
   if(row){
-    row.className=`bg-surface2 border border-teal-400/35 rounded-xl px-4 py-3.5 transition-colors`;
-    row.querySelectorAll('button').forEach(b=>{b.className=`flex-1 py-2.5 rounded-lg border-2 font-heading font-bold text-sm transition-all bg-surface border-border text-muted hover:border-accent3`;});
-    btn.className=`flex-1 py-2.5 rounded-lg border-2 font-heading font-bold text-sm transition-all ${val==='TRUE'?'bg-green-400/10 border-green-400 text-green-400':'bg-red-400/10 border-[#f87171] text-[#f87171]'}`;
+    row.querySelectorAll('.mtf-btn').forEach(b=>{b.classList.remove('sel-true','sel-false');});
+    btn.classList.add(val==='TRUE'?'sel-true':'sel-false');
   }
 }
 
@@ -708,22 +709,21 @@ function selMtf(qid,idx,val,btn){
 function buildMatrixHTML(q){
   const rows=String(q.options).split('|').filter(Boolean);
   const cols=String(q.matrixCols||'').split('|').filter(Boolean);
-  if(!cols.length)return`<div class="text-red-400 text-sm p-3">⚠️ matrix type requires a matrixCols column.</div>`;
+  if(!cols.length)return`<div style="color:var(--error);font-size:13px;padding:12px">⚠️ matrix type requires a matrixCols column.</div>`;
   const saved=parseMatchingAnswer(answers[q.id]||'');
-  const headerCells=cols.map(c=>`<th class="px-2 py-2.5 text-center font-heading text-[10px] font-bold uppercase tracking-wide text-amber-400 border-b-2 border-border border-r border-border last:border-r-0 whitespace-normal min-w-[48px]">${escH(c)}</th>`).join('');
+  const headerCells=cols.map(c=>`<th class="matrix-th">${escH(c)}</th>`).join('');
   const bodyRows=rows.map(row=>{const chosen=saved[row]||'';
-    return `<tr class="border-b border-border last:border-b-0 hover:bg-amber-400/5 transition-colors" id="mxrow_${q.id}_${CSS.escape(row)}">
-      <td class="px-3.5 py-3 text-sm border-r border-border">${escH(row)}</td>
-      ${cols.map(col=>`<td class="px-2 py-3 text-center border-r border-border last:border-r-0">
-        <div onclick="selMatrix(${q.id},'${escJ(row)}','${escJ(col)}',this)"
-          class="w-5 h-5 rounded-full border-2 mx-auto cursor-pointer transition-all ${chosen===col?'border-amber-400 bg-amber-400':'border-border hover:border-amber-400'} flex items-center justify-center">
-          ${chosen===col?'<div class="w-2 h-2 rounded-full bg-white"></div>':''}
+    return `<tr id="mxrow_${q.id}_${CSS.escape(row)}" style="transition:background .15s">
+      <td class="matrix-td-label">${escH(row)}</td>
+      ${cols.map(col=>`<td class="matrix-td">
+        <div class="matrix-radio${chosen===col?' sel':''}" onclick="selMatrix(${q.id},'${escJ(row)}','${escJ(col)}',this)">
+          ${chosen===col?'<div style="width:8px;height:8px;border-radius:50%;background:white"></div>':''}
         </div>
       </td>`).join('')}
     </tr>`;}).join('');
-  return `<div class="w-full overflow-x-auto rounded-xl border border-border">
-    <table class="w-full border-collapse min-w-[380px]">
-      <thead class="bg-surface2"><tr><th class="px-3.5 py-2.5 border-b-2 border-border border-r border-border text-left w-[35%]"></th>${headerCells}</tr></thead>
+  return `<div style="width:100%;overflow-x:auto;border-radius:12px;border:1px solid var(--border)">
+    <table class="matrix-table">
+      <thead style="background:var(--surface2)"><tr><th class="matrix-th-blank"></th>${headerCells}</tr></thead>
       <tbody>${bodyRows}</tbody>
     </table>
   </div>`;
@@ -734,9 +734,9 @@ function selMatrix(qid,rowLabel,colLabel,dot){
   answers[qid]=Object.entries(map).map(([k,v])=>`${k}::${v}`).join('|');
   const rowEl=document.getElementById(`mxrow_${qid}_${CSS.escape(rowLabel)}`);
   if(rowEl){
-    rowEl.querySelectorAll('[onclick]').forEach(d=>{d.className='w-5 h-5 rounded-full border-2 mx-auto cursor-pointer transition-all border-border hover:border-amber-400 flex items-center justify-center';d.innerHTML='';});
-    dot.className='w-5 h-5 rounded-full border-2 mx-auto cursor-pointer transition-all border-amber-400 bg-amber-400 flex items-center justify-center';
-    dot.innerHTML='<div class="w-2 h-2 rounded-full bg-white"></div>';
+    rowEl.querySelectorAll('.matrix-radio').forEach(d=>{d.classList.remove('sel');d.innerHTML='';});
+    dot.classList.add('sel');
+    dot.innerHTML='<div style="width:8px;height:8px;border-radius:50%;background:white"></div>';
   }
 }
 
@@ -745,15 +745,16 @@ function selMatrix(qid,rowLabel,colLabel,dot){
 // ═══════════════════════════════════════════════════
 function selR(id,val,el){
   answers[id]=val;
-  el.closest('.flex.flex-col').querySelectorAll('[onclick]').forEach(e=>{
-    e.className=e.className.replace('border-accent bg-accent/10','border-border');
-    e.querySelector('div').className=e.querySelector('div').className.replace('border-accent bg-accent','border-border')+' ';
-    e.querySelector('div').innerHTML='';
+  // Reset all options in this group
+  el.closest('[style*="flex-direction:column"]').querySelectorAll('.opt').forEach(e=>{
+    e.classList.remove('sel-radio');
+    const dot=e.querySelector('div');
+    if(dot){dot.style.borderColor='var(--border2)';dot.style.background='transparent';dot.innerHTML='';}
   });
-  el.className=el.className.replace('border-border','border-accent bg-accent/10');
+  // Mark selected
+  el.classList.add('sel-radio');
   const circle=el.querySelector('div');
-  circle.className=circle.className.replace('border-border','border-accent bg-accent');
-  circle.innerHTML='<div class="w-2 h-2 rounded-full bg-white"></div>';
+  if(circle){circle.style.borderColor='var(--accent)';circle.style.background='var(--accent)';circle.innerHTML='<div style="width:8px;height:8px;border-radius:50%;background:white"></div>';}
 }
 function selC(id,val,el){
   const cur=answers[id]?answers[id].split('|'):[];
@@ -761,22 +762,23 @@ function selC(id,val,el){
   if(i===-1)cur.push(val);else cur.splice(i,1);
   answers[id]=cur.join('|');
   const sel=cur.includes(val);
-  el.className=el.className.replace(sel?'border-border':'border-accent2 bg-accent2/10',sel?'border-accent2 bg-accent2/10':'border-border');
+  if(sel)el.classList.add('sel-check');else el.classList.remove('sel-check');
   const box=el.querySelector('div');
-  box.className=box.className.replace(sel?'border-border':'border-accent2 bg-accent2',sel?'border-accent2 bg-accent2':'border-border');
-  box.innerHTML=sel?'<span class="text-white text-xs font-bold">✓</span>':'';
+  if(box){
+    box.style.borderColor=sel?'var(--accent2)':'var(--border2)';
+    box.style.background=sel?'var(--accent2)':'transparent';
+    box.innerHTML=sel?'<span style="color:white;font-size:12px;font-weight:700">✓</span>':'';
+  }
 }
 function selRat(id,val,el){
   answers[id]=val;
-  el.closest('.flex.gap-2').querySelectorAll('button').forEach(b=>{b.className=b.className.replace('bg-yellow-400 border-yellow-400 text-[#1a1a00] scale-105','bg-surface2 border-border text-muted hover:border-yellow-400 hover:text-yellow-400');});
-  el.className=el.className.replace('bg-surface2 border-border text-muted hover:border-yellow-400 hover:text-yellow-400','bg-yellow-400 border-yellow-400 text-[#1a1a00] scale-105');
+  el.closest('[style*="flex"]').querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
 }
 function selTF(id,val,el){
   answers[id]=val;
-  el.closest('.flex.gap-3').querySelectorAll('button').forEach(b=>{
-    b.className='flex-1 py-4 rounded-xl border-2 font-heading font-bold text-base transition-all bg-surface2 border-border text-muted hover:border-accent3';
-  });
-  el.className=`flex-1 py-4 rounded-xl border-2 font-heading font-bold text-base transition-all ${val==='TRUE'?'bg-green-400/10 border-green-400 text-green-400':'bg-red-400/10 border-[#f87171] text-[#f87171]'}`;
+  el.closest('[style*="flex"]').querySelectorAll('.tf-btn').forEach(b=>{b.classList.remove('sel-true','sel-false');});
+  el.classList.add(val==='TRUE'?'sel-true':'sel-false');
 }
 
 // ═══════════════════════════════════════════════════
@@ -836,7 +838,7 @@ function showRaceFeedback(correct, streak, total){
   const el=$('raceFeedback');
   $('raceFeedbackIcon').textContent=correct?'✅':'❌';
   $('raceFeedbackText').textContent=correct?`Correct! ${streak} of ${total}`:'Wrong! Starting over...';
-  $('raceFeedbackText').style.color=correct?'#4ade80':'#f87171';
+  $('raceFeedbackText').style.color=correct?'var(--success)':'var(--error)';
   $('raceFeedbackSub').textContent=correct
     ?streak===total?'🏆 Last one — submitting!':'Keep going!'
     :`You had ${streak} correct. Try again!`;
@@ -888,14 +890,19 @@ async function submit(){
     $('resultSub').textContent=`Hi ${respondentName.split(' ')[0]}! You've completed the test.`;
     const ss=$('resultSaveStatus');
     ss.textContent=saved?'✅ Responses saved to Google Sheets':'📋 Not saved — check your Apps Script deployment.';
-    ss.style.color=saved?'#4ade80':'#7a7a9a';
+    ss.style.color=saved?'var(--success)':'var(--muted)';
     if(pct!==null){
       show('scoreCard');
-      setTimeout(()=>{const circ=2*Math.PI*52;$('ringFill').style.strokeDasharray=`${(pct/100)*circ} ${circ}`;const rc={A:'#4ade80',B:'#7c6af7',C:'#fbbf24',D:'#f87171'};$('ringFill').style.stroke=rc[grade];$('ringPct').style.color=rc[grade];},120);
+      setTimeout(()=>{const circ=2*Math.PI*52;$('ringFill').style.strokeDasharray=`${(pct/100)*circ} ${circ}`;const rc={A:'var(--success)',B:'var(--accent)',C:'#fbbf24',D:'var(--error)'};$('ringFill').style.stroke=rc[grade];$('ringPct').style.color=rc[grade];},120);
       $('ringPct').textContent=pct+'%';$('statCorrect').textContent=correct;$('statWrong').textContent=wrong;$('statTotal').textContent=total;
-      const gradeStyles={A:'bg-green-400/15 text-green-400 border border-green-400/40',B:'bg-accent/15 text-accent border border-accent/40',C:'bg-yellow-400/15 text-yellow-400 border border-yellow-400/40',D:'bg-red-400/15 text-[#f87171] border border-red-400/40'};
+      const gradeStyles={
+        A:`background:rgba(0,184,148,.1);color:var(--success);border:1px solid rgba(0,184,148,.3)`,
+        B:`background:rgba(108,92,231,.1);color:var(--accent);border:1px solid rgba(108,92,231,.3)`,
+        C:`background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.3)`,
+        D:`background:rgba(232,67,147,.1);color:var(--error);border:1px solid rgba(232,67,147,.3)`,
+      };
       $('gradeBadge').textContent=`Grade ${grade} — ${gradeLabel[grade]}`;
-      $('gradeBadge').className=`font-heading font-extrabold text-base px-6 py-2 rounded-full ${gradeStyles[grade]}`;
+      $('gradeBadge').style.cssText=`font-family:'Syne',sans-serif;font-weight:800;font-size:15px;padding:8px 24px;border-radius:100px;letter-spacing:.05em;${gradeStyles[grade]}`;
     }else hide('scoreCard');
     buildReview(reviewData);show('reviewSection');
   },900);
@@ -907,39 +914,43 @@ async function submit(){
 function buildReview(reviewData){
   $('reviewList').innerHTML=reviewData.map((item,i)=>{
     const{q,userAns,isCorrect,hasCorrect,correctAns}=item;
-    let icon,iconCls;
-    if(!hasCorrect){icon='💬';iconCls='bg-accent/10 text-accent';}
-    else if(isCorrect){icon='✓';iconCls='bg-green-400/15 text-green-400';}
-    else{icon='✗';iconCls='bg-red-400/15 text-[#f87171]';}
+    let icon,iconBg,iconColor;
+    if(!hasCorrect){icon='💬';iconBg='rgba(108,92,231,.1)';iconColor='var(--accent)';}
+    else if(isCorrect){icon='✓';iconBg='rgba(0,184,148,.12)';iconColor='var(--success)';}
+    else{icon='✗';iconBg='rgba(232,67,147,.12)';iconColor='var(--error)';}
+
+    const S=`color:var(--success)`;
+    const E=`color:var(--error)`;
+    const M=`color:var(--muted)`;
 
     let body='';
     if(q.type==='ordering'){
       const u=userAns?userAns.split('|'):[];const c=correctAns?correctAns.split('|'):[];
-      body=`<div class="ml-10 mt-1"><p class="text-xs text-muted mb-2">Your order:</p>${u.map((it,idx)=>{const ok=it===c[idx];return`<div class="flex items-center gap-2 mb-1.5"><span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0" style="background:${ok?'rgba(74,222,128,.15)':'rgba(248,113,113,.15)'};color:${ok?'#4ade80':'#f87171'}">${idx+1}</span><span class="text-sm" style="color:${ok?'#4ade80':'#f87171'}">${escH(it)}</span>${!ok&&c[idx]?`<span class="text-xs text-muted">← should be: <strong style="color:#4ade80">${escH(c[idx])}</strong></span>`:''}</div>`;}).join('')}</div>`;
+      body=`<div style="margin-left:36px;margin-top:6px"><p style="font-size:12px;${M};margin-bottom:8px">Your order:</p>${u.map((it,idx)=>{const ok=it===c[idx];return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;background:${ok?'rgba(0,184,148,.15)':'rgba(232,67,147,.15)'};${ok?S:E}">${idx+1}</span><span style="font-size:13px;${ok?S:E}">${escH(it)}</span>${!ok&&c[idx]?`<span style="font-size:11px;${M}"> ← should be <strong style="${S}">${escH(c[idx])}</strong></span>`:''}</div>`;}).join('')}</div>`;
     }else if(q.type==='matching'||q.type==='matrix'){
       const u=parseMatchingAnswer(userAns);const c=parseMatchingAnswer(correctAns);
       const hasC=Object.keys(c).length>0;
       const pairs=hasC?Object.entries(c):Object.entries(u);
-      body=`<div class="ml-10 mt-1 flex flex-col gap-1.5">${pairs.map(([prompt,ans])=>{const ua=u[prompt]||'';const ok=hasC?ua.toLowerCase()===ans.toLowerCase():false;return`<div class="flex items-start gap-2 text-sm"><div class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${!hasC?'#7a7a9a':ok?'#4ade80':'#f87171'}"></div><div><span class="text-muted">${escH(prompt)}</span><span class="text-muted mx-1.5">→</span><span style="color:${!hasC?'#e8e8f0':ok?'#4ade80':'#f87171'}">${escH(ua||'—')}</span>${hasC&&!ok&&ans?`<span class="text-xs text-muted ml-1">(correct: <strong style="color:#4ade80">${escH(ans)}</strong>)</span>`:''}</div></div>`;}).join('')}</div>`;
+      body=`<div style="margin-left:36px;margin-top:6px;display:flex;flex-direction:column;gap:6px">${pairs.map(([prompt,ans])=>{const ua=u[prompt]||'';const ok=hasC?ua.toLowerCase()===ans.toLowerCase():false;return`<div style="display:flex;align-items:flex-start;gap:8px;font-size:13px"><div style="width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;background:${!hasC?'var(--muted)':ok?'var(--success)':'var(--error)'}"></div><div><span style="${M}">${escH(prompt)}</span><span style="${M};margin:0 6px">→</span><span style="${!hasC?'color:var(--text)':ok?S:E}">${escH(ua||'—')}</span>${hasC&&!ok&&ans?`<span style="font-size:11px;${M}"> (correct: <strong style="${S}">${escH(ans)}</strong>)</span>`:''}</div></div>`;}).join('')}</div>`;
     }else if(q.type==='mtf'){
       const stmts=String(q.options).split('|').filter(Boolean);
       const u=userAns?userAns.split('|'):[];const c=correctAns?correctAns.split('|'):[];
-      body=`<div class="ml-10 mt-1 flex flex-col gap-1.5">${stmts.map((stmt,idx)=>{const ua=(u[idx]||'').toUpperCase();const ca=(c[idx]||'').toUpperCase();const ok=ua===ca&&ca!=='';return`<div class="flex items-start gap-2 text-sm"><div class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${ok?'#4ade80':'#f87171'}"></div><div><span class="text-muted">${escH(stmt)}</span><br><span class="text-xs" style="color:${ok?'#4ade80':'#f87171'}">You: ${ua||'—'}</span>${!ok&&ca?`<span class="text-xs text-muted ml-2">Correct: <strong style="color:#4ade80">${ca}</strong></span>`:''}</div></div>`;}).join('')}</div>`;
+      body=`<div style="margin-left:36px;margin-top:6px;display:flex;flex-direction:column;gap:6px">${stmts.map((stmt,idx)=>{const ua=(u[idx]||'').toUpperCase();const ca=(c[idx]||'').toUpperCase();const ok=ua===ca&&ca!=='';return`<div style="display:flex;align-items:flex-start;gap:8px;font-size:13px"><div style="width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;background:${ok?'var(--success)':'var(--error)'}"></div><div><span style="${M}">${escH(stmt)}</span><br><span style="font-size:12px;${ok?S:E}">You: ${ua||'—'}</span>${!ok&&ca?`<span style="font-size:12px;${M};margin-left:8px">Correct: <strong style="${S}">${ca}</strong></span>`:''}</div></div>`;}).join('')}</div>`;
     }else{
-      const dispAns=userAns?escH(userAns.replace(/\|/g,' · ')):'<em class="text-muted">No answer</em>';
-      const valStyle=!hasCorrect?'background:#1c1c28;color:#7a7a9a':isCorrect?'background:rgba(74,222,128,.1);color:#4ade80;border:1px solid rgba(74,222,128,.2)':'background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.2);text-decoration:line-through';
+      const dispAns=userAns?escH(userAns.replace(/\|/g,' · ')):`<em style="${M}">No answer</em>`;
+      const valStyle=!hasCorrect?`background:var(--surface2);color:var(--text-sub)`:isCorrect?`background:rgba(0,184,148,.1);${S};border:1px solid rgba(0,184,148,.25)`:`background:rgba(232,67,147,.1);${E};border:1px solid rgba(232,67,147,.25);text-decoration:line-through`;
       let correctRow='';
-      if(hasCorrect&&!isCorrect)correctRow=`<div class="flex items-start gap-2 mt-1.5"><span class="text-[10px] font-bold uppercase tracking-wider min-w-[60px] pt-1 text-green-400">Correct</span><span class="text-xs px-2.5 py-1 rounded-md" style="background:rgba(74,222,128,.1);color:#4ade80;border:1px solid rgba(74,222,128,.2)">${escH(String(correctAns).replace(/\|/g,' · '))}</span></div>`;
-      body=`<div class="ml-10 mt-2">
-        <div class="flex items-start gap-2"><span class="text-[10px] font-bold uppercase tracking-wider min-w-[60px] pt-1 text-muted">${q.type==='hotspot'?'Clicked':'Your Ans'}</span><span class="text-xs px-2.5 py-1 rounded-md" style="${valStyle}">${dispAns}</span></div>
+      if(hasCorrect&&!isCorrect)correctRow=`<div style="display:flex;align-items:flex-start;gap:8px;margin-top:6px"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;min-width:60px;padding-top:2px;${S}">Correct</span><span style="font-size:12px;padding:3px 10px;border-radius:6px;background:rgba(0,184,148,.1);${S};border:1px solid rgba(0,184,148,.25)">${escH(String(correctAns).replace(/\|/g,' · '))}</span></div>`;
+      body=`<div style="margin-left:36px;margin-top:8px">
+        <div style="display:flex;align-items:flex-start;gap:8px"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;min-width:60px;padding-top:2px;${M}">${q.type==='hotspot'?'Clicked':'Your Ans'}</span><span style="font-size:12px;padding:3px 10px;border-radius:6px;${valStyle}">${dispAns}</span></div>
         ${correctRow}
       </div>`;
     }
 
-    return `<div class="px-6 py-5 border-b border-border last:border-b-0">
-      <div class="flex items-start gap-3 mb-2">
-        <div class="w-7 h-7 rounded-full flex items-center justify-center text-sm flex-shrink-0 mt-0.5 ${iconCls}">${icon}</div>
-        <p class="font-heading text-sm font-semibold leading-snug flex-1">Q${i+1}. ${escH(q.question)}</p>
+    return `<div class="review-item">
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
+        <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:1px;background:${iconBg};color:${iconColor}">${icon}</div>
+        <p style="font-family:'Syne',sans-serif;font-size:14px;font-weight:600;line-height:1.4;flex:1;color:var(--text)">Q${i+1}. ${escH(q.question)}</p>
       </div>
       ${body}
     </div>`;
@@ -960,16 +971,20 @@ function toggleReview(){
 //  SCREEN NAVIGATION
 // ═══════════════════════════════════════════════════
 function backToSelector(){
-  // From name/mode/quiz — go back to test selector on same page
   hideAll(); hide('scoreCard');
   selectedTest=null; quizMode='train'; raceCorrectCount=0;
   document.querySelectorAll('[id^="tc_"]').forEach(c=>{
     c.style.borderColor='';
-    c.querySelector?.('.tc-check')?.classList.add('opacity-0');
-    c.querySelector?.('.tc-check')?.classList.remove('opacity-100');
+    c.querySelector?.('.tc-check')?.style && (c.querySelector('.tc-check').style.opacity='0');
+    c.querySelector?.('.tc-bar')?.style && (c.querySelector('.tc-bar').style.transform='scaleX(0)');
   });
   const btn=$('startTestBtn');
-  if(btn){btn.classList.add('opacity-40','pointer-events-none');btn.textContent='Continue →';}
+  if(btn){
+    btn.classList.add('disabled');
+    btn.style.opacity='.4';
+    btn.style.pointerEvents='none';
+    btn.textContent='Continue →';
+  }
   show('testSelector');
 }
 function backToHome(){
