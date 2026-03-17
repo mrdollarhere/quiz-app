@@ -1,0 +1,107 @@
+/* ============================================================
+   shared.css — Common styles for QuizFlow
+   Used by: index.html, tests.html, admin.html
+   ============================================================ */
+
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+/* ── FONT IMPORT (fallback if not in HTML) ── */
+/* Primary font loaded via <link> in each HTML file */
+
+/* ── ANIMATION KEYFRAMES ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes bounceIn {
+  0%   { transform: scale(.3); opacity: 0; }
+  60%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes dots {
+  0%   { content: '.'; }
+  33%  { content: '..'; }
+  66%  { content: '...'; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* ── ANIMATION CLASSES ── */
+.animate-fadeUp   { animation: fadeUp .4s ease both; }
+.animate-bounceIn { animation: bounceIn .5s ease both; }
+.animate-float    { animation: float 4s ease-in-out infinite; }
+.animate-shimmer  { animation: shimmer 1.5s infinite; }
+
+/* ── SKELETON LOADER ── */
+.skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+.ldots::after { content: ''; animation: dots 1.4s infinite; }
+
+/* ── LOGO GRADIENT ── */
+.logo-icon {
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  border-radius: 10px; flex-shrink: 0;
+}
+
+/* ── WATERMARK ── */
+.watermark {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 20px 0 28px;
+}
+.watermark-name {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 800; font-size: 13px; letter-spacing: .12em;
+  background: linear-gradient(135deg, #2563eb, #60a5fa, #34d399);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.watermark-dot {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: #cbd5e1; display: inline-block;
+}
+.watermark-version { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #94a3b8; }
+.watermark-label   { font-size: 11px; color: #94a3b8; }
+
+/* ── CARD ACCENT TOP BAR ── */
+.card-accent { position: relative; overflow: hidden; }
+.card-accent::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #2563eb, #db2777, #059669);
+  border-radius: inherit;
+  border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+}
+
+/* ── GRADIENT TEXT ── */
+.grad-text {
+  background: linear-gradient(135deg, #2563eb, #db2777);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+/* ── ANIMATION DELAYS ── */
+.d1 { animation-delay: .1s; }
+.d2 { animation-delay: .2s; }
+.d3 { animation-delay: .3s; }
+.d4 { animation-delay: .4s; }
