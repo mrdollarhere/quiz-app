@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuizFlow — Smart Quiz Platform</title>
+<title>QuizFlow — Nền tảng kiểm tra thông minh</title>
 
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <script>
@@ -11,465 +11,523 @@ tailwind.config = {
   theme: {
     extend: {
       colors: {
-        bg:'#060608', surface:'#0f0f14', surface2:'#18181f', border:'#252533',
-        accent:'#7c6af7', accent2:'#f76a8a', accent3:'#6af7c4', muted:'#6b6b85',
+        primary:  '#2563eb',
+        primary2: '#1d4ed8',
+        soft:     '#eff6ff',
+        soft2:    '#dbeafe',
+        text:     '#1e293b',
+        sub:      '#475569',
+        muted:    '#94a3b8',
+        border:   '#e2e8f0',
+        surface:  '#f8fafc',
       },
       fontFamily: {
-        sans:['"Be Vietnam Pro"','sans-serif'],
-        heading:['"Be Vietnam Pro"','sans-serif'],
-        mono:['"JetBrains Mono"','monospace'],
+        sans:    ['"Be Vietnam Pro"','sans-serif'],
+        heading: ['"Be Vietnam Pro"','sans-serif'],
+        mono:    ['"JetBrains Mono"','monospace'],
       },
       keyframes: {
-        fadeUp:   {from:{opacity:'0',transform:'translateY(32px)'},to:{opacity:'1',transform:'translateY(0)'}},
-        fadeIn:   {from:{opacity:'0'},to:{opacity:'1'}},
-        bounceIn: {'0%':{transform:'scale(.3)',opacity:'0'},'60%':{transform:'scale(1.1)'},'100%':{transform:'scale(1)',opacity:'1'}},
-        shimmer:  {'0%':{backgroundPosition:'200% 0'},'100%':{backgroundPosition:'-200% 0'}},
-        float:    {'0%,100%':{transform:'translateY(0px)'},'50%':{transform:'translateY(-10px)'}},
-        ticker:   {'0%':{transform:'translateX(0)'},'100%':{transform:'translateX(-50%)'}},
-        glow:     {'0%,100%':{opacity:'.4'},'50%':{opacity:'1'}},
-        scanline: {'0%':{transform:'translateY(-100%)'},'100%':{transform:'translateY(100vh)'}},
+        fadeUp: { from:{opacity:'0',transform:'translateY(20px)'}, to:{opacity:'1',transform:'translateY(0)'} },
+        float:  { '0%,100%':{transform:'translateY(0)'}, '50%':{transform:'translateY(-8px)'} },
       },
       animation: {
-        fadeUp:   'fadeUp .7s cubic-bezier(.22,1,.36,1) both',
-        fadeIn:   'fadeIn .6s ease both',
-        bounceIn: 'bounceIn .6s ease both',
-        shimmer:  'shimmer 1.5s infinite',
-        float:    'float 5s ease-in-out infinite',
-        ticker:   'ticker 28s linear infinite',
-        glow:     'glow 3s ease-in-out infinite',
-        scanline: 'scanline 8s linear infinite',
+        fadeUp: 'fadeUp .6s ease both',
+        float:  'float 4s ease-in-out infinite',
       },
     }
   }
 }
 </script>
 
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
 
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  html{scroll-behavior:smooth;}
-  body{background-color:#060608;color:#e2e2f0;font-family:'Be Vietnam Pro',sans-serif;overflow-x:hidden;}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: #ffffff;
+    color: #1e293b;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 
-  /* Noise texture */
-  body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;
-    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
-    background-repeat:repeat;background-size:128px;opacity:.4;}
+  /* Subtle dot pattern */
+  .dot-pattern {
+    background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:#060608;} ::-webkit-scrollbar-thumb{background:#252533;border-radius:2px;}
+  /* Hero gradient bg */
+  .hero-bg {
+    background: linear-gradient(160deg, #eff6ff 0%, #ffffff 50%, #f0fdf4 100%);
+  }
 
-  /* Gradient texts */
-  .grad{background:linear-gradient(135deg,#7c6af7 0%,#f76a8a 60%,#fbbf24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-  .grad-cool{background:linear-gradient(135deg,#6af7c4,#7c6af7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-  .grad-text{background:linear-gradient(135deg,#7c6af7,#f76a8a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  /* Accent line on section headings */
+  .section-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; color: #2563eb;
+    background: #eff6ff; border: 1px solid #bfdbfe;
+    padding: 5px 14px; border-radius: 100px; margin-bottom: 16px;
+  }
 
-  /* Card accent top */
-  .card-accent::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7c6af7,#f76a8a,#6af7c4);border-radius:16px 16px 0 0;}
+  /* Feature card */
+  .feat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 28px;
+    transition: all .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .feat-card:hover {
+    border-color: #bfdbfe;
+    box-shadow: 0 4px 20px rgba(37,99,235,.08);
+    transform: translateY(-2px);
+  }
 
-  /* Animated mesh */
-  .hero-mesh{background:radial-gradient(ellipse 80% 60% at 20% 40%,rgba(124,106,247,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 20%,rgba(247,106,138,.08) 0%,transparent 55%),radial-gradient(ellipse 50% 70% at 60% 80%,rgba(106,247,196,.06) 0%,transparent 55%);}
+  /* Mode card */
+  .mode-card {
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid #e2e8f0;
+    transition: all .2s;
+  }
+  .mode-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,.08); }
 
-  /* Grid bg */
-  .grid-bg{background-image:linear-gradient(rgba(124,106,247,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(124,106,247,.05) 1px,transparent 1px);background-size:60px 60px;}
+  /* Type pill */
+  .type-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 100px;
+    font-size: 13px; font-weight: 500;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #475569;
+    transition: all .15s;
+  }
+  .type-pill:hover { border-color: #93c5fd; color: #2563eb; background: #eff6ff; }
 
-  /* Scanline */
-  .scanline-wrap{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
-  .scanline-line{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,106,247,.15),transparent);animation:scanline 8s linear infinite;}
+  /* Step number */
+  .step-num {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 16px; flex-shrink: 0;
+  }
 
-  /* Ticker */
-  .ticker-track{display:flex;width:max-content;animation:ticker 28s linear infinite;}
-  .ticker-track:hover{animation-play-state:paused;}
+  /* Primary button */
+  .btn-main {
+    background: #2563eb; color: white;
+    font-weight: 700; border: none; cursor: pointer;
+    border-radius: 12px; transition: all .2s;
+    font-family: 'Be Vietnam Pro', sans-serif;
+  }
+  .btn-main:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,.3); }
 
-  /* Bento */
-  .bento{display:grid;gap:16px;grid-template-columns:repeat(6,1fr);}
-  .bento-1{grid-column:span 3;} .bento-2{grid-column:span 2;} .bento-3{grid-column:span 4;} .bento-4{grid-column:span 6;}
-  @media(max-width:900px){.bento-1,.bento-2,.bento-3,.bento-4{grid-column:span 6;}}
-  @media(min-width:900px) and (max-width:1100px){.bento-2{grid-column:span 3;}.bento-3{grid-column:span 3;}}
+  /* Ghost button */
+  .btn-ghost {
+    background: transparent; color: #475569;
+    font-weight: 600; border: 1px solid #e2e8f0;
+    cursor: pointer; border-radius: 12px; transition: all .2s;
+    font-family: 'Be Vietnam Pro', sans-serif;
+  }
+  .btn-ghost:hover { border-color: #2563eb; color: #2563eb; }
 
-  .bento-card{background:#0f0f14;border:1px solid #252533;border-radius:20px;padding:28px;position:relative;overflow:hidden;transition:border-color .3s,transform .3s;}
-  .bento-card:hover{transform:translateY(-3px);border-color:rgba(124,106,247,.4);}
+  /* Divider accent */
+  .divider { height: 3px; background: linear-gradient(90deg, #2563eb, #60a5fa, transparent); border-radius: 2px; }
 
-  /* Nav blur */
-  .nav-blur{background:rgba(6,6,8,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
+  /* Stagger */
+  .d1{animation-delay:.1s} .d2{animation-delay:.2s} .d3{animation-delay:.3s} .d4{animation-delay:.4s}
 
-  /* Type chip */
-  .type-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 8px;border-radius:16px;background:#0f0f14;border:1px solid #252533;transition:all .2s;cursor:default;}
-  .type-chip:hover{transform:translateY(-3px);border-color:var(--tc);box-shadow:0 8px 24px rgba(0,0,0,.4);}
-
-  /* Stat number */
-  .stat-num{font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:clamp(3rem,6vw,5rem);line-height:1;letter-spacing:-.01em;}
-
-  /* Quiz screen styles */
-  .progress-fill{background:linear-gradient(90deg,#7c6af7,#f76a8a);transition:width .5s cubic-bezier(.4,0,.2,1);}
-  .ring-fill{transition:stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1);}
-  .drag-over{border-color:#fb923c !important;background:rgba(251,146,60,.12) !important;transform:scale(1.01);}
-  .dragging{opacity:.4;cursor:grabbing;}
-  .tdragging{opacity:.4;border-style:dashed;}
-  .dz-over{border-color:#c084fc !important;background:rgba(192,132,252,.12) !important;}
-  .hs-zone{position:absolute;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .2s;}
-  .hs-zone:hover{background:rgba(236,72,153,.18);border-color:rgba(236,72,153,.5);}
-  .hs-zone.hs-sel{background:rgba(236,72,153,.25);border-color:#ec4899;box-shadow:0 0 0 3px rgba(236,72,153,.3);}
-  .hs-label{position:absolute;bottom:calc(100%+6px);left:50%;transform:translateX(-50%);background:#ec4899;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;}
-  .hs-zone:hover .hs-label,.hs-zone.hs-sel .hs-label{opacity:1;}
-  .skeleton{background:linear-gradient(90deg,#18181f 25%,#252533 50%,#18181f 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
-  .ldots::after{content:'';animation:dots 1.4s infinite;}
-  @keyframes dots{0%{content:'.'}33%{content:'..'}66%{content:'...'}}
-  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b85' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;}
-
-  /* Delays */
-  .d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}.d5{animation-delay:.5s}
-
-  /* Badge float */
-  @keyframes badge-float{'0%,100%'{transform:translateY(0) rotate(-1deg)}'50%'{transform:translateY(-10px) rotate(1deg)}}
-  .badge-float{animation:badge-float 5s ease-in-out infinite;}
-
-  /* CTA glow */
-  .cta-glow{box-shadow:0 0 80px rgba(124,106,247,.2),0 0 160px rgba(247,106,138,.08);}
+  /* Stat card */
+  .stat-card {
+    text-align: center; padding: 24px 16px;
+    background: #ffffff; border: 1px solid #e2e8f0;
+    border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
 </style>
 </head>
 
 <body>
 
-<!-- ════════════════ LANDING PAGE ════════════════ -->
-<div id="landingPage">
+<!-- ══ NAV ══ -->
+<header class="sticky top-0 z-50 bg-white border-b border-border" style="box-shadow:0 1px 4px rgba(0,0,0,.06)">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
 
-<!-- NAV -->
-<header class="nav-blur sticky top-0 z-50 border-b" style="border-color:rgba(255,255,255,.06)">
-  <div class="max-w-7xl mx-auto px-5 md:px-10 h-16 flex items-center justify-between">
+    <!-- Logo -->
     <div class="flex items-center gap-2.5">
-      <div class="w-8 h-8 rounded-lg flex items-center justify-center font-heading font-extrabold text-sm text-white" style="background:linear-gradient(135deg,#7c6af7,#f76a8a)">Q</div>
-      <span class="font-heading font-extrabold text-[15px] tracking-tight text-white">QuizFlow</span>
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center font-heading font-extrabold text-white text-base" style="background:linear-gradient(135deg,#2563eb,#60a5fa)">Q</div>
+      <div>
+        <div class="font-heading font-extrabold text-base leading-none text-text">QuizFlow</div>
+        <div class="text-[10px] text-muted leading-none mt-0.5">Học thông minh hơn</div>
+      </div>
     </div>
+
+    <!-- Nav links -->
     <nav class="hidden md:flex items-center gap-1">
-      <a href="#features" class="px-4 py-2 text-sm text-muted hover:text-white transition-colors rounded-lg hover:bg-white/5">Features</a>
-      <a href="#modes"    class="px-4 py-2 text-sm text-muted hover:text-white transition-colors rounded-lg hover:bg-white/5">Modes</a>
-      <a href="#types"    class="px-4 py-2 text-sm text-muted hover:text-white transition-colors rounded-lg hover:bg-white/5">Types</a>
-      <a href="#setup"    class="px-4 py-2 text-sm text-muted hover:text-white transition-colors rounded-lg hover:bg-white/5">Setup</a>
+      <a href="#features" class="px-4 py-2 text-sm text-sub hover:text-primary rounded-lg hover:bg-soft transition-colors">Tính năng</a>
+      <a href="#modes"    class="px-4 py-2 text-sm text-sub hover:text-primary rounded-lg hover:bg-soft transition-colors">Chế độ học</a>
+      <a href="#types"    class="px-4 py-2 text-sm text-sub hover:text-primary rounded-lg hover:bg-soft transition-colors">Loại câu hỏi</a>
+      <a href="#setup"    class="px-4 py-2 text-sm text-sub hover:text-primary rounded-lg hover:bg-soft transition-colors">Cài đặt</a>
     </nav>
+
+    <!-- CTA + theme -->
     <div class="flex items-center gap-3">
-      <!-- Theme toggle -->
-      <button onclick="toggleTheme()" title="Toggle light/dark mode"
-        style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);font-size:15px;transition:all .2s"
-        onmouseover="this.style.borderColor='rgba(124,106,247,.6)'" onmouseout="this.style.borderColor='rgba(255,255,255,.12)'">
-        <span id="themeIcon">☀️</span>
+      <!-- theme toggle -->
+      <button onclick="toggleTheme()" title="Đổi giao diện"
+        class="w-9 h-9 rounded-xl border border-border bg-surface flex items-center justify-center text-base transition-all hover:border-primary hover:bg-soft">
+        <span id="themeIcon">🌙</span>
       </button>
-      <button onclick="window.location.href='tests.html'" class="font-heading font-bold text-sm px-5 py-2.5 rounded-xl text-white transition-all hover:-translate-y-px" style="background:linear-gradient(135deg,#7c6af7,#9580ff);box-shadow:0 0 20px rgba(124,106,247,.4)">
-        Start Quiz →
+      <button onclick="window.location.href='tests.html'"
+        class="btn-main text-sm px-5 py-2.5">
+        Vào học ngay →
       </button>
     </div>
   </div>
 </header>
 
-<!-- HERO -->
-<section class="relative hero-mesh grid-bg min-h-[92vh] flex items-center overflow-hidden">
-  <div class="scanline-wrap"><div class="scanline-line"></div></div>
-  <!-- Giant watermark -->
-  <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
-    <span class="font-heading font-extrabold" style="font-size:clamp(100px,18vw,240px);letter-spacing:-.05em;white-space:nowrap;color:rgba(255,255,255,.018)">QUIZFLOW</span>
-  </div>
 
-  <div class="relative z-10 max-w-7xl mx-auto px-5 md:px-10 py-20 md:py-28 w-full">
-    <div class="max-w-3xl">
-      <!-- Eyebrow -->
-      <div class="inline-flex items-center gap-2 bg-accent/10 border border-accent/25 text-accent text-[11px] font-mono px-3 py-1.5 rounded-full mb-8 animate-fadeUp">
-        <span class="w-1.5 h-1.5 rounded-full bg-accent animate-glow"></span>
-        Google Sheets Powered &middot; No Server Required
+<!-- ══ HERO ══ -->
+<section class="hero-bg dot-pattern relative overflow-hidden">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 py-20 md:py-28">
+    <div class="max-w-3xl animate-fadeUp">
+
+      <!-- Tag -->
+      <div class="section-tag mb-6">
+        📚 Nền tảng kiểm tra · Google Sheets
       </div>
+
       <!-- Headline -->
-      <h1 class="font-heading font-extrabold leading-[1.02] tracking-tight mb-6 animate-fadeUp d1" style="font-size:clamp(44px,7vw,84px)">
-        The Quiz Platform<br>Built for <span class="grad">Real Learning</span>
+      <h1 class="font-heading font-extrabold leading-tight tracking-tight mb-5 text-text" style="font-size:clamp(36px,5vw,60px)">
+        Công cụ kiểm tra<br>
+        <span style="color:#2563eb">dễ tạo, dễ dùng</span><br>
+        cho giáo viên
       </h1>
+
       <!-- Sub -->
-      <p class="text-muted text-lg md:text-xl font-light leading-relaxed mb-10 max-w-xl animate-fadeUp d2">
-        11 question types. 3 study modes. Powered entirely by a Google Sheet — no server, no subscription, no complexity.
+      <p class="text-sub text-lg leading-relaxed mb-8 max-w-xl">
+        Xây dựng bài kiểm tra bằng Google Sheets — không cần lập trình,
+        không cần server. Học sinh làm bài, kết quả tự lưu về Sheet.
       </p>
-      <!-- CTAs -->
-      <div class="flex flex-wrap gap-4 mb-14 animate-fadeUp d3">
-        <button onclick="window.location.href='tests.html'" class="font-heading font-bold text-base px-8 py-4 rounded-2xl text-white transition-all hover:-translate-y-1" style="background:linear-gradient(135deg,#7c6af7,#9580ff);box-shadow:0 0 32px rgba(124,106,247,.5)">
-          Launch a Quiz →
+
+      <!-- Buttons -->
+      <div class="flex flex-wrap gap-3 mb-12">
+        <button onclick="window.location.href='tests.html'"
+          class="btn-main text-base px-7 py-3.5">
+          Bắt đầu làm bài →
         </button>
-        <a href="#features" class="font-heading font-bold text-base px-8 py-4 rounded-2xl border text-muted hover:text-white hover:border-white/25 transition-all" style="border-color:rgba(255,255,255,.1)">
-          See Features ↓
+        <a href="#features"
+          class="btn-ghost text-base px-7 py-3.5">
+          Xem tính năng ↓
         </a>
       </div>
-      <!-- Stats row -->
-      <div class="flex flex-wrap gap-6 animate-fadeUp d4">
-        <div><div class="font-heading font-extrabold text-2xl text-white">11</div><div class="text-muted text-xs mt-0.5">Question types</div></div>
+
+      <!-- Quick stats -->
+      <div class="flex flex-wrap gap-6">
+        <div>
+          <div class="text-2xl font-extrabold text-primary font-heading">11</div>
+          <div class="text-xs text-muted mt-0.5">Loại câu hỏi</div>
+        </div>
         <div class="w-px bg-border"></div>
-        <div><div class="font-heading font-extrabold text-2xl text-white">3</div><div class="text-muted text-xs mt-0.5">Study modes</div></div>
+        <div>
+          <div class="text-2xl font-extrabold text-primary font-heading">3</div>
+          <div class="text-xs text-muted mt-0.5">Chế độ học</div>
+        </div>
         <div class="w-px bg-border"></div>
-        <div><div id="heroTestCount" class="font-heading font-extrabold text-2xl text-white">—</div><div class="text-muted text-xs mt-0.5">Tests ready</div></div>
+        <div>
+          <div id="heroTestCount" class="text-2xl font-extrabold text-primary font-heading">—</div>
+          <div class="text-xs text-muted mt-0.5">Bài kiểm tra</div>
+        </div>
         <div class="w-px bg-border"></div>
-        <div><div class="font-heading font-extrabold text-2xl text-white">Free</div><div class="text-muted text-xs mt-0.5">No server needed</div></div>
+        <div>
+          <div class="text-2xl font-extrabold text-primary font-heading">0đ</div>
+          <div class="text-xs text-muted mt-0.5">Chi phí</div>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- Floating mode cards -->
-    <div class="hidden lg:flex flex-col gap-3 absolute right-10 top-1/2 -translate-y-1/2">
-      <div class="badge-float flex items-center gap-3 bg-surface border border-border rounded-2xl px-5 py-3.5" style="animation-delay:0s">
-        <span class="text-2xl">📖</span>
-        <div><div class="font-heading font-bold text-white text-sm">Train Mode</div><div class="text-muted text-xs">Step-by-step learning</div></div>
+  <!-- Decorative illustration -->
+  <div class="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2 opacity-90">
+    <div class="relative w-72">
+      <!-- Fake quiz card -->
+      <div class="bg-white rounded-2xl shadow-lg border border-border p-6 animate-float">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-6 h-6 rounded-full bg-soft2 flex items-center justify-center text-xs font-bold text-primary">Q</div>
+          <span class="text-xs font-semibold text-sub">Câu hỏi 3/10</span>
+          <span class="ml-auto text-xs font-mono text-primary bg-soft px-2 py-0.5 rounded-full">30%</span>
+        </div>
+        <div class="h-2 bg-gray-100 rounded-full mb-4 overflow-hidden">
+          <div class="h-full bg-primary rounded-full" style="width:30%"></div>
+        </div>
+        <p class="text-sm font-semibold text-text mb-3">Thủ đô của Việt Nam là?</p>
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-soft border border-soft2 text-primary text-sm font-semibold">
+            <div class="w-4 h-4 rounded-full bg-primary flex items-center justify-center"><div class="w-1.5 h-1.5 rounded-full bg-white"></div></div>
+            Hà Nội
+          </div>
+          <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-border text-sm text-sub">
+            <div class="w-4 h-4 rounded-full border-2 border-border"></div>
+            TP. Hồ Chí Minh
+          </div>
+          <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-border text-sm text-sub">
+            <div class="w-4 h-4 rounded-full border-2 border-border"></div>
+            Đà Nẵng
+          </div>
+        </div>
       </div>
-      <div class="badge-float flex items-center gap-3 bg-surface border border-border rounded-2xl px-5 py-3.5" style="animation-delay:1.4s">
-        <span class="text-2xl">📝</span>
-        <div><div class="font-heading font-bold text-white text-sm">Test Mode</div><div class="text-muted text-xs">Random, no going back</div></div>
-      </div>
-      <div class="badge-float flex items-center gap-3 bg-surface border border-border rounded-2xl px-5 py-3.5" style="animation-delay:2.8s">
-        <span class="text-2xl">⚡</span>
-        <div><div class="font-heading font-bold text-accent2 text-sm">Race Mode</div><div class="text-muted text-xs">Wrong = restart!</div></div>
-      </div>
+      <!-- Badge floating -->
+      <div class="absolute -top-4 -right-4 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">✓ Đúng!</div>
     </div>
   </div>
 </section>
 
-<!-- TICKER -->
-<div class="border-y border-border py-3.5 overflow-hidden" style="background:#08080c">
-  <div class="ticker-track items-center gap-0">
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔘 Single Choice</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">☑️ Multi Select</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">✏️ Free Text</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">⭐ Rating Scale</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">▼ Dropdown</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">⚡ True / False</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">✅ Multi T/F</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔀 Drag to Order</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔗 Drag to Match</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔲 Matrix Grid</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">📍 Click Image</span><span class="text-border px-2">·</span>
-    <!-- duplicate for seamless loop -->
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔘 Single Choice</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">☑️ Multi Select</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">✏️ Free Text</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">⭐ Rating Scale</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">▼ Dropdown</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">⚡ True / False</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">✅ Multi T/F</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔀 Drag to Order</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔗 Drag to Match</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">🔲 Matrix Grid</span><span class="text-border px-2">·</span>
-    <span class="flex items-center gap-2 text-muted text-sm font-mono px-5 whitespace-nowrap">📍 Click Image</span>
-  </div>
-</div>
 
-<!-- BENTO FEATURES -->
-<section id="features" class="max-w-7xl mx-auto px-5 md:px-10 py-24">
-  <div class="mb-14">
-    <div class="inline-flex items-center gap-2 text-[11px] font-mono text-accent border border-accent/25 bg-accent/8 px-3 py-1.5 rounded-full mb-5">// features</div>
-    <h2 class="font-heading font-extrabold tracking-tight leading-none mb-4" style="font-size:clamp(36px,5vw,60px)">
-      Everything built in.<br><span class="grad-cool">Nothing bolted on.</span>
-    </h2>
-    <p class="text-muted text-lg max-w-lg">No backend to manage. No subscription. Just a spreadsheet, a script, and a single HTML file.</p>
-  </div>
+<!-- ══ FEATURES ══ -->
+<section id="features" class="py-20 bg-white">
+  <div class="max-w-6xl mx-auto px-5 md:px-8">
 
-  <div class="bento">
-    <!-- Google Sheets - wide -->
-    <div class="bento-card bento-3" style="min-height:240px">
-      <div class="absolute top-0 right-0 w-48 h-48 rounded-full pointer-events-none" style="background:radial-gradient(circle,rgba(124,106,247,.1),transparent 70%);transform:translate(30%,-30%)"></div>
-      <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-5" style="background:rgba(124,106,247,.15)">📊</div>
-      <h3 class="font-heading font-bold text-xl text-white mb-3">Google Sheets Backend</h3>
-      <p class="text-muted text-sm leading-relaxed max-w-xs">Your questions live in a spreadsheet you already know. Edit, add, reorder — changes are live instantly with zero code.</p>
-      <div class="mt-6 flex gap-2 flex-wrap">
-        <span class="text-xs font-mono px-3 py-1.5 rounded-full border border-accent/25 text-accent" style="background:rgba(124,106,247,.08)">Tests tab</span>
-        <span class="text-xs font-mono px-3 py-1.5 rounded-full border border-accent/25 text-accent" style="background:rgba(124,106,247,.08)">Questions tab</span>
-        <span class="text-xs font-mono px-3 py-1.5 rounded-full border border-accent/25 text-accent" style="background:rgba(124,106,247,.08)">Responses tab</span>
+    <div class="text-center mb-14">
+      <div class="section-tag">✨ Tính năng nổi bật</div>
+      <h2 class="font-heading font-extrabold text-text mb-3" style="font-size:clamp(26px,4vw,40px)">Mọi thứ bạn cần,<br>không cần gì thêm</h2>
+      <p class="text-sub max-w-xl mx-auto">Dành cho giáo viên, người đào tạo và học sinh tự học. Không backend, không phí tháng.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="feat-card">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4" style="background:#eff6ff">📊</div>
+        <h3 class="font-heading font-bold text-text text-lg mb-2">Google Sheets làm database</h3>
+        <p class="text-sub text-sm leading-relaxed">Quản lý câu hỏi trên bảng tính quen thuộc. Thêm, sửa, xóa không cần chạm vào code.</p>
       </div>
-    </div>
-    <!-- Auto scoring -->
-    <div class="bento-card bento-1" style="min-height:240px">
-      <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-5" style="background:rgba(247,106,138,.15)">🎯</div>
-      <h3 class="font-heading font-bold text-xl text-white mb-3">Auto Scoring & Grades</h3>
-      <p class="text-muted text-sm leading-relaxed">Animated score ring, grade A–D, and a full per-question answer review. All in the browser.</p>
-    </div>
-    <!-- 11 types stat -->
-    <div class="bento-card bento-2" style="background:linear-gradient(135deg,rgba(106,247,196,.06),rgba(124,106,247,.06))">
-      <div class="stat-num grad-cool mb-1">11</div>
-      <div class="font-heading font-bold text-white text-lg mb-1">Question Types</div>
-      <p class="text-muted text-sm">Radio, checkbox, drag-drop, hotspot, matrix, and more — all in one file.</p>
-    </div>
-    <!-- Saves responses -->
-    <div class="bento-card bento-2">
-      <div class="text-3xl mb-4">💾</div>
-      <h3 class="font-heading font-bold text-lg text-white mb-2">Saves Responses</h3>
-      <p class="text-muted text-sm leading-relaxed">Every submission writes name, score, grade, and each individual answer back to your Sheet automatically.</p>
-    </div>
-    <!-- Images -->
-    <div class="bento-card bento-2">
-      <div class="text-3xl mb-4">🖼️</div>
-      <h3 class="font-heading font-bold text-lg text-white mb-2">Image Support</h3>
-      <p class="text-muted text-sm leading-relaxed">Add images to any question. Hotspot questions let users click on the correct area of a map or diagram.</p>
-    </div>
-    <!-- Zero server stat -->
-    <div class="bento-card bento-1" style="background:linear-gradient(135deg,rgba(247,106,138,.06),rgba(251,191,36,.04))">
-      <div class="stat-num" style="background:linear-gradient(135deg,#f76a8a,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">0</div>
-      <div class="font-heading font-bold text-white text-lg mb-1 -mt-1">Servers required</div>
-      <p class="text-muted text-sm">Open the HTML file directly. No hosting needed to get started.</p>
-    </div>
-    <!-- Drag and drop -->
-    <div class="bento-card bento-2">
-      <div class="text-3xl mb-4">🔀</div>
-      <h3 class="font-heading font-bold text-lg text-white mb-2">Drag & Drop</h3>
-      <p class="text-muted text-sm leading-relaxed">Ordering and matching questions with full touch support on mobile.</p>
+
+      <div class="feat-card">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4" style="background:#f0fdf4">🎯</div>
+        <h3 class="font-heading font-bold text-text text-lg mb-2">Chấm điểm tự động</h3>
+        <p class="text-sub text-sm leading-relaxed">Điểm số tính ngay trên trình duyệt, hiển thị vòng tròn điểm, xếp loại A–D và xem lại đáp án.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4" style="background:#fef9c3">💾</div>
+        <h3 class="font-heading font-bold text-text text-lg mb-2">Lưu kết quả tự động</h3>
+        <p class="text-sub text-sm leading-relaxed">Mỗi lần nộp bài, tên, điểm, xếp loại và từng câu trả lời được ghi về Sheet Responses.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4" style="background:#fdf4ff">🖼️</div>
+        <h3 class="font-heading font-bold text-text text-lg mb-2">Hỗ trợ hình ảnh</h3>
+        <p class="text-sub text-sm leading-relaxed">Gắn ảnh vào bất kỳ câu hỏi nào. Câu hotspot cho học sinh click vào vị trí đúng trên bản đồ, sơ đồ.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4" style="background:#fff7ed">🔀</div>
+        <h3 class="font-heading font-bold text-text text-lg mb-2">Kéo thả</h3>
+        <p class="text-sub text-sm leading-relaxed">Câu sắp xếp và nối đôi với kéo thả đầy đủ, hỗ trợ cảm ứng trên điện thoại.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4" style="background:#f0f9ff">📱</div>
+        <h3 class="font-heading font-bold text-text text-lg mb-2">Dùng được mọi thiết bị</h3>
+        <p class="text-sub text-sm leading-relaxed">Responsive hoàn chỉnh — máy tính, máy tính bảng, điện thoại. Không cần cài app.</p>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- STUDY MODES -->
-<section id="modes" class="py-24 border-y border-border" style="background:#08080c">
-  <div class="max-w-7xl mx-auto px-5 md:px-10">
-    <div class="mb-14">
-      <div class="inline-flex items-center gap-2 text-[11px] font-mono text-accent3 border border-accent3/25 px-3 py-1.5 rounded-full mb-5" style="background:rgba(106,247,196,.08)">// study_modes</div>
-      <h2 class="font-heading font-extrabold tracking-tight leading-none mb-4" style="font-size:clamp(36px,5vw,60px)">Three modes.<br><span class="grad-cool">One mastery.</span></h2>
-      <p class="text-muted text-lg max-w-lg">Different stages of learning need different approaches. Pick your mode before every test.</p>
+
+<!-- ══ STUDY MODES ══ -->
+<section id="modes" class="py-20" style="background:#f8fafc">
+  <div class="max-w-6xl mx-auto px-5 md:px-8">
+
+    <div class="text-center mb-14">
+      <div class="section-tag">🎓 Chế độ học</div>
+      <h2 class="font-heading font-extrabold text-text mb-3" style="font-size:clamp(26px,4vw,40px)">Ba cách học, một mục tiêu</h2>
+      <p class="text-sub max-w-xl mx-auto">Mỗi giai đoạn học cần cách tiếp cận khác nhau. Chọn chế độ phù hợp trước mỗi bài.</p>
     </div>
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
       <!-- Train -->
-      <div class="bento-card">
-        <div class="flex items-start justify-between mb-6">
-          <div class="text-5xl animate-float" style="animation-delay:0s">📖</div>
-          <span class="font-mono text-[11px] text-accent3 border border-accent3/30 px-2.5 py-1 rounded-full" style="background:rgba(106,247,196,.08)">mode_01</span>
-        </div>
-        <h3 class="font-heading font-extrabold text-2xl text-white mb-3 tracking-tight">Train</h3>
-        <p class="text-muted text-sm leading-relaxed mb-6">Questions in original order. Navigate freely back and forth. Perfect for first encounters with new material.</p>
-        <div class="space-y-2.5 border-t border-border pt-5">
-          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(106,247,196,.15)"><span class="text-accent3 text-[10px]">✓</span></div><span class="text-muted">Original question order</span></div>
-          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(106,247,196,.15)"><span class="text-accent3 text-[10px]">✓</span></div><span class="text-muted">Navigate freely back & forward</span></div>
-          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(106,247,196,.15)"><span class="text-accent3 text-[10px]">✓</span></div><span class="text-muted">Full score + answer review at end</span></div>
-        </div>
+      <div class="mode-card" style="background:#eff6ff;border-color:#bfdbfe">
+        <div class="text-4xl mb-4">📖</div>
+        <div class="inline-block text-xs font-bold uppercase tracking-wider text-primary bg-white px-2.5 py-1 rounded-full border border-soft2 mb-3">Luyện tập</div>
+        <h3 class="font-heading font-bold text-text text-xl mb-2">Train</h3>
+        <p class="text-sub text-sm leading-relaxed mb-4">Câu hỏi theo thứ tự gốc. Tự do qua lại, không áp lực. Phù hợp khi học bài mới.</p>
+        <ul class="space-y-1.5">
+          <li class="flex items-center gap-2 text-sm text-sub"><span class="text-primary">✓</span> Đúng thứ tự trong Sheet</li>
+          <li class="flex items-center gap-2 text-sm text-sub"><span class="text-primary">✓</span> Được quay lại câu trước</li>
+          <li class="flex items-center gap-2 text-sm text-sub"><span class="text-primary">✓</span> Xem điểm + đáp án sau khi nộp</li>
+        </ul>
       </div>
-      <!-- Test — featured -->
-      <div class="bento-card" style="border-color:rgba(124,106,247,.4);background:linear-gradient(160deg,rgba(124,106,247,.07),#0f0f14)">
-        <div class="absolute top-0 left-0 right-0 h-0.5 rounded-t-xl" style="background:linear-gradient(90deg,#7c6af7,#f76a8a)"></div>
-        <div class="flex items-start justify-between mb-6">
-          <div class="text-5xl animate-float" style="animation-delay:1.2s">📝</div>
-          <span class="font-mono text-[11px] text-accent border border-accent/30 px-2.5 py-1 rounded-full" style="background:rgba(124,106,247,.1)">mode_02</span>
-        </div>
-        <h3 class="font-heading font-extrabold text-2xl text-white mb-3 tracking-tight">Test</h3>
-        <p class="text-muted text-sm leading-relaxed mb-6">Randomised order, no going back. Simulates a real exam environment to build confidence under pressure.</p>
-        <div class="space-y-2.5 pt-5" style="border-top:1px solid rgba(255,255,255,.08)">
-          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(124,106,247,.2)"><span class="text-accent text-[10px]">✓</span></div><span class="text-muted">Random order every time</span></div>
-          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(124,106,247,.2)"><span class="text-accent text-[10px]">✓</span></div><span class="text-muted">No going back</span></div>
-          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(124,106,247,.2)"><span class="text-accent text-[10px]">✓</span></div><span class="text-muted">Full score + answer review at end</span></div>
-        </div>
+
+      <!-- Test -->
+      <div class="mode-card" style="background:#ffffff;border-color:#2563eb;box-shadow:0 4px 20px rgba(37,99,235,.1)">
+        <div class="text-4xl mb-4">📝</div>
+        <div class="inline-block text-xs font-bold uppercase tracking-wider text-white bg-primary px-2.5 py-1 rounded-full mb-3">Kiểm tra</div>
+        <h3 class="font-heading font-bold text-text text-xl mb-2">Test</h3>
+        <p class="text-sub text-sm leading-relaxed mb-4">Câu hỏi xáo trộn ngẫu nhiên, không được quay lại. Mô phỏng kỳ thi thực tế.</p>
+        <ul class="space-y-1.5">
+          <li class="flex items-center gap-2 text-sm text-sub"><span class="text-primary">✓</span> Thứ tự ngẫu nhiên mỗi lần</li>
+          <li class="flex items-center gap-2 text-sm text-sub"><span class="text-primary">✓</span> Không quay lại được</li>
+          <li class="flex items-center gap-2 text-sm text-sub"><span class="text-primary">✓</span> Xem điểm + đáp án sau khi nộp</li>
+        </ul>
       </div>
+
       <!-- Race -->
-      <div class="bento-card">
-        <div class="flex items-start justify-between mb-6">
-          <div class="text-5xl animate-float" style="animation-delay:2.4s">⚡</div>
-          <span class="font-mono text-[11px] text-accent2 border border-accent2/30 px-2.5 py-1 rounded-full" style="background:rgba(247,106,138,.08)">mode_03</span>
-        </div>
-        <h3 class="font-heading font-extrabold text-2xl text-white mb-3 tracking-tight">Race</h3>
-        <p class="text-muted text-sm leading-relaxed mb-6">Every answer checked instantly. One wrong answer and you restart from Q1. Brutal — but nothing makes knowledge stick harder.</p>
-        <div class="space-y-2.5 border-t border-border pt-5">
-          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(247,106,138,.15)"><span class="text-accent2 text-[10px]">✓</span></div><span class="text-muted">Instant answer feedback</span></div>
-          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(247,106,138,.15)"><span class="text-accent2 text-[10px]">✓</span></div><span class="text-muted">Wrong answer = full restart</span></div>
-          <div class="flex items-center gap-3 text-sm"><div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(247,106,138,.15)"><span class="text-accent2 text-[10px]">✓</span></div><span class="text-muted">Must get every question right</span></div>
-        </div>
+      <div class="mode-card" style="background:#fff7ed;border-color:#fed7aa">
+        <div class="text-4xl mb-4">⚡</div>
+        <div class="inline-block text-xs font-bold uppercase tracking-wider text-orange-600 bg-white px-2.5 py-1 rounded-full border border-orange-200 mb-3">Thử thách</div>
+        <h3 class="font-heading font-bold text-text text-xl mb-2">Race</h3>
+        <p class="text-sub text-sm leading-relaxed mb-4">Kiểm tra ngay từng câu — đúng thì tiếp, sai thì làm lại từ đầu. Quyết liệt nhưng hiệu quả.</p>
+        <ul class="space-y-1.5">
+          <li class="flex items-center gap-2 text-sm text-sub"><span class="text-orange-500">✓</span> Kiểm tra đáp án ngay lập tức</li>
+          <li class="flex items-center gap-2 text-sm text-sub"><span class="text-orange-500">✓</span> Sai → bắt đầu lại từ đầu</li>
+          <li class="flex items-center gap-2 text-sm text-sub"><span class="text-orange-500">✓</span> Phải trả lời đúng toàn bộ</li>
+        </ul>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- QUESTION TYPES -->
-<section id="types" class="max-w-7xl mx-auto px-5 md:px-10 py-24">
-  <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-14">
-    <div>
-      <div class="inline-flex items-center gap-2 text-[11px] font-mono text-accent2 border border-accent2/25 px-3 py-1.5 rounded-full mb-5" style="background:rgba(247,106,138,.08)">// question_types</div>
-      <h2 class="font-heading font-extrabold tracking-tight leading-none" style="font-size:clamp(36px,5vw,60px)">11 ways to<br><span class="grad">ask a question.</span></h2>
-    </div>
-    <p class="text-muted text-base max-w-xs leading-relaxed md:text-right">All defined in your spreadsheet. Mix and match freely across any test.</p>
-  </div>
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-    <div class="type-chip" style="--tc:#7c6af7"><span class="text-3xl">🔘</span><span class="font-heading font-bold text-xs text-white">radio</span><span class="text-[10px] text-muted">Single Choice</span></div>
-    <div class="type-chip" style="--tc:#f76a8a"><span class="text-3xl">☑️</span><span class="font-heading font-bold text-xs text-white">checkbox</span><span class="text-[10px] text-muted">Multi Select</span></div>
-    <div class="type-chip" style="--tc:#6af7c4"><span class="text-3xl">✏️</span><span class="font-heading font-bold text-xs text-white">text</span><span class="text-[10px] text-muted">Free Text</span></div>
-    <div class="type-chip" style="--tc:#fbbf24"><span class="text-3xl">⭐</span><span class="font-heading font-bold text-xs text-white">rating</span><span class="text-[10px] text-muted">Rating Scale</span></div>
-    <div class="type-chip" style="--tc:#38bdf8"><span class="text-3xl">▼</span><span class="font-heading font-bold text-xs text-white">dropdown</span><span class="text-[10px] text-muted">Dropdown</span></div>
-    <div class="type-chip" style="--tc:#34d399"><span class="text-3xl">⚡</span><span class="font-heading font-bold text-xs text-white">truefalse</span><span class="text-[10px] text-muted">True / False</span></div>
-    <div class="type-chip" style="--tc:#14b8a6"><span class="text-3xl">✅</span><span class="font-heading font-bold text-xs text-white">mtf</span><span class="text-[10px] text-muted">Multi T/F</span></div>
-    <div class="type-chip" style="--tc:#fb923c"><span class="text-3xl">🔀</span><span class="font-heading font-bold text-xs text-white">ordering</span><span class="text-[10px] text-muted">Drag to Order</span></div>
-    <div class="type-chip" style="--tc:#c084fc"><span class="text-3xl">🔗</span><span class="font-heading font-bold text-xs text-white">matching</span><span class="text-[10px] text-muted">Drag to Match</span></div>
-    <div class="type-chip" style="--tc:#f59e0b"><span class="text-3xl">🔲</span><span class="font-heading font-bold text-xs text-white">matrix</span><span class="text-[10px] text-muted">Matrix Grid</span></div>
-    <div class="type-chip" style="--tc:#ec4899"><span class="text-3xl">📍</span><span class="font-heading font-bold text-xs text-white">hotspot</span><span class="text-[10px] text-muted">Click Image</span></div>
-    <div class="type-chip" style="--tc:#252533;border-style:dashed"><span class="text-3xl text-muted">+</span><span class="font-heading font-bold text-xs text-muted">more</span><span class="text-[10px] text-muted">Coming soon</span></div>
-  </div>
-</section>
 
-<!-- HOW IT WORKS -->
-<section id="setup" class="py-24 border-y border-border" style="background:#08080c">
-  <div class="max-w-7xl mx-auto px-5 md:px-10">
-    <div class="text-center mb-16">
-      <div class="inline-flex items-center gap-2 text-[11px] font-mono text-muted border border-border px-3 py-1.5 rounded-full mb-5">// setup_guide</div>
-      <h2 class="font-heading font-extrabold tracking-tight leading-none" style="font-size:clamp(36px,5vw,60px)">Live in <span class="grad">4 steps.</span></h2>
+<!-- ══ QUESTION TYPES ══ -->
+<section id="types" class="py-20 bg-white">
+  <div class="max-w-6xl mx-auto px-5 md:px-8">
+
+    <div class="text-center mb-12">
+      <div class="section-tag">❓ Loại câu hỏi</div>
+      <h2 class="font-heading font-extrabold text-text mb-3" style="font-size:clamp(26px,4vw,40px)">11 loại câu hỏi</h2>
+      <p class="text-sub max-w-lg mx-auto">Tất cả được định nghĩa ngay trong bảng tính. Kết hợp tự do trong một bài kiểm tra.</p>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      <div class="bento-card">
-        <div class="font-mono text-[11px] text-accent mb-4">step_01</div>
-        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-heading font-extrabold text-xl text-white mb-5" style="background:rgba(124,106,247,.2)">1</div>
-        <h4 class="font-heading font-bold text-white text-lg mb-2">Create Sheet</h4>
-        <p class="text-muted text-sm leading-relaxed">Create a Google Sheet with a Tests tab and a Questions tab. Add your questions row by row.</p>
-      </div>
-      <div class="bento-card">
-        <div class="font-mono text-[11px] text-accent2 mb-4">step_02</div>
-        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-heading font-extrabold text-xl text-white mb-5" style="background:rgba(247,106,138,.2)">2</div>
-        <h4 class="font-heading font-bold text-white text-lg mb-2">Paste Script</h4>
-        <p class="text-muted text-sm leading-relaxed">Open Extensions → Apps Script, paste the provided Code.gs, and save.</p>
-      </div>
-      <div class="bento-card">
-        <div class="font-mono text-[11px] text-accent3 mb-4">step_03</div>
-        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-heading font-extrabold text-xl text-white mb-5" style="background:rgba(106,247,196,.2)">3</div>
-        <h4 class="font-heading font-bold text-white text-lg mb-2">Deploy</h4>
-        <p class="text-muted text-sm leading-relaxed">Deploy as a Web App — Execute as: Me, Access: Anyone. Copy the /exec URL.</p>
-      </div>
-      <div class="bento-card" style="border-color:rgba(124,106,247,.35)">
-        <div class="font-mono text-[11px] text-white mb-4">step_04</div>
-        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-heading font-extrabold text-xl text-white mb-5" style="background:rgba(124,106,247,.3)">4</div>
-        <h4 class="font-heading font-bold text-white text-lg mb-2">Open & Go</h4>
-        <p class="text-muted text-sm leading-relaxed">Open index.html in any browser. Your tests load automatically. Share with anyone.</p>
-      </div>
+
+    <div class="flex flex-wrap justify-center gap-3">
+      <span class="type-pill">🔘 Trắc nghiệm 1 đáp án</span>
+      <span class="type-pill">☑️ Trắc nghiệm nhiều đáp án</span>
+      <span class="type-pill">✏️ Tự luận ngắn</span>
+      <span class="type-pill">⭐ Thang điểm đánh giá</span>
+      <span class="type-pill">▼ Chọn từ danh sách</span>
+      <span class="type-pill">⚡ Đúng / Sai</span>
+      <span class="type-pill">✅ Nhiều câu Đúng/Sai</span>
+      <span class="type-pill">🔀 Sắp xếp thứ tự</span>
+      <span class="type-pill">🔗 Nối đôi</span>
+      <span class="type-pill">🔲 Bảng ma trận</span>
+      <span class="type-pill">📍 Click vào ảnh</span>
+    </div>
+
+    <!-- Highlight note -->
+    <div class="mt-8 flex items-start gap-3 bg-soft rounded-2xl p-5 max-w-2xl mx-auto border border-soft2">
+      <span class="text-xl mt-0.5">💡</span>
+      <p class="text-sm text-sub leading-relaxed">
+        Cột <code class="bg-white border border-border rounded px-1.5 py-0.5 text-xs font-mono text-primary">imageUrl</code> hoạt động với <strong>tất cả 11 loại</strong> — thêm URL ảnh để hiển thị hình ảnh phía trên câu hỏi. Bắt buộc với loại <em>hotspot</em>.
+      </p>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="py-32 relative overflow-hidden">
-  <div class="absolute inset-0 pointer-events-none cta-glow" style="background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(124,106,247,.1),transparent 70%)"></div>
-  <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
-    <span class="font-heading font-extrabold" style="font-size:clamp(180px,30vw,360px);letter-spacing:-.05em;color:rgba(255,255,255,.018)">GO</span>
+
+<!-- ══ HOW IT WORKS ══ -->
+<section id="setup" class="py-20" style="background:#f8fafc">
+  <div class="max-w-6xl mx-auto px-5 md:px-8">
+
+    <div class="text-center mb-14">
+      <div class="section-tag">🚀 Hướng dẫn cài đặt</div>
+      <h2 class="font-heading font-extrabold text-text mb-3" style="font-size:clamp(26px,4vw,40px)">Hoàn chỉnh trong 4 bước</h2>
+      <p class="text-sub">Không cần hosting, không cần server, không cần biết code.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <div class="bg-white rounded-2xl p-6 border border-border" style="box-shadow:0 1px 3px rgba(0,0,0,.05)">
+        <div class="step-num mb-4" style="background:#eff6ff;color:#2563eb">1</div>
+        <h4 class="font-heading font-bold text-text text-base mb-2">Tạo Google Sheet</h4>
+        <p class="text-sub text-sm leading-relaxed">Tạo tab <code class="text-xs bg-surface border border-border rounded px-1 font-mono">Tests</code> và tab câu hỏi. Điền theo mẫu có sẵn.</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 border border-border" style="box-shadow:0 1px 3px rgba(0,0,0,.05)">
+        <div class="step-num mb-4" style="background:#f0fdf4;color:#16a34a">2</div>
+        <h4 class="font-heading font-bold text-text text-base mb-2">Dán Apps Script</h4>
+        <p class="text-sub text-sm leading-relaxed">Mở <strong>Extensions → Apps Script</strong>, dán đoạn code <code class="text-xs bg-surface border border-border rounded px-1 font-mono">Code.gs</code> và lưu.</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 border border-border" style="box-shadow:0 1px 3px rgba(0,0,0,.05)">
+        <div class="step-num mb-4" style="background:#fef9c3;color:#d97706">3</div>
+        <h4 class="font-heading font-bold text-text text-base mb-2">Deploy Web App</h4>
+        <p class="text-sub text-sm leading-relaxed">Deploy → New deployment → Web App. Chọn <em>Anyone</em>. Sao chép URL <code class="text-xs bg-surface border border-border rounded px-1 font-mono">/exec</code>.</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 border border-primary" style="background:#eff6ff;box-shadow:0 4px 16px rgba(37,99,235,.1)">
+        <div class="step-num mb-4" style="background:#2563eb;color:white">4</div>
+        <h4 class="font-heading font-bold text-text text-base mb-2">Mở & dùng ngay</h4>
+        <p class="text-sub text-sm leading-relaxed">Mở <code class="text-xs bg-white border border-border rounded px-1 font-mono">index.html</code> trên trình duyệt — bài kiểm tra tự tải về. Chia sẻ cho học sinh.</p>
+      </div>
+
+    </div>
   </div>
-  <div class="relative z-10 max-w-3xl mx-auto px-5 md:px-10 text-center">
-    <div class="text-6xl mb-8 animate-float inline-block">🚀</div>
-    <h2 class="font-heading font-extrabold tracking-tight leading-none mb-6" style="font-size:clamp(40px,6vw,72px)">Your tests are<br><span class="grad">ready to go.</span></h2>
-    <p class="text-muted text-lg mb-10 leading-relaxed">Pick a test, choose your mode, and start learning. Results save to your Sheet automatically.</p>
-    <button onclick="window.location.href='tests.html'" class="font-heading font-bold text-lg px-10 py-5 rounded-2xl text-white transition-all hover:-translate-y-1" style="background:linear-gradient(135deg,#7c6af7,#f76a8a);box-shadow:0 0 48px rgba(124,106,247,.5)">
-      Launch Quiz Platform →
+</section>
+
+
+<!-- ══ CTA ══ -->
+<section class="py-20 bg-white">
+  <div class="max-w-2xl mx-auto px-5 md:px-8 text-center">
+
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 text-3xl animate-float" style="background:#eff6ff">📚</div>
+
+    <h2 class="font-heading font-extrabold text-text mb-4" style="font-size:clamp(26px,4vw,40px)">
+      Sẵn sàng bắt đầu chưa?
+    </h2>
+    <p class="text-sub text-lg mb-8 leading-relaxed">
+      Bài kiểm tra đã nạp sẵn. Chọn bài, chọn chế độ và học thôi.
+    </p>
+
+    <button onclick="window.location.href='tests.html'"
+      class="btn-main text-base px-10 py-4 mb-4">
+      Vào làm bài ngay →
     </button>
+
+    <p class="text-muted text-sm">Miễn phí hoàn toàn · Không đăng ký · Không server</p>
+
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="border-t border-border py-8 px-5 md:px-10">
-  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-    <div class="flex items-center gap-2.5">
-      <div class="w-7 h-7 rounded-lg flex items-center justify-center font-heading font-extrabold text-xs text-white" style="background:linear-gradient(135deg,#7c6af7,#f76a8a)">Q</div>
-      <span class="font-heading font-bold text-sm text-white">QuizFlow</span>
+
+<!-- ══ FOOTER ══ -->
+<footer class="border-t border-border bg-surface py-8 px-5 md:px-8">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <!-- Logo -->
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-white text-sm" style="background:linear-gradient(135deg,#2563eb,#60a5fa)">Q</div>
+        <span class="font-heading font-bold text-text text-sm">QuizFlow</span>
+      </div>
+      <!-- Links -->
+      <div class="flex items-center gap-5 text-xs text-muted">
+        <a href="#features" class="hover:text-primary transition-colors">Tính năng</a>
+        <a href="#modes" class="hover:text-primary transition-colors">Chế độ</a>
+        <a href="#types" class="hover:text-primary transition-colors">Loại câu hỏi</a>
+        <a href="admin.html" class="hover:text-primary transition-colors">Admin</a>
+      </div>
+      <!-- Right -->
+      <button onclick="window.location.href='tests.html'" class="text-primary text-sm font-semibold hover:underline">
+        Bắt đầu →
+      </button>
     </div>
-    <p class="text-muted text-xs text-center">Powered by Google Sheets &middot; 11 question types &middot; 3 study modes &middot; Zero servers</p>
-    <button onclick="window.location.href='tests.html'" class="text-accent text-sm font-semibold hover:underline">Start a Quiz →</button>
-  </div>
-  <!-- Watermark -->
-  <div class="max-w-7xl mx-auto mt-5 pt-5 border-t flex items-center justify-center gap-2" style="border-color:rgba(255,255,255,.05)">
-    <span style="font-size:11px;color:#6b6b85;letter-spacing:.05em">Built by</span>
-    <span style="font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:13px;letter-spacing:.15em;background:linear-gradient(135deg,#7c6af7,#f76a8a,#6af7c4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
-    <span style="width:4px;height:4px;border-radius:50%;background:#252533;display:inline-block"></span>
-    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b6b85;letter-spacing:.08em">QuizFlow v2.0</span>
+
+    <!-- Watermark -->
+    <div class="mt-6 pt-5 border-t border-border flex items-center justify-center gap-2">
+      <span class="text-xs text-muted">Được xây dựng bởi</span>
+      <span style="font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:13px;letter-spacing:.12em;background:linear-gradient(135deg,#2563eb,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
+      <span class="text-border text-xs">·</span>
+      <span class="text-xs text-muted font-mono">QuizFlow v2.0</span>
+    </div>
   </div>
 </footer>
 
-</div><!-- END LANDING -->
-
 <script>
-// Sync theme preference (index.html is always dark, but we sync the toggle for tests.html)
+// ── Theme preference sync (index stays light, but saves preference for tests.html) ──
 function toggleTheme() {
   const saved = localStorage.getItem('qf-theme');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -486,14 +544,15 @@ function toggleTheme() {
   const icon = document.getElementById('themeIcon');
   if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
 })();
-</script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzAuEkoaeG4uDFtp7TtHFdKgXcBRD-DVFy9nYXOoaI3XC9D1AMKV4CvH2fpmnu0wBaN/exec';
+
+// ── Fetch live test count ──
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAuEkoaeG4uDFtp7TtHFdKgXcBRD-DVFy9nYXOoaI3XC9D1AMKV4CvH2fpmnu0wBaN/exec';
 fetch(`${SCRIPT_URL}?action=getTests`)
-  .then(r=>r.json())
-  .then(d=>{
-    const el=document.getElementById('heroTestCount');
-    if(el&&d.tests)el.textContent=d.tests.length;
-  }).catch(()=>{});
+  .then(r => r.json())
+  .then(d => {
+    const el = document.getElementById('heroTestCount');
+    if (el && d.tests) el.textContent = d.tests.length;
+  }).catch(() => {});
 </script>
 </body>
 </html>
