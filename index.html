@@ -421,6 +421,7 @@ tailwind.config = {
   </div>
 </footer>
 
+<script src="js/config.js"></script>
 <script>
 // ── Theme preference sync (index stays light, but saves preference for tests.html) ──
 function toggleTheme() {
@@ -441,7 +442,6 @@ function toggleTheme() {
 })();
 
 // ── Fetch live test count ──
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAuEkoaeG4uDFtp7TtHFdKgXcBRD-DVFy9nYXOoaI3XC9D1AMKV4CvH2fpmnu0wBaN/exec';
 fetch(`${SCRIPT_URL}?action=getTests`)
   .then(r => r.json())
   .then(d => {
