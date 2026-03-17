@@ -45,10 +45,35 @@ function getResponses() {
 // ── SAVE QUIZ RESPONSE ───────────────────────────────
 function saveResponse(data) {
   let sheet = SS.getSheetByName('Responses');
+  
+  // Create sheet if it doesn't exist
   if (!sheet) sheet = SS.insertSheet('Responses');
-  if (sheet.getLastRow() === 0)
-    sheet.appendRow(['timestamp','name','test','score','grade','correct','wrong','total',...Object.keys(data.answers)]);
-  sheet.appendRow([new Date().toISOString(), data.name||'', data.testTitle||'', data.score||'', data.grade||'', data.correct??'', data.wrong??'', data.total??'', ...Object.values(data.answers)]);
+  
+  // Build answer keys from submitted data
+  const answerKeys = Object.keys(data.answers || {});
+  
+  // Always write headers if sheet is empty OR has no data rows
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow([
+      'timestamp', 'name', 'test', 'score', 'grade',
+      'correct', 'wrong', 'total',
+      ...answerKeys
+    ]);
+  }
+  
+  // Append the response
+  sheet.appendRow([
+    new Date().toISOString(),
+    data.name    || '',
+    data.testTitle || '',
+    data.score   || '',
+    data.grade   || '',
+    data.correct ?? '',
+    data.wrong   ?? '',
+    data.total   ?? '',
+    ...Object.values(data.answers || {})
+  ]);
+  
   return { success: true };
 }
 
