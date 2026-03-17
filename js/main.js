@@ -203,11 +203,11 @@ function goBackToName(){
 function selectMode(m){
   quizMode=m;
   ['train','test','race'].forEach(id=>resetModeCard(id));
-  const colorVar={train:'var(--accent3)',test:'var(--accent)',race:'var(--accent2)'};
+  const colorVar={train:'var(--accent3)',test:'var(--accent)',race:'var(--warn)'};
   const c=colorVar[m];
   const card=$(`mode_${m}`);
   card.style.borderColor=c;
-  card.style.background=`color-mix(in srgb,${c} 8%,var(--surface2))`;
+  card.style.background=`color-mix(in srgb,${c} 6%,var(--surface))`;
   const chk=card.querySelector('.mode-check');
   chk.style.borderColor=c;
   chk.style.background=c;
@@ -261,11 +261,11 @@ function initQuiz(qs){
   if(quizMode==='test'||quizMode==='race') questions=shuffle([...questions]);
 
   // Update toolbar info
-  const modeLabels={train:'📖 Train',test:'📝 Test',race:'⚡ Race'};
+  const modeLabels={train:'📖 Luyện tập',test:'📝 Kiểm tra',race:'⚡ Thử thách'};
   const modeColors={
-    train:{bg:'rgba(106,247,196,.1)',color:'#6af7c4',border:'rgba(106,247,196,.3)'},
-    test: {bg:'rgba(124,106,247,.1)',color:'#7c6af7',border:'rgba(124,106,247,.3)'},
-    race: {bg:'rgba(247,106,138,.1)',color:'#f76a8a',border:'rgba(247,106,138,.3)'},
+    train:{bg:'rgba(5,150,105,.1)',   color:'var(--success)', border:'rgba(5,150,105,.3)'},
+    test: {bg:'rgba(37,99,235,.1)',   color:'var(--accent)',  border:'rgba(37,99,235,.3)'},
+    race: {bg:'rgba(217,119,6,.1)',   color:'var(--warn)',    border:'rgba(217,119,6,.3)'},
   };
   const mc=modeColors[quizMode];
   const quizTag=$('quizTag');
