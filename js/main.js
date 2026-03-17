@@ -1,7 +1,6 @@
 // ═══════════════════════════════════════════════════
-//  CONFIG — change URL here when you redeploy
+//  NOTE: SCRIPT_URL is defined in js/config.js
 // ═══════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0YSPyzR7wvG_nxMS15ALWP6Z6yTAl6m4OdlYeQA79N9Oqfcyv7kTEYwg_qSKXgN-o/exec';
 
 // ═══════════════════════════════════════════════════
 //  THEME — apply saved preference immediately
