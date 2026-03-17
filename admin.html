@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,15 +9,15 @@
 <script>
 tailwind.config={theme:{extend:{
   colors:{bg:'#060608',surface:'#0f0f14',surface2:'#18181f',border:'#252533',accent:'#7c6af7',accent2:'#f76a8a',accent3:'#6af7c4',muted:'#6b6b85'},
-  fontFamily:{sans:['"DM Sans"','sans-serif'],heading:['"Syne"','sans-serif'],mono:['"JetBrains Mono"','monospace']},
+  fontFamily:{sans:['"Be Vietnam Pro"','sans-serif'],heading:['"Be Vietnam Pro"','sans-serif'],mono:['"JetBrains Mono"','monospace']},
 }}}
 </script>
 
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
 
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{background:#060608;color:#e2e2f0;font-family:'DM Sans',sans-serif;min-height:100vh;}
+  body{background:#060608;color:#e2e2f0;font-family:'Be Vietnam Pro',sans-serif;min-height:100vh;}
   ::-webkit-scrollbar{width:4px;height:4px;} ::-webkit-scrollbar-track{background:#0f0f14;} ::-webkit-scrollbar-thumb{background:#252533;border-radius:2px;}
 
   /* ── LOGIN ── */
@@ -25,12 +25,12 @@ tailwind.config={theme:{extend:{
     background-image:linear-gradient(rgba(124,106,247,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,106,247,.04) 1px,transparent 1px);background-size:60px 60px;}
   .login-card{background:#0f0f14;border:1px solid #252533;border-radius:20px;padding:44px 40px;width:100%;max-width:420px;text-align:center;position:relative;overflow:hidden;}
   .login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7c6af7,#f76a8a,#6af7c4);}
-  .login-logo{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:white;margin:0 auto 20px;background:linear-gradient(135deg,#7c6af7,#f76a8a);}
-  .login-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;letter-spacing:-.02em;}
+  .login-logo{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:20px;color:white;margin:0 auto 20px;background:linear-gradient(135deg,#7c6af7,#f76a8a);}
+  .login-title{font-family:'Be Vietnam Pro',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;letter-spacing:-.01em;}
   .login-sub{color:#6b6b85;font-size:13px;margin-bottom:28px;}
-  .login-input{width:100%;background:#18181f;border:2px solid #252533;border-radius:12px;padding:14px 16px;color:#e2e2f0;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;text-align:center;letter-spacing:.12em;}
+  .login-input{width:100%;background:#18181f;border:2px solid #252533;border-radius:12px;padding:14px 16px;color:#e2e2f0;font-size:15px;font-family:'Be Vietnam Pro',sans-serif;outline:none;transition:border-color .2s;text-align:center;letter-spacing:.12em;}
   .login-input:focus{border-color:#7c6af7;box-shadow:0 0 0 4px rgba(124,106,247,.1);}
-  .login-btn{width:100%;margin-top:16px;padding:14px;border-radius:12px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:white;background:linear-gradient(135deg,#7c6af7,#9580ff);transition:all .2s;}
+  .login-btn{width:100%;margin-top:16px;padding:14px;border-radius:12px;border:none;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;font-weight:700;font-size:15px;color:white;background:linear-gradient(135deg,#7c6af7,#9580ff);transition:all .2s;}
   .login-btn:hover{transform:translateY(-1px);box-shadow:0 0 24px rgba(124,106,247,.4);}
   .login-error{color:#f87171;font-size:12px;margin-top:10px;min-height:18px;}
 
@@ -42,8 +42,8 @@ tailwind.config={theme:{extend:{
   /* ── SIDEBAR ── */
   .sidebar{background:#0a0a0f;border-right:1px solid #252533;display:flex;flex-direction:column;padding:0;position:sticky;top:0;height:100vh;overflow:hidden;}
   .sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid #252533;display:flex;align-items:center;gap:10px;}
-  .sidebar-logo-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:white;background:linear-gradient(135deg,#7c6af7,#f76a8a);flex-shrink:0;}
-  .sidebar-logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:white;}
+  .sidebar-logo-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:13px;color:white;background:linear-gradient(135deg,#7c6af7,#f76a8a);flex-shrink:0;}
+  .sidebar-logo-text{font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:14px;color:white;}
   .sidebar-logo-sub{font-size:10px;color:#6b6b85;font-weight:500;}
   .sidebar-nav{padding:16px 10px;flex:1;display:flex;flex-direction:column;gap:4px;}
   .nav-tab{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:#6b6b85;transition:all .2s;border:none;background:none;text-align:left;width:100%;}
@@ -60,7 +60,7 @@ tailwind.config={theme:{extend:{
   .main-content{padding:28px 32px;overflow-y:auto;}
   @media(max-width:768px){.main-content{padding:20px 16px;}}
   .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
-  .page-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.02em;}
+  .page-title{font-family:'Be Vietnam Pro',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.01em;}
   .page-sub{color:#6b6b85;font-size:13px;margin-top:2px;}
 
   /* ── TOP BAR (mobile) ── */
@@ -71,23 +71,23 @@ tailwind.config={theme:{extend:{
   .topbar-tab.active{background:rgba(124,106,247,.15);color:#7c6af7;}
 
   /* ── BUTTONS ── */
-  .btn-primary{padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:white;background:#7c6af7;transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .btn-primary{padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;font-weight:700;font-size:13px;color:white;background:#7c6af7;transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
   .btn-primary:hover{background:#9580ff;transform:translateY(-1px);}
-  .btn-secondary{padding:9px 18px;border-radius:10px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:600;font-size:13px;color:#6b6b85;background:transparent;border:1px solid #252533;transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .btn-secondary{padding:9px 18px;border-radius:10px;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;font-weight:600;font-size:13px;color:#6b6b85;background:transparent;border:1px solid #252533;transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
   .btn-secondary:hover{border-color:#7c6af7;color:#7c6af7;}
-  .btn-danger{padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:white;background:#f87171;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+  .btn-danger{padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;font-weight:700;font-size:13px;color:white;background:#f87171;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
   .btn-danger:hover{background:#ef4444;}
   .btn-icon{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:7px;font-size:14px;transition:all .15s;}
   .btn-edit:hover{background:rgba(124,106,247,.15);}
   .btn-delete:hover{background:rgba(248,113,113,.12);}
   .btn-view:hover{background:rgba(106,247,196,.1);}
-  .btn-questions{font-size:11px;font-family:'Syne',sans-serif;font-weight:600;color:#6af7c4;padding:4px 10px;border-radius:6px;background:rgba(106,247,196,.08);border:1px solid rgba(106,247,196,.2);cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .btn-questions{font-size:11px;font-family:'Be Vietnam Pro',sans-serif;font-weight:600;color:#6af7c4;padding:4px 10px;border-radius:6px;background:rgba(106,247,196,.08);border:1px solid rgba(106,247,196,.2);cursor:pointer;transition:all .2s;white-space:nowrap;}
   .btn-questions:hover{background:rgba(106,247,196,.15);}
 
   /* ── TABLE ── */
   .table-wrap{overflow-x:auto;border-radius:14px;border:1px solid #252533;}
   table{width:100%;border-collapse:collapse;font-size:13px;}
-  thead th{background:#13131a;padding:11px 14px;text-align:left;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6b6b85;white-space:nowrap;border-bottom:1px solid #252533;}
+  thead th{background:#13131a;padding:11px 14px;text-align:left;font-family:'Be Vietnam Pro',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6b6b85;white-space:nowrap;border-bottom:1px solid #252533;}
   tbody tr{border-bottom:1px solid rgba(37,37,51,.7);transition:background .15s;}
   tbody tr:last-child{border-bottom:none;}
   tbody tr:hover{background:#13131a;}
@@ -122,7 +122,7 @@ tailwind.config={theme:{extend:{
   /* Stats */
   .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px;}
   .stat-card{background:#0f0f14;border:1px solid #252533;border-radius:14px;padding:18px 20px;}
-  .stat-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:2px;}
+  .stat-num{font-family:'Be Vietnam Pro',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:2px;}
   .stat-label{font-size:11px;color:#6b6b85;font-weight:500;text-transform:uppercase;letter-spacing:.08em;}
 
   /* Filter bar */
@@ -137,7 +137,7 @@ tailwind.config={theme:{extend:{
   .modal-backdrop.open{display:flex;}
   .modal{background:#0f0f14;border:1px solid #252533;border-radius:20px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;position:relative;}
   .modal-header{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 18px;border-bottom:1px solid #252533;position:sticky;top:0;background:#0f0f14;z-index:1;}
-  .modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;}
+  .modal-title{font-family:'Be Vietnam Pro',sans-serif;font-size:17px;font-weight:800;}
   .modal-close{background:none;border:none;color:#6b6b85;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:8px;line-height:1;transition:all .2s;}
   .modal-close:hover{background:#18181f;color:#e2e2f0;}
   .modal-body{padding:24px;}
@@ -150,7 +150,7 @@ tailwind.config={theme:{extend:{
   @media(max-width:500px){.form-row.two-col,.form-row.three-col{grid-template-columns:1fr;}}
   .form-label{display:block;font-size:11px;font-weight:700;color:#6b6b85;text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;}
   .form-label span{color:#f87171;margin-left:3px;}
-  .form-input{width:100%;background:#18181f;border:1px solid #252533;border-radius:10px;padding:11px 14px;color:#e2e2f0;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+  .form-input{width:100%;background:#18181f;border:1px solid #252533;border-radius:10px;padding:11px 14px;color:#e2e2f0;font-family:'Be Vietnam Pro',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
   .form-input:focus{border-color:#7c6af7;box-shadow:0 0 0 3px rgba(124,106,247,.08);}
   .form-input::placeholder{color:#6b6b85;}
   .form-textarea{resize:vertical;min-height:80px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;}
@@ -168,7 +168,7 @@ tailwind.config={theme:{extend:{
   .detail-row{display:flex;align-items:flex-start;gap:12px;}
   .detail-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b6b85;min-width:110px;padding-top:2px;flex-shrink:0;}
   .detail-val{font-size:14px;color:#e2e2f0;flex:1;}
-  .detail-answers-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#6b6b85;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;padding-top:4px;border-top:1px solid #252533;}
+  .detail-answers-title{font-family:'Be Vietnam Pro',sans-serif;font-size:13px;font-weight:700;color:#6b6b85;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;padding-top:4px;border-top:1px solid #252533;}
   .detail-answers{display:flex;flex-direction:column;gap:6px;}
   .detail-answer-row{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;background:#18181f;border-radius:8px;}
   .detail-answer-key{font-size:12px;color:#6b6b85;min-width:120px;flex-shrink:0;text-transform:capitalize;font-style:italic;}
@@ -250,7 +250,7 @@ tailwind.config={theme:{extend:{
         <!-- Watermark -->
         <div style="margin-top:16px;padding-top:14px;border-top:1px solid #252533;text-align:center">
           <span style="font-size:10px;color:#6b6b85;letter-spacing:.04em;display:block;margin-bottom:3px">Built by</span>
-          <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:.18em;background:linear-gradient(135deg,#7c6af7,#f76a8a,#6af7c4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
+          <span style="font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:14px;letter-spacing:.18em;background:linear-gradient(135deg,#7c6af7,#f76a8a,#6af7c4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
         </div>
       </div>
     </aside>
@@ -261,8 +261,8 @@ tailwind.config={theme:{extend:{
       <!-- Mobile topbar -->
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#7c6af7,#f76a8a);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;color:white">Q</div>
-          <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">Admin</span>
+          <div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#7c6af7,#f76a8a);display:flex;align-items:center;justify-content:center;font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:12px;color:white">Q</div>
+          <span style="font-family:'Be Vietnam Pro',sans-serif;font-weight:700;font-size:14px">Admin</span>
         </div>
         <div class="topbar-tabs">
           <button id="mobtab_tests" class="topbar-tab active" onclick="showSection('sectionTests')">Tests</button>
