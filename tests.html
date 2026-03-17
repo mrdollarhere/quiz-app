@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,26 +10,20 @@
 tailwind.config = {
   theme: {
     extend: {
-      colors: {
-        bg:'#060608', surface:'#0f0f14', surface2:'#18181f', border:'#252533',
-        accent:'#7c6af7', accent2:'#f76a8a', accent3:'#6af7c4', muted:'#6b6b85',
-      },
       fontFamily: {
-        sans:['"DM Sans"','sans-serif'],
-        heading:['"Syne"','sans-serif'],
-        mono:['"JetBrains Mono"','monospace'],
+        sans:    ['"DM Sans"','sans-serif'],
+        heading: ['"Syne"','sans-serif'],
+        mono:    ['"JetBrains Mono"','monospace'],
       },
       keyframes: {
-        fadeUp:   {from:{opacity:'0',transform:'translateY(24px)'},to:{opacity:'1',transform:'translateY(0)'}},
+        fadeUp:   {from:{opacity:'0',transform:'translateY(20px)'},to:{opacity:'1',transform:'translateY(0)'}},
         bounceIn: {'0%':{transform:'scale(.3)',opacity:'0'},'60%':{transform:'scale(1.1)'},'100%':{transform:'scale(1)',opacity:'1'}},
         shimmer:  {'0%':{backgroundPosition:'200% 0'},'100%':{backgroundPosition:'-200% 0'}},
-        float:    {'0%,100%':{transform:'translateY(0)'},'50%':{transform:'translateY(-8px)'}},
       },
       animation: {
         fadeUp:   'fadeUp .5s ease both',
         bounceIn: 'bounceIn .6s ease both',
         shimmer:  'shimmer 1.5s infinite',
-        float:    'float 5s ease-in-out infinite',
       },
     }
   }
@@ -39,95 +33,448 @@ tailwind.config = {
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{background-color:#060608;color:#e2e2f0;font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+/* ══════════════════════════════════════════
+   THEME VARIABLES
+   Light = default, Dark = [data-theme="dark"]
+══════════════════════════════════════════ */
+:root {
+  /* Light theme */
+  --bg:        #f4f4f8;
+  --bg2:       #ffffff;
+  --surface:   #ffffff;
+  --surface2:  #f0f0f5;
+  --border:    #e2e2eb;
+  --border2:   #d0d0dc;
+  --text:      #111118;
+  --text-sub:  #44444f;
+  --muted:     #888898;
+  --accent:    #6c5ce7;
+  --accent2:   #e84393;
+  --accent3:   #00b894;
+  --success:   #00b894;
+  --error:     #e84393;
+  --nav-bg:    rgba(255,255,255,.92);
+  --nav-border:rgba(0,0,0,.07);
+  --toolbar-bg:rgba(248,248,252,.95);
+  --card-shadow:0 2px 12px rgba(0,0,0,.06);
+  --orb1:      rgba(108,92,231,.07);
+  --orb2:      rgba(232,67,147,.05);
+  --grid-line: rgba(108,92,231,.05);
+}
 
-  /* Noise texture */
-  body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
-    background-repeat:repeat;background-size:128px;opacity:.35;}
+[data-theme="dark"] {
+  /* Dark theme */
+  --bg:        #060608;
+  --bg2:       #0a0a0f;
+  --surface:   #0f0f14;
+  --surface2:  #18181f;
+  --border:    #252533;
+  --border2:   #2e2e3e;
+  --text:      #e2e2f0;
+  --text-sub:  #b8b8cc;
+  --muted:     #6b6b85;
+  --accent:    #7c6af7;
+  --accent2:   #f76a8a;
+  --accent3:   #6af7c4;
+  --success:   #4ade80;
+  --error:     #f87171;
+  --nav-bg:    rgba(6,6,8,.92);
+  --nav-border:rgba(255,255,255,.07);
+  --toolbar-bg:rgba(6,6,8,.96);
+  --card-shadow:0 2px 12px rgba(0,0,0,.25);
+  --orb1:      rgba(124,106,247,.08);
+  --orb2:      rgba(247,106,138,.06);
+  --grid-line: rgba(124,106,247,.04);
+}
 
-  /* Grid bg */
-  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-    background-image:linear-gradient(rgba(124,106,247,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,106,247,.04) 1px,transparent 1px);
-    background-size:60px 60px;}
+/* ══════════════════════════════════════════
+   BASE
+══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background .3s, color .3s;
+}
 
-  /* Orbs */
-  .orb1{position:fixed;width:500px;height:500px;border-radius:50%;background:rgba(124,106,247,.08);filter:blur(100px);top:-150px;left:-150px;pointer-events:none;z-index:0;}
-  .orb2{position:fixed;width:350px;height:350px;border-radius:50%;background:rgba(247,106,138,.06);filter:blur(80px);bottom:-100px;right:-100px;pointer-events:none;z-index:0;}
+/* Grid background */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
 
-  /* Gradient text */
-  .grad-text{background:linear-gradient(135deg,#7c6af7,#f76a8a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-  /* Card top accent */
-  .card-accent::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7c6af7,#f76a8a,#6af7c4);border-radius:16px 16px 0 0;}
+/* Orbs */
+.orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; }
+.orb1 { width: 500px; height: 500px; background: var(--orb1); top: -150px; left: -150px; }
+.orb2 { width: 350px; height: 350px; background: var(--orb2); bottom: -100px; right: -100px; }
 
-  /* Quiz screen helpers */
-  .progress-fill{background:linear-gradient(90deg,#7c6af7,#f76a8a);transition:width .5s cubic-bezier(.4,0,.2,1);}
-  .ring-fill{transition:stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1);}
-  .drag-over{border-color:#fb923c !important;background:rgba(251,146,60,.12) !important;transform:scale(1.01);}
-  .dragging{opacity:.4;cursor:grabbing;}
-  .tdragging{opacity:.4;border-style:dashed;}
-  .dz-over{border-color:#c084fc !important;background:rgba(192,132,252,.12) !important;}
-  .hs-zone{position:absolute;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .2s;}
-  .hs-zone:hover{background:rgba(236,72,153,.18);border-color:rgba(236,72,153,.5);}
-  .hs-zone.hs-sel{background:rgba(236,72,153,.25);border-color:#ec4899;box-shadow:0 0 0 3px rgba(236,72,153,.3);}
-  .hs-label{position:absolute;bottom:calc(100%+6px);left:50%;transform:translateX(-50%);background:#ec4899;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;}
-  .hs-zone:hover .hs-label,.hs-zone.hs-sel .hs-label{opacity:1;}
-  .skeleton{background:linear-gradient(90deg,#18181f 25%,#252533 50%,#18181f 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
-  .ldots::after{content:'';animation:dots 1.4s infinite;}
-  @keyframes dots{0%{content:'.'}33%{content:'..'}66%{content:'...'}}
-  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b85' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;}
+/* ══════════════════════════════════════════
+   THEME TOGGLE BUTTON
+══════════════════════════════════════════ */
+.theme-toggle {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--muted);
+  font-size: 16px; transition: all .2s; flex-shrink: 0;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+/* Show sun in dark mode, moon in light mode */
+.icon-sun  { display: none; }
+.icon-moon { display: block; }
+[data-theme="dark"] .icon-sun  { display: block; }
+[data-theme="dark"] .icon-moon { display: none; }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:#060608;} ::-webkit-scrollbar-thumb{background:#252533;border-radius:2px;}
+/* ══════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════ */
+.grad-text {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.card-accent::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+  border-radius: 16px 16px 0 0;
+}
+
+/* ══════════════════════════════════════════
+   NAV
+══════════════════════════════════════════ */
+.main-nav {
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.nav-text { color: var(--text); }
+.nav-link { color: var(--muted); font-size: 14px; font-weight: 500; transition: color .2s; text-decoration: none; }
+.nav-link:hover { color: var(--accent); }
+
+/* ══════════════════════════════════════════
+   CARDS
+══════════════════════════════════════════ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  transition: background .3s, border-color .3s, box-shadow .3s;
+}
+.card-inner {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: background .3s, border-color .3s;
+}
+
+/* ══════════════════════════════════════════
+   FORM INPUTS
+══════════════════════════════════════════ */
+.inp {
+  width: 100%;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 18px;
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s, background .3s;
+}
+.inp:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(108,92,231,.1);
+}
+.inp::placeholder { color: var(--muted); font-weight: 400; font-size: 14px; }
+
+/* ══════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════ */
+.btn-primary {
+  background: var(--accent); color: #fff;
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  border: none; cursor: pointer; border-radius: 14px;
+  transition: all .2s;
+}
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-primary:disabled, .btn-primary.disabled { opacity: .4; pointer-events: none; }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'Syne', sans-serif; font-weight: 600;
+  cursor: pointer; border-radius: 12px;
+  transition: all .2s;
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ══════════════════════════════════════════
+   TEST CARD
+══════════════════════════════════════════ */
+.test-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  box-shadow: var(--card-shadow);
+}
+.test-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--card-color, var(--accent));
+  transform: scaleX(0); transition: transform .25s; transform-origin: left;
+}
+.test-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.12); }
+.test-card:hover::before, .test-card.selected::before { transform: scaleX(1); }
+.test-card.selected { border-color: var(--card-color, var(--accent)); }
+
+/* ══════════════════════════════════════════
+   MODE CARDS
+══════════════════════════════════════════ */
+.mode-card {
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  transition: all .2s;
+}
+
+/* ══════════════════════════════════════════
+   QUIZ TOOLBAR
+══════════════════════════════════════════ */
+.quiz-toolbar {
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  transition: background .3s, border-color .3s;
+}
+.toolbar-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: 10px;
+  border: 1px solid var(--border);
+  color: var(--muted); background: transparent;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+  cursor: pointer; transition: all .2s; flex-shrink: 0; white-space: nowrap;
+}
+.toolbar-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toolbar-btn:disabled { opacity: .35; pointer-events: none; }
+
+/* ══════════════════════════════════════════
+   QUESTION OPTIONS
+══════════════════════════════════════════ */
+.opt {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px; cursor: pointer;
+  transition: all .18s; user-select: none;
+}
+.opt:hover { border-color: var(--accent); background: var(--surface); }
+.opt.sel-radio { border-color: var(--accent); background: var(--surface); box-shadow: inset 0 0 0 1px var(--accent); }
+.opt.sel-check { border-color: var(--accent2); background: var(--surface); }
+
+/* True/False */
+.tf-btn {
+  flex: 1; padding: 14px;
+  border-radius: 12px; border: 2px solid var(--border);
+  background: var(--surface2); color: var(--text);
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
+  cursor: pointer; transition: all .2s; text-align: center;
+}
+.tf-btn.sel-true  { background: rgba(0,184,148,.1); border-color: var(--success); color: var(--success); }
+.tf-btn.sel-false { background: rgba(232,67,147,.1); border-color: var(--error);   color: var(--error); }
+
+/* Rating */
+.rating-btn {
+  width: 48px; height: 48px; border-radius: 11px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  color: var(--muted); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
+  cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center;
+}
+.rating-btn:hover { border-color: #f59e0b; color: #f59e0b; }
+.rating-btn.sel { background: #f59e0b; border-color: #f59e0b; color: #fff; transform: scale(1.05); }
+
+/* Textarea / select */
+.textarea-inp {
+  width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 13px 16px; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none;
+  resize: vertical; min-height: 80px; transition: border-color .2s, background .3s;
+}
+.textarea-inp:focus { border-color: var(--accent3); }
+.textarea-inp::placeholder { color: var(--muted); }
+.styled-select {
+  width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 13px 16px; color: var(--text);
+  font-size: 14px; outline: none; cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888898' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  transition: border-color .2s, background .3s;
+}
+.styled-select:focus { border-color: var(--accent); }
+
+/* ══════════════════════════════════════════
+   DRAG & DROP
+══════════════════════════════════════════ */
+.drag-over  { border-color: #fb923c !important; background: rgba(251,146,60,.1) !important; transform: scale(1.01); }
+.dragging   { opacity: .4; cursor: grabbing; }
+.tdragging  { opacity: .4; border-style: dashed; }
+.dz-over    { border-color: #c084fc !important; background: rgba(192,132,252,.1) !important; }
+
+/* MTF */
+.mtf-row { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 12px; padding: 13px 16px; transition: border-color .2s, background .3s; }
+.mtf-btn {
+  flex: 1; padding: 9px 8px; border-radius: 9px; border: 2px solid var(--border);
+  background: var(--surface); color: var(--muted);
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+  cursor: pointer; transition: all .18s; text-align: center;
+}
+.mtf-btn.sel-true  { background: rgba(0,184,148,.12); border-color: var(--success); color: var(--success); }
+.mtf-btn.sel-false { background: rgba(232,67,147,.12); border-color: var(--error);   color: var(--error); }
+
+/* Matrix */
+.matrix-table { width: 100%; border-collapse: collapse; min-width: 360px; }
+.matrix-th { padding: 9px 8px; text-align: center; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #f59e0b; border-bottom: 2px solid var(--border); border-right: 1px solid var(--border); }
+.matrix-th:last-child { border-right: none; }
+.matrix-th-blank { padding: 9px 12px; border-bottom: 2px solid var(--border); border-right: 1px solid var(--border); width: 35%; }
+.matrix-td-label { padding: 10px 12px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+.matrix-td { padding: 9px 6px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+.matrix-td:last-child { border-right: none; }
+.matrix-table tbody tr:last-child td { border-bottom: none; }
+.matrix-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border2); background: var(--surface2); margin: 0 auto; cursor: pointer; transition: all .18s; display: flex; align-items: center; justify-content: center; }
+.matrix-radio:hover { border-color: #f59e0b; }
+.matrix-radio.sel { border-color: #f59e0b; background: #f59e0b; }
+
+/* Hotspot */
+.hs-zone        { position: absolute; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: all .2s; }
+.hs-zone:hover  { background: rgba(236,72,153,.18); border-color: rgba(236,72,153,.5); }
+.hs-zone.hs-sel { background: rgba(236,72,153,.25); border-color: #ec4899; box-shadow: 0 0 0 3px rgba(236,72,153,.3); }
+.hs-label       { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #ec4899; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; }
+.hs-zone:hover .hs-label, .hs-zone.hs-sel .hs-label { opacity: 1; }
+
+/* Ordering/Matching chips */
+.ordering-item { background: var(--surface2); border: 2px solid var(--border); border-radius: 12px; }
+.ordering-item:hover { border-color: #fb923c; }
+.bank-chip { background: var(--surface2); border: 2px solid var(--border); border-radius: 8px; }
+.bank-chip:hover { border-color: #c084fc; }
+.matching-prompt { background: rgba(192,132,252,.08); border: 1px solid rgba(192,132,252,.25); border-radius: 10px; }
+.matching-drop-zone { border: 2px dashed var(--border); background: var(--surface2); border-radius: 10px; min-height: 50px; }
+.matching-drop-zone.has-item { border-style: solid; border-color: rgba(192,132,252,.4); background: rgba(192,132,252,.06); }
+
+/* ══════════════════════════════════════════
+   SKELETON
+══════════════════════════════════════════ */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+.ldots::after { content: ''; animation: dots 1.4s infinite; }
+@keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+
+/* ══════════════════════════════════════════
+   RESULT
+══════════════════════════════════════════ */
+.ring-fill { transition: stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1); }
+.progress-fill { background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+/* ══════════════════════════════════════════
+   TOC PANEL
+══════════════════════════════════════════ */
+.toc-panel {
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+}
+.toc-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 10px; cursor: pointer;
+  font-size: 13px; color: var(--text-sub); transition: all .15s;
+}
+.toc-item:hover { background: var(--surface2); color: var(--text); }
+.toc-item.current { background: rgba(108,92,231,.1); color: var(--accent); font-weight: 600; }
+.toc-item.answered .toc-dot { background: rgba(0,184,148,.4); }
+
+/* ══════════════════════════════════════════
+   MISC
+══════════════════════════════════════════ */
+.type-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+  padding: 3px 10px; border-radius: 100px;
+}
+.review-item { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+.review-item:last-child { border-bottom: none; }
+.text-sub { color: var(--text-sub); }
+.text-muted-c { color: var(--muted); }
 </style>
 </head>
 
-<body class="min-h-screen">
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
 
-<!-- Background -->
-<div class="orb1"></div>
-<div class="orb2"></div>
-
-<!-- ── TOP NAV ── -->
-<header class="sticky top-0 z-50 border-b flex items-center justify-between px-5 md:px-10 h-14"
-  style="background:rgba(6,6,8,.9);backdrop-filter:blur(20px);border-color:rgba(255,255,255,.06)">
+<!-- ══ NAV ══ -->
+<header class="main-nav sticky top-0 z-50 h-14 flex items-center justify-between px-5 md:px-10">
   <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-    <div class="w-7 h-7 rounded-lg flex items-center justify-center font-heading font-extrabold text-xs text-white"
-      style="background:linear-gradient(135deg,#7c6af7,#f76a8a)">Q</div>
-    <span class="font-heading font-bold text-sm text-white">QuizFlow</span>
+    <div class="w-7 h-7 rounded-lg flex items-center justify-center font-heading font-extrabold text-xs text-white flex-shrink-0"
+      style="background:linear-gradient(135deg,var(--accent),var(--accent2))">Q</div>
+    <span class="font-heading font-bold text-sm nav-text">QuizFlow</span>
   </a>
-  <a href="index.html" class="text-muted text-sm hover:text-white transition-colors font-medium">← Home</a>
+  <div class="flex items-center gap-3">
+    <a href="index.html" class="nav-link hidden sm:block">← Home</a>
+    <!-- Theme toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+      <span class="icon-moon">🌙</span>
+      <span class="icon-sun">☀️</span>
+    </button>
+  </div>
 </header>
 
-<!-- ── MAIN APP WRAPPER ── -->
+<!-- ══ MAIN WRAPPER ══ -->
 <div class="relative z-10 min-h-screen flex flex-col items-center px-4 py-10 pb-20 md:px-6 md:py-12">
 
   <!-- STATUS -->
-  <div id="statusMsg" class="hidden w-full max-w-2xl mb-4"></div>
+  <div id="statusMsg" class="hidden w-full max-w-2xl mb-4 px-4 py-3 rounded-xl text-sm font-semibold"></div>
 
   <!-- SKELETON -->
   <div id="skeletonLoad" class="hidden w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <div class="bg-surface rounded-2xl p-7 border border-border"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
-    <div class="bg-surface rounded-2xl p-7 border border-border"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
-    <div class="bg-surface rounded-2xl p-7 border border-border"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
-    <div class="bg-surface rounded-2xl p-7 border border-border"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
+    <div class="card p-7"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
+    <div class="card p-7"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
+    <div class="card p-7"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
+    <div class="card p-7"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
   </div>
 
   <!-- TEST SELECTOR -->
   <div id="testSelector" class="hidden w-full max-w-3xl animate-fadeUp">
     <div class="text-center mb-9">
-      <span class="inline-block font-heading text-[11px] font-bold uppercase tracking-[.2em] text-accent bg-accent/10 border border-accent/30 px-4 py-1.5 rounded-full mb-4">📚 Available Tests</span>
-      <h1 class="font-heading text-4xl md:text-5xl font-extrabold tracking-tight leading-none mb-2">
+      <span class="inline-block font-heading text-[11px] font-bold uppercase tracking-[.2em] px-4 py-1.5 rounded-full mb-4 border" style="color:var(--accent);background:rgba(108,92,231,.08);border-color:rgba(108,92,231,.25)">📚 Available Tests</span>
+      <h1 class="font-heading text-4xl md:text-5xl font-extrabold tracking-tight leading-none mb-2" style="color:var(--text)">
         Pick Your <span class="grad-text">Test</span>
       </h1>
-      <p id="selectorSub" class="text-muted text-base font-light">Select one to get started</p>
+      <p id="selectorSub" class="text-sm font-light" style="color:var(--muted)">Select one to get started</p>
     </div>
     <div id="testsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-7"></div>
     <div class="flex justify-center">
       <button id="startTestBtn" onclick="proceedToName()"
-        class="font-heading font-bold text-base px-12 py-4 rounded-2xl bg-accent text-white tracking-wide opacity-40 pointer-events-none transition-all duration-300">
+        class="btn-primary btn-primary disabled font-heading text-base px-12 py-4 tracking-wide">
         Continue →
       </button>
     </div>
@@ -135,245 +482,202 @@ tailwind.config = {
 
   <!-- NAME SCREEN -->
   <div id="nameScreen" class="hidden w-full max-w-lg animate-fadeUp">
-    <div class="bg-surface border border-border rounded-2xl p-10 text-center relative overflow-hidden card-accent">
-      <div class="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl border-2 border-accent/30"
-        style="background:linear-gradient(135deg,rgba(124,106,247,.2),rgba(247,106,138,.2))">👤</div>
-      <div id="nameTestBadge" class="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 text-accent font-semibold text-sm px-4 py-1.5 rounded-full mb-5">📝 Test</div>
-      <h2 class="font-heading text-2xl font-extrabold tracking-tight mb-2">What's your name?</h2>
-      <p class="text-muted text-sm font-light mb-8 leading-relaxed">Your name will be saved with your responses.</p>
+    <div class="card p-10 text-center relative overflow-hidden card-accent">
+      <div class="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl border-2" style="background:linear-gradient(135deg,rgba(108,92,231,.15),rgba(232,67,147,.15));border-color:rgba(108,92,231,.3)">👤</div>
+      <div id="nameTestBadge" class="inline-flex items-center gap-2 font-semibold text-sm px-4 py-1.5 rounded-full mb-5 border" style="color:var(--accent);background:rgba(108,92,231,.08);border-color:rgba(108,92,231,.25)">📝 Test</div>
+      <h2 class="font-heading text-2xl font-extrabold tracking-tight mb-2" style="color:var(--text)">What's your name?</h2>
+      <p class="text-sm font-light mb-8 leading-relaxed" style="color:var(--muted)">Your name will be saved with your responses.</p>
       <div class="text-left mb-5">
-        <label class="block text-[11px] font-bold text-muted uppercase tracking-[.12em] mb-2">Full Name</label>
+        <label class="block text-[11px] font-bold uppercase tracking-[.12em] mb-2" style="color:var(--muted)">Full Name</label>
         <input type="text" id="nameInput" placeholder="e.g. Alex Johnson" maxlength="80" autocomplete="name"
           oninput="onNameType(this.value)" onkeydown="if(event.key==='Enter')startQuiz()"
-          class="w-full bg-surface2 border-2 border-border rounded-2xl px-5 py-4 text-[#e2e2f0] font-heading text-lg font-semibold outline-none transition-all focus:border-accent focus:shadow-[0_0_0_4px_rgba(124,106,247,.1)] placeholder:text-muted placeholder:font-normal placeholder:text-base"/>
-        <p id="nameError" class="hidden text-[#f87171] text-xs mt-2">Please enter your name to continue.</p>
+          class="inp"/>
+        <p id="nameError" class="hidden text-xs mt-2" style="color:var(--error)">Please enter your name to continue.</p>
       </div>
-      <p id="nameGreeting" class="text-accent3 text-sm italic min-h-[20px] mb-4"></p>
-      <button onclick="startQuiz()"
-        class="w-full font-heading font-bold text-base py-4 rounded-2xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px mt-1">
-        Let's Start →
-      </button>
-      <a onclick="backToSelector()" class="block mt-4 text-sm text-muted hover:text-accent cursor-pointer transition-colors">← Back to tests</a>
+      <p id="nameGreeting" class="text-sm italic min-h-[20px] mb-4" style="color:var(--accent3)"></p>
+      <button onclick="startQuiz()" class="btn-primary w-full text-base py-4 mt-1">Let's Start →</button>
+      <a onclick="backToSelector()" class="block mt-4 text-sm cursor-pointer transition-colors" style="color:var(--muted)" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">← Back to tests</a>
     </div>
   </div>
 
   <!-- MODE SCREEN -->
   <div id="modeScreen" class="hidden w-full max-w-lg animate-fadeUp">
-    <div class="bg-surface border border-border rounded-2xl p-8 text-center relative overflow-hidden card-accent">
-      <div id="modeTestBadge" class="inline-flex items-center gap-2 bg-accent/10 border border-accent/30 text-accent font-semibold text-sm px-4 py-1.5 rounded-full mb-5">📝 Test</div>
-      <h2 class="font-heading text-2xl font-extrabold tracking-tight mb-2">Choose Your Mode</h2>
-      <p class="text-muted text-sm font-light mb-7 leading-relaxed">How do you want to take this test?</p>
+    <div class="card p-8 text-center relative overflow-hidden card-accent">
+      <div id="modeTestBadge" class="inline-flex items-center gap-2 font-semibold text-sm px-4 py-1.5 rounded-full mb-5 border" style="color:var(--accent);background:rgba(108,92,231,.08);border-color:rgba(108,92,231,.25)">📝 Test</div>
+      <h2 class="font-heading text-2xl font-extrabold tracking-tight mb-2" style="color:var(--text)">Choose Your Mode</h2>
+      <p class="text-sm font-light mb-7 leading-relaxed" style="color:var(--muted)">How do you want to take this test?</p>
       <div class="flex flex-col gap-3 mb-7">
-        <!-- Train -->
         <div id="mode_train" onclick="selectMode('train')"
-          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent3 hover:bg-accent3/5 text-left">
+          class="mode-card flex items-center gap-4 px-5 py-4 cursor-pointer text-left hover:border-[color:var(--accent3)]">
           <div class="text-3xl">📖</div>
           <div class="flex-1">
-            <div class="font-heading font-bold text-base mb-0.5">Train</div>
-            <div class="text-muted text-xs leading-relaxed">Questions in order, no time pressure. Navigate freely.</div>
+            <div class="font-heading font-bold text-base mb-0.5" style="color:var(--text)">Train</div>
+            <div class="text-xs leading-relaxed" style="color:var(--muted)">Questions in order, no time pressure. Navigate freely.</div>
           </div>
-          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
+          <div class="mode-check w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all" style="border-color:var(--border)"></div>
         </div>
-        <!-- Test -->
         <div id="mode_test" onclick="selectMode('test')"
-          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent hover:bg-accent/5 text-left">
+          class="mode-card flex items-center gap-4 px-5 py-4 cursor-pointer text-left hover:border-[color:var(--accent)]">
           <div class="text-3xl">📝</div>
           <div class="flex-1">
-            <div class="font-heading font-bold text-base mb-0.5">Test</div>
-            <div class="text-muted text-xs leading-relaxed">Random order. Submit all at the end for your score.</div>
+            <div class="font-heading font-bold text-base mb-0.5" style="color:var(--text)">Test</div>
+            <div class="text-xs leading-relaxed" style="color:var(--muted)">Random order. Submit all at the end for your score.</div>
           </div>
-          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
+          <div class="mode-check w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all" style="border-color:var(--border)"></div>
         </div>
-        <!-- Race -->
         <div id="mode_race" onclick="selectMode('race')"
-          class="mode-card flex items-center gap-4 px-5 py-4 bg-surface2 border-2 border-border rounded-2xl cursor-pointer transition-all hover:border-accent2 hover:bg-accent2/5 text-left">
+          class="mode-card flex items-center gap-4 px-5 py-4 cursor-pointer text-left hover:border-[color:var(--accent2)]">
           <div class="text-3xl">⚡</div>
           <div class="flex-1">
-            <div class="font-heading font-bold text-base mb-0.5">Race</div>
-            <div class="text-muted text-xs leading-relaxed">Instant check — correct moves forward, wrong restarts!</div>
+            <div class="font-heading font-bold text-base mb-0.5" style="color:var(--text)">Race</div>
+            <div class="text-xs leading-relaxed" style="color:var(--muted)">Instant check — correct moves forward, wrong restarts!</div>
           </div>
-          <div class="mode-check w-6 h-6 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 transition-all"></div>
+          <div class="mode-check w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all" style="border-color:var(--border)"></div>
         </div>
       </div>
-      <button id="startModeBtn" onclick="launchQuiz()"
-        class="w-full font-heading font-bold text-base py-4 rounded-2xl bg-accent text-white opacity-40 pointer-events-none transition-all hover:bg-[#9580ff] hover:-translate-y-px">
-        Start →
-      </button>
-      <a onclick="goBackToName()" class="block mt-4 text-sm text-muted hover:text-accent cursor-pointer transition-colors">← Back</a>
+      <button id="startModeBtn" onclick="launchQuiz()" class="btn-primary disabled w-full text-base py-4">Start →</button>
+      <a onclick="goBackToName()" class="block mt-4 text-sm cursor-pointer transition-colors" style="color:var(--muted)" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">← Back</a>
     </div>
   </div>
 
   <!-- RACE FEEDBACK OVERLAY -->
   <div id="raceFeedback" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center" style="background:rgba(0,0,0,.88)">
     <div id="raceFeedbackIcon" class="text-8xl mb-6 animate-bounceIn"></div>
-    <div id="raceFeedbackText" class="font-heading text-2xl font-extrabold mb-2"></div>
-    <div id="raceFeedbackSub" class="text-muted text-sm"></div>
+    <div id="raceFeedbackText" class="font-heading text-2xl font-extrabold mb-2" style="color:var(--text)"></div>
+    <div id="raceFeedbackSub" class="text-sm" style="color:var(--muted)"></div>
   </div>
 
-  <!-- ═══ QUIZ TOOLBAR (sticky, shown during quiz) ═══ -->
-  <div id="quizToolbar" class="hidden fixed top-14 left-0 right-0 z-40"
-    style="background:rgba(6,6,8,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07)">
-
-    <!-- Progress fill bar — very top -->
-    <div class="h-0.5 w-full bg-surface2">
-      <div id="progressFill" class="h-full rounded-full" style="width:0%;background:linear-gradient(90deg,#7c6af7,#f76a8a);transition:width .5s cubic-bezier(.4,0,.2,1)"></div>
+  <!-- QUIZ TOOLBAR -->
+  <div id="quizToolbar" class="hidden fixed top-14 left-0 right-0 z-40 quiz-toolbar">
+    <div class="h-0.5 w-full" style="background:var(--border)">
+      <div id="progressFill" class="h-full rounded-full progress-fill" style="width:0%"></div>
     </div>
-
-    <!-- Toolbar row -->
-    <div class="flex items-center gap-3 px-4 md:px-6 h-14">
-
-      <!-- Prev button -->
-      <button id="prevBtn" onclick="navigate(-1)"
-        class="flex items-center gap-1.5 font-heading font-bold text-sm px-4 py-2 rounded-xl border border-border text-muted hover:border-accent hover:text-accent transition-all flex-shrink-0">
-        ← Prev
-      </button>
-
-      <!-- Center info -->
+    <div class="flex items-center gap-2 px-4 md:px-6 h-13" style="height:52px">
+      <button id="prevBtn" onclick="navigate(-1)" class="toolbar-btn">← Prev</button>
       <div class="flex-1 flex flex-col items-center min-w-0">
-        <div class="flex items-center gap-2 mb-0.5">
-          <span id="quizTag" class="font-heading text-[10px] font-bold uppercase tracking-widest text-accent">🎯 Quiz</span>
-          <span class="text-border text-xs">·</span>
-          <span id="progressText" class="font-mono text-xs text-muted">Q 1 / 10</span>
-          <span class="text-border text-xs">·</span>
-          <span id="progressPct" class="font-mono text-xs text-muted">0%</span>
+        <div class="flex items-center gap-1.5 mb-0.5">
+          <span id="quizTag" class="font-heading text-[10px] font-bold uppercase tracking-widest" style="color:var(--accent)">🎯 Quiz</span>
+          <span class="text-xs" style="color:var(--border2)">·</span>
+          <span id="progressText" class="font-mono text-xs" style="color:var(--muted)">Q 1 / 10</span>
+          <span class="text-xs" style="color:var(--border2)">·</span>
+          <span id="progressPct" class="font-mono text-xs" style="color:var(--muted)">0%</span>
         </div>
-        <div id="quizTitleSmall" class="font-heading font-bold text-sm text-white truncate max-w-xs md:max-w-md leading-tight"></div>
+        <div id="quizTitleSmall" class="font-heading font-bold text-sm truncate max-w-xs md:max-w-md leading-tight" style="color:var(--text)"></div>
       </div>
-
-      <!-- TOC toggle button -->
-      <button id="tocToggleBtn" onclick="toggleToc()"
-        class="flex items-center gap-1.5 font-heading font-bold text-sm px-4 py-2 rounded-xl border border-border text-muted hover:border-accent hover:text-accent transition-all flex-shrink-0">
-        <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><rect x="0" y="0" width="6" height="2" rx="1" fill="currentColor"/><rect x="0" y="5" width="9" height="2" rx="1" fill="currentColor"/><rect x="0" y="10" width="7" height="2" rx="1" fill="currentColor"/></svg>
+      <button id="tocToggleBtn" onclick="toggleToc()" class="toolbar-btn">
+        <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><rect width="6" height="2" rx="1" fill="currentColor"/><rect y="4.5" width="9" height="2" rx="1" fill="currentColor"/><rect y="9" width="7" height="2" rx="1" fill="currentColor"/></svg>
         <span class="hidden sm:inline">Contents</span>
       </button>
-
-      <!-- Next / Submit button -->
-      <button id="nextBtn" onclick="navigate(1)"
-        class="flex items-center gap-1.5 font-heading font-bold text-sm px-4 py-2 rounded-xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px flex-shrink-0">
-        Next →
-      </button>
+      <button id="nextBtn" onclick="navigate(1)" class="btn-primary font-heading font-bold text-sm px-4 py-2 rounded-xl flex-shrink-0">Next →</button>
     </div>
   </div>
 
-  <!-- ═══ TOC SIDEBAR ═══ -->
-  <!-- Backdrop -->
-  <div id="tocBackdrop" class="hidden fixed inset-0 z-[45]" style="background:rgba(0,0,0,.5);backdrop-filter:blur(2px)" onclick="closeToc()"></div>
-  <!-- Panel -->
-  <div id="tocPanel" class="fixed top-0 right-0 bottom-0 z-[46] flex flex-col"
-    style="width:min(320px,90vw);background:#0a0a0f;border-left:1px solid #252533;transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1)">
-
-    <!-- TOC header -->
-    <div class="flex items-center justify-between px-5 py-4 border-b" style="border-color:#252533">
+  <!-- TOC backdrop + panel -->
+  <div id="tocBackdrop" class="hidden fixed inset-0 z-[45]" style="background:rgba(0,0,0,.45);backdrop-filter:blur(2px)" onclick="closeToc()"></div>
+  <div id="tocPanel" class="toc-panel fixed top-0 right-0 bottom-0 z-[46] flex flex-col" style="width:min(300px,90vw);transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1)">
+    <div class="flex items-center justify-between px-5 py-4 border-b" style="border-color:var(--border)">
       <div>
-        <div class="font-heading font-bold text-sm text-white">Table of Contents</div>
-        <div id="tocAnsweredCount" class="text-muted text-xs mt-0.5">0 of 0 answered</div>
+        <div class="font-heading font-bold text-sm" style="color:var(--text)">Table of Contents</div>
+        <div id="tocAnsweredCount" class="text-xs mt-0.5" style="color:var(--muted)">0 of 0 answered</div>
       </div>
-      <button onclick="closeToc()" class="w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:text-white hover:bg-surface2 transition-all text-lg">✕</button>
+      <button onclick="closeToc()" class="w-8 h-8 rounded-lg flex items-center justify-center transition-all text-lg" style="color:var(--muted)" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">✕</button>
     </div>
-
-    <!-- TOC test info -->
-    <div class="px-5 py-3 border-b" style="border-color:#252533;background:#0f0f14">
-      <div id="tocTestName" class="font-heading font-bold text-sm text-white mb-0.5"></div>
+    <div class="px-5 py-3 border-b" style="border-color:var(--border);background:var(--surface2)">
+      <div id="tocTestName" class="font-heading font-bold text-sm mb-0.5" style="color:var(--text)"></div>
       <div id="tocModeBadge" class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border"></div>
     </div>
-
-    <!-- TOC question list -->
     <div class="flex-1 overflow-y-auto py-3 px-3" id="tocList"></div>
-
-    <!-- TOC legend -->
-    <div class="px-5 py-4 border-t flex items-center gap-4 flex-wrap" style="border-color:#252533">
-      <div class="flex items-center gap-2 text-xs text-muted"><div class="w-3 h-3 rounded-sm" style="background:#7c6af7"></div>Current</div>
-      <div class="flex items-center gap-2 text-xs text-muted"><div class="w-3 h-3 rounded-sm" style="background:rgba(74,222,128,.3)"></div>Answered</div>
-      <div class="flex items-center gap-2 text-xs text-muted"><div class="w-3 h-3 rounded-sm border" style="border-color:#252533"></div>Not answered</div>
+    <div class="px-5 py-4 border-t flex items-center gap-4 flex-wrap" style="border-color:var(--border)">
+      <div class="flex items-center gap-2 text-xs" style="color:var(--muted)"><div class="w-3 h-3 rounded-sm" style="background:var(--accent)"></div>Current</div>
+      <div class="flex items-center gap-2 text-xs" style="color:var(--muted)"><div class="w-3 h-3 rounded-sm" style="background:rgba(0,184,148,.4)"></div>Answered</div>
+      <div class="flex items-center gap-2 text-xs" style="color:var(--muted)"><div class="w-3 h-3 rounded-sm border" style="border-color:var(--border)"></div>Not answered</div>
     </div>
   </div>
 
-  <!-- Spacer so content doesn't hide under toolbar (added when quiz starts) -->
-  <div id="quizToolbarSpacer" class="hidden" style="height:56px"></div>
-
-  <!-- QUESTION -->
+  <div id="quizToolbarSpacer" class="hidden" style="height:52px"></div>
   <div id="questionContainer"></div>
 
   <!-- RESULT SCREEN -->
   <div id="resultScreen" class="hidden w-full max-w-2xl animate-fadeUp">
-
-    <!-- Hero result card -->
-    <div class="bg-surface border border-border rounded-2xl p-10 text-center mb-4 relative overflow-hidden card-accent">
+    <div class="card p-10 text-center mb-4 relative overflow-hidden card-accent">
       <span id="resultBadge" class="text-5xl block mb-4 animate-bounceIn">🎉</span>
-      <div id="resultTestName" class="inline-block font-heading text-xs font-bold text-accent bg-accent/10 border border-accent/30 rounded-full px-4 py-1 mb-3"></div>
-      <h2 id="resultTitle" class="font-heading text-3xl font-extrabold tracking-tight mb-2">All Done!</h2>
-      <p id="resultSub" class="text-muted text-sm leading-relaxed mb-6"></p>
-
-      <!-- Score ring -->
+      <div id="resultTestName" class="inline-block font-heading text-xs font-bold rounded-full px-4 py-1 mb-3 border" style="color:var(--accent);background:rgba(108,92,231,.08);border-color:rgba(108,92,231,.25)"></div>
+      <h2 id="resultTitle" class="font-heading text-3xl font-extrabold tracking-tight mb-2" style="color:var(--text)">All Done!</h2>
+      <p id="resultSub" class="text-sm leading-relaxed mb-6" style="color:var(--muted)"></p>
       <div id="scoreCard" class="hidden flex flex-col items-center gap-6">
         <div class="relative w-36 h-36">
           <svg class="w-36 h-36" style="transform:rotate(-90deg)" viewBox="0 0 120 120">
-            <circle class="fill-none" stroke="#18181f" stroke-width="10" cx="60" cy="60" r="52"/>
-            <circle id="ringFill" class="fill-none ring-fill" stroke="#7c6af7" stroke-width="10" stroke-linecap="round" cx="60" cy="60" r="52" stroke-dasharray="0 327"/>
+            <circle class="fill-none" stroke-width="10" cx="60" cy="60" r="52" style="stroke:var(--surface2)"/>
+            <circle id="ringFill" class="fill-none ring-fill" stroke-width="10" stroke-linecap="round" cx="60" cy="60" r="52" stroke-dasharray="0 327" style="stroke:var(--accent)"/>
           </svg>
           <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span id="ringPct" class="font-heading text-2xl font-extrabold tracking-tight">0%</span>
-            <span class="text-[10px] text-muted font-bold uppercase tracking-widest">Score</span>
+            <span id="ringPct" class="font-heading text-2xl font-extrabold tracking-tight" style="color:var(--text)">0%</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest" style="color:var(--muted)">Score</span>
           </div>
         </div>
         <div class="flex gap-3 w-full justify-center">
-          <div class="flex-1 max-w-[110px] bg-green-500/5 border border-green-500/25 rounded-2xl p-4 text-center">
-            <div id="statCorrect" class="font-heading text-3xl font-extrabold text-green-400 mb-1">0</div>
-            <div class="text-[10px] font-bold uppercase tracking-widest text-muted">Correct</div>
+          <div class="flex-1 max-w-[110px] rounded-2xl p-4 text-center border" style="background:rgba(0,184,148,.05);border-color:rgba(0,184,148,.25)">
+            <div id="statCorrect" class="font-heading text-3xl font-extrabold mb-1" style="color:var(--success)">0</div>
+            <div class="text-[10px] font-bold uppercase tracking-widest" style="color:var(--muted)">Correct</div>
           </div>
-          <div class="flex-1 max-w-[110px] bg-red-500/5 border border-red-500/25 rounded-2xl p-4 text-center">
-            <div id="statWrong" class="font-heading text-3xl font-extrabold text-[#f87171] mb-1">0</div>
-            <div class="text-[10px] font-bold uppercase tracking-widest text-muted">Wrong</div>
+          <div class="flex-1 max-w-[110px] rounded-2xl p-4 text-center border" style="background:rgba(232,67,147,.05);border-color:rgba(232,67,147,.25)">
+            <div id="statWrong" class="font-heading text-3xl font-extrabold mb-1" style="color:var(--error)">0</div>
+            <div class="text-[10px] font-bold uppercase tracking-widest" style="color:var(--muted)">Wrong</div>
           </div>
-          <div class="flex-1 max-w-[110px] bg-accent/5 border border-accent/25 rounded-2xl p-4 text-center">
-            <div id="statTotal" class="font-heading text-3xl font-extrabold text-accent mb-1">0</div>
-            <div class="text-[10px] font-bold uppercase tracking-widest text-muted">Total</div>
+          <div class="flex-1 max-w-[110px] rounded-2xl p-4 text-center border" style="background:rgba(108,92,231,.05);border-color:rgba(108,92,231,.25)">
+            <div id="statTotal" class="font-heading text-3xl font-extrabold mb-1" style="color:var(--accent)">0</div>
+            <div class="text-[10px] font-bold uppercase tracking-widest" style="color:var(--muted)">Total</div>
           </div>
         </div>
         <div id="gradeBadge" class="font-heading font-extrabold text-base px-6 py-2 rounded-full"></div>
       </div>
-      <p id="resultSaveStatus" class="mt-5 text-sm text-muted"></p>
+      <p id="resultSaveStatus" class="mt-5 text-sm" style="color:var(--muted)"></p>
     </div>
-
-    <!-- Answer review -->
-    <div id="reviewSection" class="hidden bg-surface border border-border rounded-2xl mb-4 overflow-hidden">
+    <div id="reviewSection" class="hidden card mb-4 overflow-hidden">
       <div class="flex justify-between items-center px-6 py-4">
-        <span class="font-heading text-sm font-bold">📋 Answer Review</span>
+        <span class="font-heading text-sm font-bold" style="color:var(--text)">📋 Answer Review</span>
         <button id="toggleReviewBtn" onclick="toggleReview()"
-          class="font-heading text-xs font-bold text-accent bg-accent/10 border border-accent/30 rounded-full px-4 py-1.5 hover:bg-accent/20 transition-colors">
+          class="font-heading text-xs font-bold rounded-full px-4 py-1.5 border transition-colors"
+          style="color:var(--accent);background:rgba(108,92,231,.08);border-color:rgba(108,92,231,.25)">
           Show Details ▾
         </button>
       </div>
-      <div id="reviewList" class="hidden border-t border-border"></div>
+      <div id="reviewList" class="hidden border-t" style="border-color:var(--border)"></div>
     </div>
-
-    <!-- Action buttons -->
     <div class="flex flex-col sm:flex-row gap-3 justify-center">
-      <button onclick="backToSelector()"
-        class="font-heading font-bold text-sm px-6 py-3 rounded-xl bg-accent text-white hover:bg-[#9580ff] transition-all hover:-translate-y-px text-center">
-        ← Pick Another Test
-      </button>
-      <button onclick="retakeSame()"
-        class="font-heading font-bold text-sm px-6 py-3 rounded-xl border border-border text-muted hover:border-accent hover:text-accent transition-all text-center">
-        ↺ Retake
-      </button>
-      <a href="index.html"
-        class="font-heading font-bold text-sm px-6 py-3 rounded-xl border border-border text-muted hover:border-white/20 hover:text-white transition-all text-center">
-        🏠 Home
-      </a>
+      <button onclick="backToSelector()" class="btn-primary font-heading font-bold text-sm px-6 py-3 rounded-xl text-center">← Pick Another Test</button>
+      <button onclick="retakeSame()" class="btn-ghost font-heading font-bold text-sm px-6 py-3 rounded-xl text-center">↺ Retake</button>
+      <a href="index.html" class="btn-ghost font-heading font-bold text-sm px-6 py-3 rounded-xl text-center">🏠 Home</a>
     </div>
   </div>
 
-</div><!-- end app wrapper -->
+</div>
 
 <!-- Watermark -->
 <div style="text-align:center;padding:20px 0 28px;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;z-index:10">
-  <span style="font-size:11px;color:#6b6b85;letter-spacing:.05em">Built by</span>
-  <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px;letter-spacing:.15em;background:linear-gradient(135deg,#7c6af7,#f76a8a,#6af7c4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
-  <span style="width:4px;height:4px;border-radius:50%;background:#252533;display:inline-block"></span>
-  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b6b85;letter-spacing:.08em">QuizFlow v2.0</span>
+  <span style="font-size:11px;color:var(--muted);letter-spacing:.05em">Built by</span>
+  <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px;letter-spacing:.15em;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
+  <span style="width:4px;height:4px;border-radius:50%;background:var(--border2);display:inline-block"></span>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em">QuizFlow v2.0</span>
 </div>
 
+<script>
+// ── THEME ────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('qf-theme', next);
+}
+// Restore saved theme (or system preference)
+(function() {
+  const saved = localStorage.getItem('qf-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
 <script src="js/main.js"></script>
 </body>
 </html>
