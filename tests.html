@@ -1,597 +1,475 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="vi" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuizFlow — Take a Test</title>
-
+<title>QuizFlow — Làm bài kiểm tra</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <script>
 tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: {
-        sans:    ['"Be Vietnam Pro"','sans-serif'],
-        heading: ['"Be Vietnam Pro"','sans-serif'],
-        mono:    ['"JetBrains Mono"','monospace'],
-      },
-      keyframes: {
-        fadeUp:   {from:{opacity:'0',transform:'translateY(20px)'},to:{opacity:'1',transform:'translateY(0)'}},
-        bounceIn: {'0%':{transform:'scale(.3)',opacity:'0'},'60%':{transform:'scale(1.1)'},'100%':{transform:'scale(1)',opacity:'1'}},
-        shimmer:  {'0%':{backgroundPosition:'200% 0'},'100%':{backgroundPosition:'-200% 0'}},
-      },
-      animation: {
-        fadeUp:   'fadeUp .5s ease both',
-        bounceIn: 'bounceIn .6s ease both',
-        shimmer:  'shimmer 1.5s infinite',
-      },
-    }
-  }
+  theme: { extend: {
+    fontFamily: { sans:['"Be Vietnam Pro"','sans-serif'], heading:['"Be Vietnam Pro"','sans-serif'], mono:['"JetBrains Mono"','monospace'] },
+    keyframes: {
+      fadeUp:   { from:{opacity:'0',transform:'translateY(16px)'}, to:{opacity:'1',transform:'translateY(0)'} },
+      bounceIn: { '0%':{transform:'scale(.3)',opacity:'0'},'60%':{transform:'scale(1.1)'},'100%':{transform:'scale(1)',opacity:'1'} },
+      shimmer:  { '0%':{backgroundPosition:'200% 0'},'100%':{backgroundPosition:'-200% 0'} },
+    },
+    animation: { fadeUp:'fadeUp .4s ease both', bounceIn:'bounceIn .5s ease both', shimmer:'shimmer 1.5s infinite' },
+  }}
 }
 </script>
-
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════════
-   THEME VARIABLES
-   Light = default, Dark = [data-theme="dark"]
-══════════════════════════════════════════ */
+/* ── THEME TOKENS ── */
 :root {
-  /* Light theme */
-  --bg:        #f4f4f8;
-  --bg2:       #ffffff;
-  --surface:   #ffffff;
-  --surface2:  #f0f0f5;
-  --border:    #e2e2eb;
-  --border2:   #d0d0dc;
-  --text:      #111118;
-  --text-sub:  #44444f;
-  --muted:     #888898;
-  --accent:    #6c5ce7;
-  --accent2:   #e84393;
-  --accent3:   #00b894;
-  --success:   #00b894;
-  --error:     #e84393;
-  --nav-bg:    rgba(255,255,255,.92);
-  --nav-border:rgba(0,0,0,.07);
-  --toolbar-bg:rgba(248,248,252,.95);
-  --card-shadow:0 2px 12px rgba(0,0,0,.06);
-  --orb1:      rgba(108,92,231,.07);
-  --orb2:      rgba(232,67,147,.05);
-  --grid-line: rgba(108,92,231,.05);
+  --bg:         #f8fafc;
+  --surface:    #ffffff;
+  --surface2:   #f1f5f9;
+  --border:     #e2e8f0;
+  --border2:    #cbd5e1;
+  --text:       #0f172a;
+  --text-sub:   #475569;
+  --muted:      #94a3b8;
+  --accent:     #2563eb;
+  --accent-h:   #1d4ed8;
+  --accent2:    #db2777;
+  --accent3:    #059669;
+  --success:    #059669;
+  --error:      #dc2626;
+  --warn:       #d97706;
+  --warn:       #d97706;
+  --nav-bg:     rgba(255,255,255,.95);
+  --nav-border: #e2e8f0;
+  --toolbar-bg: rgba(255,255,255,.97);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:  0 4px 16px rgba(0,0,0,.08);
+  --toc-bg:     #ffffff;
 }
-
 [data-theme="dark"] {
-  /* Dark theme */
-  --bg:        #060608;
-  --bg2:       #0a0a0f;
-  --surface:   #0f0f14;
-  --surface2:  #18181f;
-  --border:    #252533;
-  --border2:   #2e2e3e;
-  --text:      #e2e2f0;
-  --text-sub:  #b8b8cc;
-  --muted:     #6b6b85;
-  --accent:    #7c6af7;
-  --accent2:   #f76a8a;
-  --accent3:   #6af7c4;
-  --success:   #4ade80;
-  --error:     #f87171;
-  --nav-bg:    rgba(6,6,8,.92);
-  --nav-border:rgba(255,255,255,.07);
-  --toolbar-bg:rgba(6,6,8,.96);
-  --card-shadow:0 2px 12px rgba(0,0,0,.25);
-  --orb1:      rgba(124,106,247,.08);
-  --orb2:      rgba(247,106,138,.06);
-  --grid-line: rgba(124,106,247,.04);
+  --bg:         #0f172a;
+  --surface:    #1e293b;
+  --surface2:   #334155;
+  --border:     #334155;
+  --border2:    #475569;
+  --text:       #f1f5f9;
+  --text-sub:   #cbd5e1;
+  --muted:      #64748b;
+  --accent:     #3b82f6;
+  --accent-h:   #60a5fa;
+  --accent2:    #f472b6;
+  --accent3:    #34d399;
+  --success:    #34d399;
+  --error:      #f87171;
+  --warn:       #fbbf24;
+  --warn:       #fbbf24;
+  --nav-bg:     rgba(15,23,42,.96);
+  --nav-border: #334155;
+  --toolbar-bg: rgba(15,23,42,.97);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.3);
+  --shadow-md:  0 4px 16px rgba(0,0,0,.4);
+  --toc-bg:     #1e293b;
 }
 
-/* ══════════════════════════════════════════
-   BASE
-══════════════════════════════════════════ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+/* ── BASE ── */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Be Vietnam Pro', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-  line-height: 1.65;
-  transition: background .3s, color .3s;
+  background:var(--bg); color:var(--text);
+  font-family:'Be Vietnam Pro',sans-serif;
+  line-height:1.7; overflow-x:hidden;
+  transition:background .25s,color .25s;
+}
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+/* ── THEME TOGGLE ── */
+.theme-btn {
+  width:36px; height:36px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface); cursor:pointer; display:flex; align-items:center;
+  justify-content:center; font-size:16px; transition:all .2s; flex-shrink:0;
+}
+.theme-btn:hover { border-color:var(--accent); }
+.icon-moon { display:block; }
+.icon-sun  { display:none; }
+[data-theme="dark"] .icon-moon { display:none; }
+[data-theme="dark"] .icon-sun  { display:block; }
+
+/* ── NAV ── */
+.main-nav {
+  background:var(--nav-bg); border-bottom:1px solid var(--nav-border);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
 }
 
-/* Grid background */
-body::before {
-  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 60px 60px;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-
-/* Orbs */
-.orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; }
-.orb1 { width: 500px; height: 500px; background: var(--orb1); top: -150px; left: -150px; }
-.orb2 { width: 350px; height: 350px; background: var(--orb2); bottom: -100px; right: -100px; }
-
-/* ══════════════════════════════════════════
-   THEME TOGGLE BUTTON
-══════════════════════════════════════════ */
-.theme-toggle {
-  width: 36px; height: 36px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; border: 1px solid var(--border);
-  background: var(--surface2); color: var(--muted);
-  font-size: 16px; transition: all .2s; flex-shrink: 0;
-}
-.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
-/* Show sun in dark mode, moon in light mode */
-.icon-sun  { display: none; }
-.icon-moon { display: block; }
-[data-theme="dark"] .icon-sun  { display: block; }
-[data-theme="dark"] .icon-moon { display: none; }
-
-/* ══════════════════════════════════════════
-   UTILITIES
-══════════════════════════════════════════ */
-.grad-text {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+/* ── CARDS ── */
+.card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; box-shadow:var(--shadow-sm);
+  transition:background .25s,border-color .25s;
 }
 .card-accent::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
-  border-radius: 16px 16px 0 0;
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));
+  border-radius:16px 16px 0 0;
 }
 
-/* ══════════════════════════════════════════
-   NAV
-══════════════════════════════════════════ */
-.main-nav {
-  background: var(--nav-bg);
-  border-bottom: 1px solid var(--nav-border);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+/* ── SKELETON ── */
+.skeleton {
+  background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);
+  background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px;
 }
-.nav-text { color: var(--text); }
-.nav-link { color: var(--muted); font-size: 14px; font-weight: 500; transition: color .2s; text-decoration: none; }
-.nav-link:hover { color: var(--accent); }
+.ldots::after { content:''; animation:dots 1.4s infinite; }
+@keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
 
-/* ══════════════════════════════════════════
-   CARDS
-══════════════════════════════════════════ */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  box-shadow: var(--card-shadow);
-  transition: background .3s, border-color .3s, box-shadow .3s;
-}
-.card-inner {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  transition: background .3s, border-color .3s;
-}
-
-/* ══════════════════════════════════════════
-   FORM INPUTS
-══════════════════════════════════════════ */
-.inp {
-  width: 100%;
-  background: var(--surface2);
-  border: 2px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 18px;
-  color: var(--text);
-  font-family: 'Be Vietnam Pro', sans-serif;
-  font-size: 17px;
-  font-weight: 600;
-  outline: none;
-  transition: border-color .2s, box-shadow .2s, background .3s;
-}
-.inp:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(108,92,231,.1);
-}
-.inp::placeholder { color: var(--muted); font-weight: 400; font-size: 14px; }
-
-/* ══════════════════════════════════════════
-   BUTTONS
-══════════════════════════════════════════ */
+/* ── BUTTONS ── */
 .btn-primary {
-  background: var(--accent); color: #fff;
-  font-family: 'Be Vietnam Pro', sans-serif; font-weight: 700;
-  border: none; cursor: pointer; border-radius: 14px;
-  transition: all .2s;
+  background:var(--accent); color:#fff; border:none; cursor:pointer;
+  font-family:'Be Vietnam Pro',sans-serif; font-weight:700;
+  border-radius:10px; transition:all .2s; display:inline-flex; align-items:center; gap:6px;
 }
-.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
-.btn-primary:disabled, .btn-primary.disabled { opacity: .4; pointer-events: none; }
+.btn-primary:hover { background:var(--accent-h); transform:translateY(-1px); box-shadow:0 4px 12px rgba(37,99,235,.3); }
+.btn-primary.disabled { opacity:.45; pointer-events:none; }
 .btn-ghost {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-family: 'Be Vietnam Pro', sans-serif; font-weight: 600;
-  cursor: pointer; border-radius: 12px;
-  transition: all .2s;
+  background:transparent; border:1px solid var(--border); color:var(--text-sub);
+  cursor:pointer; font-family:'Be Vietnam Pro',sans-serif; font-weight:600;
+  border-radius:10px; transition:all .2s; display:inline-flex; align-items:center; gap:6px;
 }
-.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
 
-/* ══════════════════════════════════════════
-   TEST CARD
-══════════════════════════════════════════ */
+/* ── FORM INPUT ── */
+.inp {
+  width:100%; background:var(--surface2); border:2px solid var(--border);
+  border-radius:12px; padding:13px 16px; color:var(--text);
+  font-family:'Be Vietnam Pro',sans-serif; font-size:16px; font-weight:500;
+  outline:none; transition:border-color .2s,box-shadow .2s,background .25s;
+}
+.inp:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+.inp::placeholder { color:var(--muted); font-weight:400; font-size:14px; }
+
+/* ── TEST CARD ── */
 .test-card {
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: 20px;
-  padding: 28px;
-  cursor: pointer;
-  transition: all .25s;
-  position: relative;
-  overflow: hidden;
-  user-select: none;
-  box-shadow: var(--card-shadow);
+  background:var(--surface); border:2px solid var(--border);
+  border-radius:14px; padding:24px; cursor:pointer;
+  transition:all .2s; position:relative; overflow:hidden;
+  box-shadow:var(--shadow-sm); user-select:none;
 }
-.test-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: var(--card-color, var(--accent));
-  transform: scaleX(0); transition: transform .25s; transform-origin: left;
-}
-.test-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.12); }
-.test-card:hover::before, .test-card.selected::before { transform: scaleX(1); }
-.test-card.selected { border-color: var(--card-color, var(--accent)); }
+.test-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); border-color:var(--border2); }
+.test-card.selected { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+.tc-bar { position:absolute; top:0; left:0; right:0; height:3px; transform:scaleX(0); transition:transform .2s; transform-origin:left; border-radius:3px 3px 0 0; }
+.test-card.selected .tc-bar, .test-card:hover .tc-bar { transform:scaleX(1); }
 
-/* ══════════════════════════════════════════
-   MODE CARDS
-══════════════════════════════════════════ */
+/* ── MODE CARD ── */
 .mode-card {
-  background: var(--surface2);
-  border: 2px solid var(--border);
-  border-radius: 16px;
-  transition: all .2s;
+  background:var(--surface2); border:2px solid var(--border);
+  border-radius:12px; padding:16px 18px; cursor:pointer;
+  display:flex; align-items:center; gap:14px; transition:all .2s; text-align:left;
 }
+.mode-card:hover { border-color:var(--border2); background:var(--surface); }
 
-/* ══════════════════════════════════════════
-   QUIZ TOOLBAR
-══════════════════════════════════════════ */
+/* ── QUIZ TOOLBAR ── */
 .quiz-toolbar {
-  background: var(--toolbar-bg);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  transition: background .3s, border-color .3s;
+  background:var(--toolbar-bg); border-bottom:1px solid var(--border);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  transition:background .25s,border-color .25s;
 }
 .toolbar-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 7px 16px; border-radius: 10px;
-  border: 1px solid var(--border);
-  color: var(--muted); background: transparent;
-  font-family: 'Be Vietnam Pro', sans-serif; font-weight: 700; font-size: 13px;
-  cursor: pointer; transition: all .2s; flex-shrink: 0; white-space: nowrap;
+  display:flex; align-items:center; gap:5px;
+  padding:6px 14px; border-radius:8px; border:1px solid var(--border);
+  color:var(--text-sub); background:transparent;
+  font-family:'Be Vietnam Pro',sans-serif; font-weight:600; font-size:13px;
+  cursor:pointer; transition:all .2s; flex-shrink:0; white-space:nowrap;
 }
-.toolbar-btn:hover { border-color: var(--accent); color: var(--accent); }
-.toolbar-btn:disabled { opacity: .35; pointer-events: none; }
+.toolbar-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(37,99,235,.05); }
+.toolbar-btn:disabled { opacity:.35; pointer-events:none; }
+.progress-fill { background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .5s cubic-bezier(.4,0,.2,1); }
 
-/* ══════════════════════════════════════════
-   QUESTION OPTIONS
-══════════════════════════════════════════ */
+/* ── QUESTION OPTIONS ── */
 .opt {
-  display: flex; align-items: center; gap: 12px;
-  padding: 13px 16px;
-  background: var(--surface2);
-  border: 1.5px solid var(--border);
-  border-radius: 12px; cursor: pointer;
-  transition: all .18s; user-select: none;
+  display:flex; align-items:center; gap:12px; padding:12px 16px;
+  background:var(--surface2); border:1.5px solid var(--border);
+  border-radius:10px; cursor:pointer; transition:all .18s; user-select:none;
 }
-.opt:hover { border-color: var(--accent); background: var(--surface); }
-.opt.sel-radio { border-color: var(--accent); background: var(--surface); box-shadow: inset 0 0 0 1px var(--accent); }
-.opt.sel-check { border-color: var(--accent2); background: var(--surface); }
+.opt:hover { border-color:var(--accent); background:var(--surface); }
+.opt.sel-radio { border-color:var(--accent); background:rgba(37,99,235,.05); box-shadow:0 0 0 2px rgba(37,99,235,.12); }
+.opt.sel-check { border-color:var(--accent2); background:rgba(219,39,119,.05); }
 
 /* True/False */
 .tf-btn {
-  flex: 1; padding: 14px;
-  border-radius: 12px; border: 2px solid var(--border);
-  background: var(--surface2); color: var(--text);
-  font-family: 'Be Vietnam Pro', sans-serif; font-weight: 700; font-size: 16px;
-  cursor: pointer; transition: all .2s; text-align: center;
+  flex:1; padding:13px; border-radius:10px; border:2px solid var(--border);
+  background:var(--surface2); color:var(--text-sub);
+  font-family:'Be Vietnam Pro',sans-serif; font-weight:700; font-size:15px;
+  cursor:pointer; transition:all .2s; text-align:center;
 }
-.tf-btn.sel-true  { background: rgba(0,184,148,.1); border-color: var(--success); color: var(--success); }
-.tf-btn.sel-false { background: rgba(232,67,147,.1); border-color: var(--error);   color: var(--error); }
+.tf-btn:hover { border-color:var(--border2); background:var(--surface); color:var(--text); }
+.tf-btn.sel-true  { background:rgba(5,150,105,.08); border-color:var(--success); color:var(--success); }
+.tf-btn.sel-false { background:rgba(220,38,38,.07); border-color:var(--error);   color:var(--error); }
 
 /* Rating */
 .rating-btn {
-  width: 48px; height: 48px; border-radius: 11px;
-  background: var(--surface2); border: 1.5px solid var(--border);
-  color: var(--muted); font-family: 'Be Vietnam Pro', sans-serif; font-weight: 700; font-size: 15px;
-  cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center;
+  width:44px; height:44px; border-radius:10px;
+  background:var(--surface2); border:1.5px solid var(--border);
+  color:var(--muted); font-family:'Be Vietnam Pro',sans-serif;
+  font-weight:700; font-size:14px; cursor:pointer; transition:all .2s;
+  display:flex; align-items:center; justify-content:center;
 }
-.rating-btn:hover { border-color: #f59e0b; color: #f59e0b; }
-.rating-btn.sel { background: #f59e0b; border-color: #f59e0b; color: #fff; transform: scale(1.05); }
+.rating-btn:hover { border-color:var(--warn); color:var(--warn); }
+.rating-btn.sel { background:var(--warn); border-color:var(--warn); color:#fff; transform:scale(1.05); }
 
 /* Textarea / select */
 .textarea-inp {
-  width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
-  border-radius: 12px; padding: 13px 16px; color: var(--text);
-  font-family: 'Be Vietnam Pro', sans-serif; font-size: 14px; outline: none;
-  resize: vertical; min-height: 80px; transition: border-color .2s, background .3s;
+  width:100%; background:var(--surface2); border:1.5px solid var(--border);
+  border-radius:10px; padding:12px 14px; color:var(--text);
+  font-family:'Be Vietnam Pro',sans-serif; font-size:14px; outline:none;
+  resize:vertical; min-height:80px; transition:border-color .2s,background .25s;
 }
-.textarea-inp:focus { border-color: var(--accent3); }
-.textarea-inp::placeholder { color: var(--muted); }
+.textarea-inp:focus { border-color:var(--accent3); box-shadow:0 0 0 3px rgba(5,150,105,.1); }
+.textarea-inp::placeholder { color:var(--muted); }
 .styled-select {
-  width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
-  border-radius: 12px; padding: 13px 16px; color: var(--text);
-  font-size: 14px; outline: none; cursor: pointer; appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888898' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 14px center;
-  transition: border-color .2s, background .3s;
+  width:100%; background:var(--surface2); border:1.5px solid var(--border);
+  border-radius:10px; padding:12px 14px; color:var(--text);
+  font-size:14px; outline:none; cursor:pointer; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 14px center;
+  transition:border-color .2s,background .25s;
 }
-.styled-select:focus { border-color: var(--accent); }
+.styled-select:focus { border-color:var(--accent); }
 
-/* ══════════════════════════════════════════
-   DRAG & DROP
-══════════════════════════════════════════ */
-.drag-over  { border-color: #fb923c !important; background: rgba(251,146,60,.1) !important; transform: scale(1.01); }
-.dragging   { opacity: .4; cursor: grabbing; }
-.tdragging  { opacity: .4; border-style: dashed; }
-.dz-over    { border-color: #c084fc !important; background: rgba(192,132,252,.1) !important; }
+/* ── DRAG & DROP ── */
+.drag-over  { border-color:var(--warn) !important; background:rgba(217,119,6,.08) !important; transform:scale(1.01); }
+.dragging   { opacity:.4; cursor:grabbing; }
+.tdragging  { opacity:.4; border-style:dashed; }
+.dz-over    { border-color:var(--accent2) !important; background:rgba(219,39,119,.07) !important; }
+
+/* Ordering */
+.ordering-item { background:var(--surface2); border:2px solid var(--border); border-radius:10px; transition:all .2s; }
+.ordering-item:hover { border-color:var(--warn); }
+
+/* Matching */
+.bank-chip { background:var(--surface2); border:2px solid var(--border); border-radius:8px; transition:all .2s; cursor:grab; }
+.bank-chip:hover { border-color:var(--accent2); }
+.matching-prompt { background:rgba(37,99,235,.05); border:1px solid rgba(37,99,235,.2); border-radius:10px; }
+.matching-drop-zone { border:2px dashed var(--border); background:var(--surface2); border-radius:10px; min-height:48px; transition:all .2s; }
+.matching-drop-zone.has-item { border-style:solid; border-color:rgba(37,99,235,.35); background:rgba(37,99,235,.04); }
 
 /* MTF */
-.mtf-row { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 12px; padding: 13px 16px; transition: border-color .2s, background .3s; }
+.mtf-row { background:var(--surface2); border:1.5px solid var(--border); border-radius:10px; padding:14px 16px; transition:border-color .2s; }
 .mtf-btn {
-  flex: 1; padding: 9px 8px; border-radius: 9px; border: 2px solid var(--border);
-  background: var(--surface); color: var(--muted);
-  font-family: 'Be Vietnam Pro', sans-serif; font-weight: 700; font-size: 13px;
-  cursor: pointer; transition: all .18s; text-align: center;
+  flex:1; padding:8px; border-radius:8px; border:2px solid var(--border);
+  background:var(--surface); color:var(--muted);
+  font-family:'Be Vietnam Pro',sans-serif; font-weight:700; font-size:13px;
+  cursor:pointer; transition:all .18s; text-align:center;
 }
-.mtf-btn.sel-true  { background: rgba(0,184,148,.12); border-color: var(--success); color: var(--success); }
-.mtf-btn.sel-false { background: rgba(232,67,147,.12); border-color: var(--error);   color: var(--error); }
+.mtf-btn:hover { border-color:var(--border2); color:var(--text-sub); }
+.mtf-btn.sel-true  { background:rgba(5,150,105,.1); border-color:var(--success); color:var(--success); }
+.mtf-btn.sel-false { background:rgba(220,38,38,.08); border-color:var(--error); color:var(--error); }
 
 /* Matrix */
-.matrix-table { width: 100%; border-collapse: collapse; min-width: 360px; }
-.matrix-th { padding: 9px 8px; text-align: center; font-family: 'Be Vietnam Pro', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #f59e0b; border-bottom: 2px solid var(--border); border-right: 1px solid var(--border); }
-.matrix-th:last-child { border-right: none; }
-.matrix-th-blank { padding: 9px 12px; border-bottom: 2px solid var(--border); border-right: 1px solid var(--border); width: 35%; }
-.matrix-td-label { padding: 10px 12px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
-.matrix-td { padding: 9px 6px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
-.matrix-td:last-child { border-right: none; }
-.matrix-table tbody tr:last-child td { border-bottom: none; }
-.matrix-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border2); background: var(--surface2); margin: 0 auto; cursor: pointer; transition: all .18s; display: flex; align-items: center; justify-content: center; }
-.matrix-radio:hover { border-color: #f59e0b; }
-.matrix-radio.sel { border-color: #f59e0b; background: #f59e0b; }
+.matrix-table { width:100%; border-collapse:collapse; min-width:360px; }
+.matrix-th { padding:9px 8px; text-align:center; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--warn); border-bottom:2px solid var(--border); border-right:1px solid var(--border); }
+.matrix-th:last-child { border-right:none; }
+.matrix-th-blank { padding:9px 12px; border-bottom:2px solid var(--border); border-right:1px solid var(--border); width:35%; }
+.matrix-td-label { padding:10px 12px; font-size:13px; color:var(--text); border-bottom:1px solid var(--border); border-right:1px solid var(--border); }
+.matrix-td { padding:9px 6px; text-align:center; border-bottom:1px solid var(--border); border-right:1px solid var(--border); }
+.matrix-td:last-child { border-right:none; }
+.matrix-table tbody tr:last-child td { border-bottom:none; }
+.matrix-radio { width:20px; height:20px; border-radius:50%; border:2px solid var(--border2); background:var(--surface2); margin:0 auto; cursor:pointer; transition:all .18s; display:flex; align-items:center; justify-content:center; }
+.matrix-radio:hover { border-color:var(--warn); }
+.matrix-radio.sel { border-color:var(--warn); background:var(--warn); }
 
 /* Hotspot */
-.hs-zone        { position: absolute; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: all .2s; }
-.hs-zone:hover  { background: rgba(236,72,153,.18); border-color: rgba(236,72,153,.5); }
-.hs-zone.hs-sel { background: rgba(236,72,153,.25); border-color: #ec4899; box-shadow: 0 0 0 3px rgba(236,72,153,.3); }
-.hs-label       { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #ec4899; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; }
-.hs-zone:hover .hs-label, .hs-zone.hs-sel .hs-label { opacity: 1; }
+.hs-zone        { position:absolute; border-radius:6px; cursor:pointer; border:2px solid transparent; transition:all .2s; }
+.hs-zone:hover  { background:rgba(219,39,119,.15); border-color:rgba(219,39,119,.5); }
+.hs-zone.hs-sel { background:rgba(219,39,119,.2); border-color:var(--accent2); box-shadow:0 0 0 3px rgba(219,39,119,.2); }
+.hs-label       { position:absolute; bottom:calc(100%+6px); left:50%; transform:translateX(-50%); background:var(--accent2); color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:100px; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .15s; }
+.hs-zone:hover .hs-label, .hs-zone.hs-sel .hs-label { opacity:1; }
 
-/* Ordering/Matching chips */
-.ordering-item { background: var(--surface2); border: 2px solid var(--border); border-radius: 12px; }
-.ordering-item:hover { border-color: #fb923c; }
-.bank-chip { background: var(--surface2); border: 2px solid var(--border); border-radius: 8px; }
-.bank-chip:hover { border-color: #c084fc; }
-.matching-prompt { background: rgba(192,132,252,.08); border: 1px solid rgba(192,132,252,.25); border-radius: 10px; }
-.matching-drop-zone { border: 2px dashed var(--border); background: var(--surface2); border-radius: 10px; min-height: 50px; }
-.matching-drop-zone.has-item { border-style: solid; border-color: rgba(192,132,252,.4); background: rgba(192,132,252,.06); }
+/* Type badge */
+.type-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; padding:3px 10px; border-radius:100px; }
 
-/* ══════════════════════════════════════════
-   SKELETON
-══════════════════════════════════════════ */
-.skeleton {
-  background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-.ldots::after { content: ''; animation: dots 1.4s infinite; }
-@keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+/* Ring */
+.ring-fill { transition:stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1); }
 
-/* ══════════════════════════════════════════
-   RESULT
-══════════════════════════════════════════ */
-.ring-fill { transition: stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1); }
-.progress-fill { background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .5s cubic-bezier(.4,0,.2,1); }
+/* TOC panel */
+.toc-panel { background:var(--toc-bg); border-left:1px solid var(--border); }
 
-/* ══════════════════════════════════════════
-   TOC PANEL
-══════════════════════════════════════════ */
-.toc-panel {
-  background: var(--bg2);
-  border-left: 1px solid var(--border);
-}
-.toc-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 12px; border-radius: 10px; cursor: pointer;
-  font-size: 13px; color: var(--text-sub); transition: all .15s;
-}
-.toc-item:hover { background: var(--surface2); color: var(--text); }
-.toc-item.current { background: rgba(108,92,231,.1); color: var(--accent); font-weight: 600; }
-.toc-item.answered .toc-dot { background: rgba(0,184,148,.4); }
+/* Review */
+.review-item { padding:18px 20px; border-bottom:1px solid var(--border); }
+.review-item:last-child { border-bottom:none; }
 
-/* ══════════════════════════════════════════
-   MISC
-══════════════════════════════════════════ */
-.type-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
-  padding: 3px 10px; border-radius: 100px;
-}
-.review-item { padding: 18px 20px; border-bottom: 1px solid var(--border); }
-.review-item:last-child { border-bottom: none; }
-.text-sub { color: var(--text-sub); }
-.text-muted-c { color: var(--muted); }
+/* Status */
+.status-error   { background:rgba(220,38,38,.07); border:1px solid rgba(220,38,38,.2); color:var(--error); }
+.status-loading { background:rgba(37,99,235,.07); border:1px solid rgba(37,99,235,.2); color:var(--accent); }
+
+/* Grad text */
+.grad-text { background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 </style>
 </head>
 
 <body>
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
 
-<!-- ══ NAV ══ -->
+<!-- ── NAV ── -->
 <header class="main-nav sticky top-0 z-50 h-14 flex items-center justify-between px-5 md:px-10">
   <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-    <div class="w-7 h-7 rounded-lg flex items-center justify-center font-heading font-extrabold text-xs text-white flex-shrink-0"
-      style="background:linear-gradient(135deg,var(--accent),var(--accent2))">Q</div>
-    <span class="font-heading font-bold text-sm nav-text">QuizFlow</span>
+    <div class="w-8 h-8 rounded-lg flex items-center justify-center font-heading font-extrabold text-white text-sm flex-shrink-0"
+      style="background:linear-gradient(135deg,#2563eb,#60a5fa)">Q</div>
+    <div>
+      <div class="font-heading font-bold text-sm leading-none" style="color:var(--text)">QuizFlow</div>
+      <div class="text-[10px] leading-none mt-0.5" style="color:var(--muted)">Học thông minh hơn</div>
+    </div>
   </a>
   <div class="flex items-center gap-3">
-    <a href="index.html" class="nav-link hidden sm:block">← Home</a>
-    <!-- Theme toggle -->
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+    <a href="index.html" class="text-sm font-medium hidden sm:block transition-colors hover:underline" style="color:var(--muted)">← Trang chủ</a>
+    <button class="theme-btn" onclick="toggleTheme()" title="Đổi giao diện sáng/tối">
       <span class="icon-moon">🌙</span>
       <span class="icon-sun">☀️</span>
     </button>
   </div>
 </header>
 
-<!-- ══ MAIN WRAPPER ══ -->
-<div class="relative z-10 min-h-screen flex flex-col items-center px-4 py-10 pb-20 md:px-6 md:py-12">
+<!-- ── MAIN CONTENT ── -->
+<div class="relative min-h-screen flex flex-col items-center px-4 py-10 pb-20 md:px-6 md:py-12">
 
   <!-- STATUS -->
   <div id="statusMsg" class="hidden w-full max-w-2xl mb-4 px-4 py-3 rounded-xl text-sm font-semibold"></div>
 
   <!-- SKELETON -->
   <div id="skeletonLoad" class="hidden w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <div class="card p-7"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
-    <div class="card p-7"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
-    <div class="card p-7"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
-    <div class="card p-7"><div class="skeleton h-3 w-1/2 rounded mb-3"></div><div class="skeleton h-4 w-3/4 rounded mb-6"></div><div class="skeleton h-10 rounded-xl"></div></div>
+    <div class="card p-6"><div class="skeleton h-3 w-1/2 mb-3" style="height:12px"></div><div class="skeleton mb-5" style="height:14px;width:75%"></div><div class="skeleton" style="height:36px"></div></div>
+    <div class="card p-6"><div class="skeleton h-3 w-1/2 mb-3" style="height:12px"></div><div class="skeleton mb-5" style="height:14px;width:75%"></div><div class="skeleton" style="height:36px"></div></div>
+    <div class="card p-6"><div class="skeleton h-3 w-1/2 mb-3" style="height:12px"></div><div class="skeleton mb-5" style="height:14px;width:75%"></div><div class="skeleton" style="height:36px"></div></div>
+    <div class="card p-6"><div class="skeleton h-3 w-1/2 mb-3" style="height:12px"></div><div class="skeleton mb-5" style="height:14px;width:75%"></div><div class="skeleton" style="height:36px"></div></div>
   </div>
 
   <!-- TEST SELECTOR -->
   <div id="testSelector" class="hidden w-full max-w-3xl animate-fadeUp">
-    <div class="text-center mb-9">
-      <span class="inline-block font-heading text-[11px] font-bold uppercase tracking-[.2em] px-4 py-1.5 rounded-full mb-4 border" style="color:var(--accent);background:rgba(108,92,231,.08);border-color:rgba(108,92,231,.25)">📚 Available Tests</span>
-      <h1 class="font-heading text-4xl md:text-5xl font-extrabold tracking-tight leading-none mb-2" style="color:var(--text)">
-        Pick Your <span class="grad-text">Test</span>
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 border" style="color:var(--accent);background:rgba(37,99,235,.07);border-color:rgba(37,99,235,.2)">
+        📚 Chọn bài kiểm tra
+      </div>
+      <h1 class="font-heading font-extrabold text-3xl md:text-4xl mb-2" style="color:var(--text)">
+        Hôm nay học gì?
       </h1>
-      <p id="selectorSub" class="text-sm font-light" style="color:var(--muted)">Select one to get started</p>
+      <p id="selectorSub" class="text-sm" style="color:var(--muted)">Chọn một bài để bắt đầu</p>
     </div>
-    <div id="testsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-7"></div>
+    <div id="testsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"></div>
     <div class="flex justify-center">
-      <button id="startTestBtn" onclick="proceedToName()"
-        class="btn-primary btn-primary disabled font-heading text-base px-12 py-4 tracking-wide">
-        Continue →
-      </button>
+      <button id="startTestBtn" onclick="proceedToName()" class="btn-primary disabled text-base px-10 py-3.5">Tiếp tục →</button>
     </div>
   </div>
 
   <!-- NAME SCREEN -->
-  <div id="nameScreen" class="hidden w-full max-w-lg animate-fadeUp">
-    <div class="card p-10 text-center relative overflow-hidden card-accent">
-      <div class="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl border-2" style="background:linear-gradient(135deg,rgba(108,92,231,.15),rgba(232,67,147,.15));border-color:rgba(108,92,231,.3)">👤</div>
-      <div id="nameTestBadge" class="inline-flex items-center gap-2 font-semibold text-sm px-4 py-1.5 rounded-full mb-5 border" style="color:var(--accent);background:rgba(108,92,231,.08);border-color:rgba(108,92,231,.25)">📝 Test</div>
-      <h2 class="font-heading text-2xl font-extrabold tracking-tight mb-2" style="color:var(--text)">What's your name?</h2>
-      <p class="text-sm font-light mb-8 leading-relaxed" style="color:var(--muted)">Your name will be saved with your responses.</p>
-      <div class="text-left mb-5">
-        <label class="block text-[11px] font-bold uppercase tracking-[.12em] mb-2" style="color:var(--muted)">Full Name</label>
-        <input type="text" id="nameInput" placeholder="e.g. Alex Johnson" maxlength="80" autocomplete="name"
-          oninput="onNameType(this.value)" onkeydown="if(event.key==='Enter')startQuiz()"
-          class="inp"/>
-        <p id="nameError" class="hidden text-xs mt-2" style="color:var(--error)">Please enter your name to continue.</p>
+  <div id="nameScreen" class="hidden w-full max-w-md animate-fadeUp">
+    <div class="card p-8 text-center relative overflow-hidden card-accent">
+      <div class="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center text-3xl" style="background:rgba(37,99,235,.1)">👤</div>
+      <div id="nameTestBadge" class="inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 border" style="color:var(--accent);background:rgba(37,99,235,.07);border-color:rgba(37,99,235,.2)">📝 Bài kiểm tra</div>
+      <h2 class="font-heading font-bold text-xl mb-1" style="color:var(--text)">Bạn tên gì?</h2>
+      <p class="text-sm mb-7" style="color:var(--muted)">Tên của bạn sẽ được lưu cùng kết quả.</p>
+      <div class="text-left mb-4">
+        <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color:var(--muted)">Họ và tên</label>
+        <input type="text" id="nameInput" placeholder="VD: Nguyễn Văn A" maxlength="80" autocomplete="name"
+          oninput="onNameType(this.value)" onkeydown="if(event.key==='Enter')startQuiz()" class="inp"/>
+        <p id="nameError" class="hidden text-xs mt-1.5" style="color:var(--error)">Vui lòng nhập tên để tiếp tục.</p>
       </div>
       <p id="nameGreeting" class="text-sm italic min-h-[20px] mb-4" style="color:var(--accent3)"></p>
-      <button onclick="startQuiz()" class="btn-primary w-full text-base py-4 mt-1">Let's Start →</button>
-      <a onclick="backToSelector()" class="block mt-4 text-sm cursor-pointer transition-colors" style="color:var(--muted)" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">← Back to tests</a>
+      <button onclick="startQuiz()" class="btn-primary w-full text-base py-3.5 justify-center">Bắt đầu →</button>
+      <a onclick="backToSelector()" class="block mt-3.5 text-sm cursor-pointer transition-colors" style="color:var(--muted)" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">← Quay lại</a>
     </div>
   </div>
 
   <!-- MODE SCREEN -->
-  <div id="modeScreen" class="hidden w-full max-w-lg animate-fadeUp">
+  <div id="modeScreen" class="hidden w-full max-w-md animate-fadeUp">
     <div class="card p-8 text-center relative overflow-hidden card-accent">
-      <div id="modeTestBadge" class="inline-flex items-center gap-2 font-semibold text-sm px-4 py-1.5 rounded-full mb-5 border" style="color:var(--accent);background:rgba(108,92,231,.08);border-color:rgba(108,92,231,.25)">📝 Test</div>
-      <h2 class="font-heading text-2xl font-extrabold tracking-tight mb-2" style="color:var(--text)">Choose Your Mode</h2>
-      <p class="text-sm font-light mb-7 leading-relaxed" style="color:var(--muted)">How do you want to take this test?</p>
-      <div class="flex flex-col gap-3 mb-7">
-        <div id="mode_train" onclick="selectMode('train')"
-          class="mode-card flex items-center gap-4 px-5 py-4 cursor-pointer text-left hover:border-[color:var(--accent3)]">
-          <div class="text-3xl">📖</div>
+      <div id="modeTestBadge" class="inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 border" style="color:var(--accent);background:rgba(37,99,235,.07);border-color:rgba(37,99,235,.2)">📝 Bài kiểm tra</div>
+      <h2 class="font-heading font-bold text-xl mb-1" style="color:var(--text)">Chọn chế độ học</h2>
+      <p class="text-sm mb-6" style="color:var(--muted)">Bạn muốn làm bài theo kiểu nào?</p>
+      <div class="flex flex-col gap-3 mb-6 text-left">
+        <!-- Train -->
+        <div id="mode_train" onclick="selectMode('train')" class="mode-card">
+          <div class="text-2xl flex-shrink-0">📖</div>
           <div class="flex-1">
-            <div class="font-heading font-bold text-base mb-0.5" style="color:var(--text)">Train</div>
-            <div class="text-xs leading-relaxed" style="color:var(--muted)">Questions in order, no time pressure. Navigate freely.</div>
+            <div class="font-heading font-bold text-sm mb-0.5" style="color:var(--text)">Luyện tập (Train)</div>
+            <div class="text-xs leading-relaxed" style="color:var(--muted)">Đúng thứ tự, tự do qua lại. Phù hợp khi ôn bài.</div>
           </div>
-          <div class="mode-check w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all" style="border-color:var(--border)"></div>
+          <div class="mode-check w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all" style="border-color:var(--border2)"></div>
         </div>
-        <div id="mode_test" onclick="selectMode('test')"
-          class="mode-card flex items-center gap-4 px-5 py-4 cursor-pointer text-left hover:border-[color:var(--accent)]">
-          <div class="text-3xl">📝</div>
+        <!-- Test -->
+        <div id="mode_test" onclick="selectMode('test')" class="mode-card">
+          <div class="text-2xl flex-shrink-0">📝</div>
           <div class="flex-1">
-            <div class="font-heading font-bold text-base mb-0.5" style="color:var(--text)">Test</div>
-            <div class="text-xs leading-relaxed" style="color:var(--muted)">Random order. Submit all at the end for your score.</div>
+            <div class="font-heading font-bold text-sm mb-0.5" style="color:var(--text)">Kiểm tra (Test)</div>
+            <div class="text-xs leading-relaxed" style="color:var(--muted)">Câu hỏi ngẫu nhiên, không quay lại. Như thi thật.</div>
           </div>
-          <div class="mode-check w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all" style="border-color:var(--border)"></div>
+          <div class="mode-check w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all" style="border-color:var(--border2)"></div>
         </div>
-        <div id="mode_race" onclick="selectMode('race')"
-          class="mode-card flex items-center gap-4 px-5 py-4 cursor-pointer text-left hover:border-[color:var(--accent2)]">
-          <div class="text-3xl">⚡</div>
+        <!-- Race -->
+        <div id="mode_race" onclick="selectMode('race')" class="mode-card">
+          <div class="text-2xl flex-shrink-0">⚡</div>
           <div class="flex-1">
-            <div class="font-heading font-bold text-base mb-0.5" style="color:var(--text)">Race</div>
-            <div class="text-xs leading-relaxed" style="color:var(--muted)">Instant check — correct moves forward, wrong restarts!</div>
+            <div class="font-heading font-bold text-sm mb-0.5" style="color:var(--text)">Thử thách (Race)</div>
+            <div class="text-xs leading-relaxed" style="color:var(--muted)">Trả lời ngay — sai là làm lại từ đầu!</div>
           </div>
-          <div class="mode-check w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all" style="border-color:var(--border)"></div>
+          <div class="mode-check w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all" style="border-color:var(--border2)"></div>
         </div>
       </div>
-      <button id="startModeBtn" onclick="launchQuiz()" class="btn-primary disabled w-full text-base py-4">Start →</button>
-      <a onclick="goBackToName()" class="block mt-4 text-sm cursor-pointer transition-colors" style="color:var(--muted)" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">← Back</a>
+      <button id="startModeBtn" onclick="launchQuiz()" class="btn-primary disabled w-full text-base py-3.5 justify-center">Bắt đầu làm bài →</button>
+      <a onclick="goBackToName()" class="block mt-3.5 text-sm cursor-pointer" style="color:var(--muted)" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">← Quay lại</a>
     </div>
   </div>
 
   <!-- RACE FEEDBACK OVERLAY -->
-  <div id="raceFeedback" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center" style="background:rgba(0,0,0,.88)">
-    <div id="raceFeedbackIcon" class="text-8xl mb-6 animate-bounceIn"></div>
-    <div id="raceFeedbackText" class="font-heading text-2xl font-extrabold mb-2" style="color:var(--text)"></div>
-    <div id="raceFeedbackSub" class="text-sm" style="color:var(--muted)"></div>
+  <div id="raceFeedback" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center" style="background:rgba(0,0,0,.82)">
+    <div id="raceFeedbackIcon" class="text-8xl mb-5 animate-bounceIn"></div>
+    <div id="raceFeedbackText" class="font-heading text-2xl font-extrabold mb-2" style="color:#fff"></div>
+    <div id="raceFeedbackSub" class="text-sm" style="color:rgba(255,255,255,.7)"></div>
   </div>
 
-  <!-- QUIZ TOOLBAR -->
+  <!-- QUIZ TOOLBAR (sticky) -->
   <div id="quizToolbar" class="hidden fixed top-14 left-0 right-0 z-40 quiz-toolbar">
-    <div class="h-0.5 w-full" style="background:var(--border)">
-      <div id="progressFill" class="h-full rounded-full progress-fill" style="width:0%"></div>
+    <!-- Progress line -->
+    <div class="h-1 w-full" style="background:var(--border)">
+      <div id="progressFill" class="h-full progress-fill" style="width:0%;border-radius:0 2px 2px 0"></div>
     </div>
-    <div class="flex items-center gap-2 px-4 md:px-6 h-13" style="height:52px">
-      <button id="prevBtn" onclick="navigate(-1)" class="toolbar-btn">← Prev</button>
-      <div class="flex-1 flex flex-col items-center min-w-0">
-        <div class="flex items-center gap-1.5 mb-0.5">
-          <span id="quizTag" class="font-heading text-[10px] font-bold uppercase tracking-widest" style="color:var(--accent)">🎯 Quiz</span>
-          <span class="text-xs" style="color:var(--border2)">·</span>
-          <span id="progressText" class="font-mono text-xs" style="color:var(--muted)">Q 1 / 10</span>
-          <span class="text-xs" style="color:var(--border2)">·</span>
+    <!-- Toolbar row -->
+    <div class="flex items-center gap-2 px-4 md:px-8" style="height:50px">
+      <button id="prevBtn" onclick="navigate(-1)" class="toolbar-btn">← Câu trước</button>
+      <div class="flex-1 flex flex-col items-center min-w-0 px-2">
+        <div class="flex items-center gap-2 mb-0.5">
+          <span id="quizTag" class="text-xs font-semibold" style="color:var(--accent)">🎯 Quiz</span>
+          <span style="color:var(--border2);font-size:12px">·</span>
+          <span id="progressText" class="font-mono text-xs" style="color:var(--muted)">Câu 1 / 10</span>
+          <span style="color:var(--border2);font-size:12px">·</span>
           <span id="progressPct" class="font-mono text-xs" style="color:var(--muted)">0%</span>
         </div>
-        <div id="quizTitleSmall" class="font-heading font-bold text-sm truncate max-w-xs md:max-w-md leading-tight" style="color:var(--text)"></div>
+        <div id="quizTitleSmall" class="font-heading font-semibold text-sm truncate max-w-xs md:max-w-md" style="color:var(--text)"></div>
       </div>
       <button id="tocToggleBtn" onclick="toggleToc()" class="toolbar-btn">
         <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><rect width="6" height="2" rx="1" fill="currentColor"/><rect y="4.5" width="9" height="2" rx="1" fill="currentColor"/><rect y="9" width="7" height="2" rx="1" fill="currentColor"/></svg>
-        <span class="hidden sm:inline">Contents</span>
+        <span class="hidden sm:inline">Mục lục</span>
       </button>
-      <button id="nextBtn" onclick="navigate(1)" class="btn-primary font-heading font-bold text-sm px-4 py-2 rounded-xl flex-shrink-0">Next →</button>
+      <button id="nextBtn" onclick="navigate(1)" class="btn-primary text-sm px-4 py-2 rounded-lg flex-shrink-0 justify-center">Tiếp →</button>
     </div>
   </div>
 
-  <!-- TOC backdrop + panel -->
-  <div id="tocBackdrop" class="hidden fixed inset-0 z-[45]" style="background:rgba(0,0,0,.45);backdrop-filter:blur(2px)" onclick="closeToc()"></div>
-  <div id="tocPanel" class="toc-panel fixed top-0 right-0 bottom-0 z-[46] flex flex-col" style="width:min(300px,90vw);transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1)">
+  <!-- TOC backdrop -->
+  <div id="tocBackdrop" class="hidden fixed inset-0 z-[45]" style="background:rgba(0,0,0,.35);backdrop-filter:blur(2px)" onclick="closeToc()"></div>
+  <!-- TOC panel -->
+  <div id="tocPanel" class="toc-panel fixed top-0 right-0 bottom-0 z-[46] flex flex-col" style="width:min(300px,90vw);transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);box-shadow:-4px 0 24px rgba(0,0,0,.1)">
     <div class="flex items-center justify-between px-5 py-4 border-b" style="border-color:var(--border)">
       <div>
-        <div class="font-heading font-bold text-sm" style="color:var(--text)">Table of Contents</div>
-        <div id="tocAnsweredCount" class="text-xs mt-0.5" style="color:var(--muted)">0 of 0 answered</div>
+        <div class="font-heading font-bold text-sm" style="color:var(--text)">Mục lục câu hỏi</div>
+        <div id="tocAnsweredCount" class="text-xs mt-0.5" style="color:var(--muted)">0 / 0 đã trả lời</div>
       </div>
-      <button onclick="closeToc()" class="w-8 h-8 rounded-lg flex items-center justify-center transition-all text-lg" style="color:var(--muted)" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">✕</button>
+      <button onclick="closeToc()" class="w-8 h-8 rounded-lg flex items-center justify-center text-lg transition-colors" style="color:var(--muted)" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">✕</button>
     </div>
     <div class="px-5 py-3 border-b" style="border-color:var(--border);background:var(--surface2)">
-      <div id="tocTestName" class="font-heading font-bold text-sm mb-0.5" style="color:var(--text)"></div>
-      <div id="tocModeBadge" class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border"></div>
+      <div id="tocTestName" class="font-heading font-bold text-sm mb-1" style="color:var(--text)"></div>
+      <div id="tocModeBadge" class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border"></div>
     </div>
     <div class="flex-1 overflow-y-auto py-3 px-3" id="tocList"></div>
-    <div class="px-5 py-4 border-t flex items-center gap-4 flex-wrap" style="border-color:var(--border)">
-      <div class="flex items-center gap-2 text-xs" style="color:var(--muted)"><div class="w-3 h-3 rounded-sm" style="background:var(--accent)"></div>Current</div>
-      <div class="flex items-center gap-2 text-xs" style="color:var(--muted)"><div class="w-3 h-3 rounded-sm" style="background:rgba(0,184,148,.4)"></div>Answered</div>
-      <div class="flex items-center gap-2 text-xs" style="color:var(--muted)"><div class="w-3 h-3 rounded-sm border" style="border-color:var(--border)"></div>Not answered</div>
+    <div class="px-5 py-4 border-t flex items-center gap-4 flex-wrap text-xs" style="border-color:var(--border);color:var(--muted)">
+      <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-sm" style="background:var(--accent)"></div>Câu hiện tại</div>
+      <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-sm" style="background:rgba(5,150,105,.4)"></div>Đã trả lời</div>
+      <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-sm border" style="border-color:var(--border2)"></div>Chưa trả lời</div>
     </div>
   </div>
 
@@ -600,83 +478,82 @@ body::before {
 
   <!-- RESULT SCREEN -->
   <div id="resultScreen" class="hidden w-full max-w-2xl animate-fadeUp">
-    <div class="card p-10 text-center mb-4 relative overflow-hidden card-accent">
+    <div class="card p-8 md:p-10 text-center mb-4 relative overflow-hidden card-accent">
       <span id="resultBadge" class="text-5xl block mb-4 animate-bounceIn">🎉</span>
-      <div id="resultTestName" class="inline-block font-heading text-xs font-bold rounded-full px-4 py-1 mb-3 border" style="color:var(--accent);background:rgba(108,92,231,.08);border-color:rgba(108,92,231,.25)"></div>
-      <h2 id="resultTitle" class="font-heading text-3xl font-extrabold tracking-tight mb-2" style="color:var(--text)">All Done!</h2>
+      <div id="resultTestName" class="inline-block text-xs font-semibold rounded-full px-4 py-1.5 mb-3 border" style="color:var(--accent);background:rgba(37,99,235,.07);border-color:rgba(37,99,235,.2)"></div>
+      <h2 id="resultTitle" class="font-heading text-2xl font-extrabold mb-2" style="color:var(--text)">Hoàn thành!</h2>
       <p id="resultSub" class="text-sm leading-relaxed mb-6" style="color:var(--muted)"></p>
-      <div id="scoreCard" class="hidden flex flex-col items-center gap-6">
-        <div class="relative w-36 h-36">
-          <svg class="w-36 h-36" style="transform:rotate(-90deg)" viewBox="0 0 120 120">
+      <!-- Score ring -->
+      <div id="scoreCard" class="hidden flex flex-col items-center gap-5">
+        <div class="relative w-32 h-32">
+          <svg class="w-32 h-32" style="transform:rotate(-90deg)" viewBox="0 0 120 120">
             <circle class="fill-none" stroke-width="10" cx="60" cy="60" r="52" style="stroke:var(--surface2)"/>
             <circle id="ringFill" class="fill-none ring-fill" stroke-width="10" stroke-linecap="round" cx="60" cy="60" r="52" stroke-dasharray="0 327" style="stroke:var(--accent)"/>
           </svg>
           <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span id="ringPct" class="font-heading text-2xl font-extrabold tracking-tight" style="color:var(--text)">0%</span>
-            <span class="text-[10px] font-bold uppercase tracking-widest" style="color:var(--muted)">Score</span>
+            <span id="ringPct" class="font-heading text-2xl font-extrabold" style="color:var(--text)">0%</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest" style="color:var(--muted)">Điểm số</span>
           </div>
         </div>
         <div class="flex gap-3 w-full justify-center">
-          <div class="flex-1 max-w-[110px] rounded-2xl p-4 text-center border" style="background:rgba(0,184,148,.05);border-color:rgba(0,184,148,.25)">
-            <div id="statCorrect" class="font-heading text-3xl font-extrabold mb-1" style="color:var(--success)">0</div>
-            <div class="text-[10px] font-bold uppercase tracking-widest" style="color:var(--muted)">Correct</div>
+          <div class="flex-1 max-w-[100px] rounded-xl p-4 text-center border" style="background:rgba(5,150,105,.05);border-color:rgba(5,150,105,.2)">
+            <div id="statCorrect" class="font-heading text-2xl font-extrabold mb-0.5" style="color:var(--success)">0</div>
+            <div class="text-[10px] font-semibold uppercase tracking-wider" style="color:var(--muted)">Đúng</div>
           </div>
-          <div class="flex-1 max-w-[110px] rounded-2xl p-4 text-center border" style="background:rgba(232,67,147,.05);border-color:rgba(232,67,147,.25)">
-            <div id="statWrong" class="font-heading text-3xl font-extrabold mb-1" style="color:var(--error)">0</div>
-            <div class="text-[10px] font-bold uppercase tracking-widest" style="color:var(--muted)">Wrong</div>
+          <div class="flex-1 max-w-[100px] rounded-xl p-4 text-center border" style="background:rgba(220,38,38,.05);border-color:rgba(220,38,38,.2)">
+            <div id="statWrong" class="font-heading text-2xl font-extrabold mb-0.5" style="color:var(--error)">0</div>
+            <div class="text-[10px] font-semibold uppercase tracking-wider" style="color:var(--muted)">Sai</div>
           </div>
-          <div class="flex-1 max-w-[110px] rounded-2xl p-4 text-center border" style="background:rgba(108,92,231,.05);border-color:rgba(108,92,231,.25)">
-            <div id="statTotal" class="font-heading text-3xl font-extrabold mb-1" style="color:var(--accent)">0</div>
-            <div class="text-[10px] font-bold uppercase tracking-widest" style="color:var(--muted)">Total</div>
+          <div class="flex-1 max-w-[100px] rounded-xl p-4 text-center border" style="background:rgba(37,99,235,.05);border-color:rgba(37,99,235,.2)">
+            <div id="statTotal" class="font-heading text-2xl font-extrabold mb-0.5" style="color:var(--accent)">0</div>
+            <div class="text-[10px] font-semibold uppercase tracking-wider" style="color:var(--muted)">Tổng</div>
           </div>
         </div>
         <div id="gradeBadge" class="font-heading font-extrabold text-base px-6 py-2 rounded-full"></div>
       </div>
       <p id="resultSaveStatus" class="mt-5 text-sm" style="color:var(--muted)"></p>
     </div>
+    <!-- Answer review -->
     <div id="reviewSection" class="hidden card mb-4 overflow-hidden">
-      <div class="flex justify-between items-center px-6 py-4">
-        <span class="font-heading text-sm font-bold" style="color:var(--text)">📋 Answer Review</span>
+      <div class="flex justify-between items-center px-6 py-4 border-b" style="border-color:var(--border)">
+        <span class="font-heading font-bold text-sm" style="color:var(--text)">📋 Xem lại đáp án</span>
         <button id="toggleReviewBtn" onclick="toggleReview()"
-          class="font-heading text-xs font-bold rounded-full px-4 py-1.5 border transition-colors"
-          style="color:var(--accent);background:rgba(108,92,231,.08);border-color:rgba(108,92,231,.25)">
-          Show Details ▾
+          class="text-xs font-semibold rounded-full px-4 py-1.5 border transition-colors"
+          style="color:var(--accent);background:rgba(37,99,235,.07);border-color:rgba(37,99,235,.2)">
+          Xem chi tiết ▾
         </button>
       </div>
-      <div id="reviewList" class="hidden border-t" style="border-color:var(--border)"></div>
+      <div id="reviewList" class="hidden"></div>
     </div>
+    <!-- Actions -->
     <div class="flex flex-col sm:flex-row gap-3 justify-center">
-      <button onclick="backToSelector()" class="btn-primary font-heading font-bold text-sm px-6 py-3 rounded-xl text-center">← Pick Another Test</button>
-      <button onclick="retakeSame()" class="btn-ghost font-heading font-bold text-sm px-6 py-3 rounded-xl text-center">↺ Retake</button>
-      <a href="index.html" class="btn-ghost font-heading font-bold text-sm px-6 py-3 rounded-xl text-center">🏠 Home</a>
+      <button onclick="backToSelector()" class="btn-primary text-sm px-6 py-3 rounded-xl justify-center">← Chọn bài khác</button>
+      <button onclick="retakeSame()" class="btn-ghost text-sm px-6 py-3 rounded-xl justify-center">↺ Làm lại</button>
+      <a href="index.html" class="btn-ghost text-sm px-6 py-3 rounded-xl justify-center text-center">🏠 Trang chủ</a>
     </div>
   </div>
 
 </div>
 
 <!-- Watermark -->
-<div style="text-align:center;padding:20px 0 28px;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;z-index:10">
-  <span style="font-size:11px;color:var(--muted);letter-spacing:.05em">Built by</span>
-  <span style="font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:13px;letter-spacing:.15em;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
-  <span style="width:4px;height:4px;border-radius:50%;background:var(--border2);display:inline-block"></span>
-  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em">QuizFlow v2.0</span>
+<div class="flex items-center justify-center gap-2 py-6" style="position:relative;z-index:10">
+  <span class="text-xs" style="color:var(--muted)">Được tạo bởi</span>
+  <span style="font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:13px;letter-spacing:.12em;background:linear-gradient(135deg,#2563eb,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
+  <span style="width:3px;height:3px;border-radius:50%;background:var(--border2);display:inline-block"></span>
+  <span class="text-xs font-mono" style="color:var(--muted)">QuizFlow v2.0</span>
 </div>
 
 <script>
-// ── THEME ────────────────────────────────────────
 function toggleTheme() {
   const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  const next = isDark ? 'light' : 'dark';
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   html.setAttribute('data-theme', next);
   localStorage.setItem('qf-theme', next);
 }
-// Restore saved theme (or system preference)
 (function() {
   const saved = localStorage.getItem('qf-theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = saved || (prefersDark ? 'dark' : 'light');
-  document.documentElement.setAttribute('data-theme', theme);
+  const sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', saved || sys);
 })();
 </script>
 <script src="js/main.js"></script>
