@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,8 +15,8 @@ tailwind.config = {
         accent:'#7c6af7', accent2:'#f76a8a', accent3:'#6af7c4', muted:'#6b6b85',
       },
       fontFamily: {
-        sans:['"DM Sans"','sans-serif'],
-        heading:['"Syne"','sans-serif'],
+        sans:['"Be Vietnam Pro"','sans-serif'],
+        heading:['"Be Vietnam Pro"','sans-serif'],
         mono:['"JetBrains Mono"','monospace'],
       },
       keyframes: {
@@ -44,12 +44,12 @@ tailwind.config = {
 }
 </script>
 
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
 
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
-  body{background-color:#060608;color:#e2e2f0;font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+  body{background-color:#060608;color:#e2e2f0;font-family:'Be Vietnam Pro',sans-serif;overflow-x:hidden;}
 
   /* Noise texture */
   body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;
@@ -98,7 +98,7 @@ tailwind.config = {
   .type-chip:hover{transform:translateY(-3px);border-color:var(--tc);box-shadow:0 8px 24px rgba(0,0,0,.4);}
 
   /* Stat number */
-  .stat-num{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(3rem,6vw,5rem);line-height:1;letter-spacing:-.04em;}
+  .stat-num{font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:clamp(3rem,6vw,5rem);line-height:1;letter-spacing:-.01em;}
 
   /* Quiz screen styles */
   .progress-fill{background:linear-gradient(90deg,#7c6af7,#f76a8a);transition:width .5s cubic-bezier(.4,0,.2,1);}
@@ -460,7 +460,7 @@ tailwind.config = {
   <!-- Watermark -->
   <div class="max-w-7xl mx-auto mt-5 pt-5 border-t flex items-center justify-center gap-2" style="border-color:rgba(255,255,255,.05)">
     <span style="font-size:11px;color:#6b6b85;letter-spacing:.05em">Built by</span>
-    <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px;letter-spacing:.15em;background:linear-gradient(135deg,#7c6af7,#f76a8a,#6af7c4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
+    <span style="font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:13px;letter-spacing:.15em;background:linear-gradient(135deg,#7c6af7,#f76a8a,#6af7c4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
     <span style="width:4px;height:4px;border-radius:50%;background:#252533;display:inline-block"></span>
     <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b6b85;letter-spacing:.08em">QuizFlow v2.0</span>
   </div>
