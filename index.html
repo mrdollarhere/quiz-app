@@ -147,9 +147,17 @@ tailwind.config = {
       <a href="#types"    class="px-4 py-2 text-sm text-muted hover:text-white transition-colors rounded-lg hover:bg-white/5">Types</a>
       <a href="#setup"    class="px-4 py-2 text-sm text-muted hover:text-white transition-colors rounded-lg hover:bg-white/5">Setup</a>
     </nav>
-    <button onclick="window.location.href='tests.html'" class="font-heading font-bold text-sm px-5 py-2.5 rounded-xl text-white transition-all hover:-translate-y-px" style="background:linear-gradient(135deg,#7c6af7,#9580ff);box-shadow:0 0 20px rgba(124,106,247,.4)">
-      Start Quiz →
-    </button>
+    <div class="flex items-center gap-3">
+      <!-- Theme toggle -->
+      <button onclick="toggleTheme()" title="Toggle light/dark mode"
+        style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);font-size:15px;transition:all .2s"
+        onmouseover="this.style.borderColor='rgba(124,106,247,.6)'" onmouseout="this.style.borderColor='rgba(255,255,255,.12)'">
+        <span id="themeIcon">☀️</span>
+      </button>
+      <button onclick="window.location.href='tests.html'" class="font-heading font-bold text-sm px-5 py-2.5 rounded-xl text-white transition-all hover:-translate-y-px" style="background:linear-gradient(135deg,#7c6af7,#9580ff);box-shadow:0 0 20px rgba(124,106,247,.4)">
+        Start Quiz →
+      </button>
+    </div>
   </div>
 </header>
 
@@ -461,7 +469,24 @@ tailwind.config = {
 </div><!-- END LANDING -->
 
 <script>
-// Fetch live test count for the hero stat
+// Sync theme preference (index.html is always dark, but we sync the toggle for tests.html)
+function toggleTheme() {
+  const saved = localStorage.getItem('qf-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const current = saved || (prefersDark ? 'dark' : 'light');
+  const next = current === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('qf-theme', next);
+  const icon = document.getElementById('themeIcon');
+  if (icon) icon.textContent = next === 'dark' ? '☀️' : '🌙';
+}
+(function() {
+  const saved = localStorage.getItem('qf-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  const icon = document.getElementById('themeIcon');
+  if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+})();
+</script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzAuEkoaeG4uDFtp7TtHFdKgXcBRD-DVFy9nYXOoaI3XC9D1AMKV4CvH2fpmnu0wBaN/exec';
 fetch(`${SCRIPT_URL}?action=getTests`)
   .then(r=>r.json())
