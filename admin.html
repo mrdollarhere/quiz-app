@@ -286,11 +286,21 @@
           <input type="text" id="qImageUrl" class="form-input" placeholder="https://…/image.jpg"/>
         </div>
       </div>
-      <div id="fieldOptions" class="form-row">
+        <!-- DYNAMIC OPTIONS (for radio, checkbox, etc) -->
+      <div id="fieldOptionsDynamic" class="form-row" style="display:none;">
         <label class="form-label">Các lựa chọn</label>
-        <input type="text" id="qOptions" class="form-input" placeholder="A|B|C|D"/>
-        <div class="form-hint" id="optionsHint">Phân cách bằng dấu |: A|B|C|D</div>
+        <div id="optionsList" class="options-list-container"></div>
+        <button type="button" class="btn-add-option" onclick="addOptionRow()">+ Thêm lựa chọn</button>
+        <div class="form-hint" id="optionsHint"></div>
       </div>
+
+      <!-- RAW OPTIONS (for matching, hotspot) -->
+      <div id="fieldOptionsRaw" class="form-row" style="display:none;">
+        <label class="form-label">Các lựa chọn (dữ liệu thô)</label>
+        <textarea id="qOptionsRaw" class="form-input" rows="4"></textarea>
+        <div class="form-hint" id="optionsHintRaw"></div>
+      </div>
+      
       <div id="fieldCorrect" class="form-row">
         <label class="form-label">Đáp án đúng <span style="color:#94a3b8;font-weight:400">(để trống nếu là khảo sát)</span></label>
         <input type="text" id="qCorrect" class="form-input" placeholder="Đáp án đúng"/>
