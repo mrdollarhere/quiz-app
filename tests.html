@@ -11,8 +11,8 @@ tailwind.config = {
   theme: {
     extend: {
       fontFamily: {
-        sans:    ['"DM Sans"','sans-serif'],
-        heading: ['"Syne"','sans-serif'],
+        sans:    ['"Be Vietnam Pro"','sans-serif'],
+        heading: ['"Be Vietnam Pro"','sans-serif'],
         mono:    ['"JetBrains Mono"','monospace'],
       },
       keyframes: {
@@ -30,7 +30,7 @@ tailwind.config = {
 }
 </script>
 
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
 
 <style>
 /* ══════════════════════════════════════════
@@ -95,9 +95,10 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  line-height: 1.65;
   transition: background .3s, color .3s;
 }
 
@@ -189,7 +190,7 @@ body::before {
   border-radius: 14px;
   padding: 14px 18px;
   color: var(--text);
-  font-family: 'Syne', sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   font-size: 17px;
   font-weight: 600;
   outline: none;
@@ -206,7 +207,7 @@ body::before {
 ══════════════════════════════════════════ */
 .btn-primary {
   background: var(--accent); color: #fff;
-  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-family: 'Be Vietnam Pro', sans-serif; font-weight: 700;
   border: none; cursor: pointer; border-radius: 14px;
   transition: all .2s;
 }
@@ -216,7 +217,7 @@ body::before {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--muted);
-  font-family: 'Syne', sans-serif; font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif; font-weight: 600;
   cursor: pointer; border-radius: 12px;
   transition: all .2s;
 }
@@ -270,7 +271,7 @@ body::before {
   padding: 7px 16px; border-radius: 10px;
   border: 1px solid var(--border);
   color: var(--muted); background: transparent;
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+  font-family: 'Be Vietnam Pro', sans-serif; font-weight: 700; font-size: 13px;
   cursor: pointer; transition: all .2s; flex-shrink: 0; white-space: nowrap;
 }
 .toolbar-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -296,7 +297,7 @@ body::before {
   flex: 1; padding: 14px;
   border-radius: 12px; border: 2px solid var(--border);
   background: var(--surface2); color: var(--text);
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
+  font-family: 'Be Vietnam Pro', sans-serif; font-weight: 700; font-size: 16px;
   cursor: pointer; transition: all .2s; text-align: center;
 }
 .tf-btn.sel-true  { background: rgba(0,184,148,.1); border-color: var(--success); color: var(--success); }
@@ -306,7 +307,7 @@ body::before {
 .rating-btn {
   width: 48px; height: 48px; border-radius: 11px;
   background: var(--surface2); border: 1.5px solid var(--border);
-  color: var(--muted); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
+  color: var(--muted); font-family: 'Be Vietnam Pro', sans-serif; font-weight: 700; font-size: 15px;
   cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center;
 }
 .rating-btn:hover { border-color: #f59e0b; color: #f59e0b; }
@@ -316,7 +317,7 @@ body::before {
 .textarea-inp {
   width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
   border-radius: 12px; padding: 13px 16px; color: var(--text);
-  font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none;
+  font-family: 'Be Vietnam Pro', sans-serif; font-size: 14px; outline: none;
   resize: vertical; min-height: 80px; transition: border-color .2s, background .3s;
 }
 .textarea-inp:focus { border-color: var(--accent3); }
@@ -344,7 +345,7 @@ body::before {
 .mtf-btn {
   flex: 1; padding: 9px 8px; border-radius: 9px; border: 2px solid var(--border);
   background: var(--surface); color: var(--muted);
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+  font-family: 'Be Vietnam Pro', sans-serif; font-weight: 700; font-size: 13px;
   cursor: pointer; transition: all .18s; text-align: center;
 }
 .mtf-btn.sel-true  { background: rgba(0,184,148,.12); border-color: var(--success); color: var(--success); }
@@ -352,7 +353,7 @@ body::before {
 
 /* Matrix */
 .matrix-table { width: 100%; border-collapse: collapse; min-width: 360px; }
-.matrix-th { padding: 9px 8px; text-align: center; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #f59e0b; border-bottom: 2px solid var(--border); border-right: 1px solid var(--border); }
+.matrix-th { padding: 9px 8px; text-align: center; font-family: 'Be Vietnam Pro', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #f59e0b; border-bottom: 2px solid var(--border); border-right: 1px solid var(--border); }
 .matrix-th:last-child { border-right: none; }
 .matrix-th-blank { padding: 9px 12px; border-bottom: 2px solid var(--border); border-right: 1px solid var(--border); width: 35%; }
 .matrix-td-label { padding: 10px 12px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
@@ -656,7 +657,7 @@ body::before {
 <!-- Watermark -->
 <div style="text-align:center;padding:20px 0 28px;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;z-index:10">
   <span style="font-size:11px;color:var(--muted);letter-spacing:.05em">Built by</span>
-  <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px;letter-spacing:.15em;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
+  <span style="font-family:'Be Vietnam Pro',sans-serif;font-weight:800;font-size:13px;letter-spacing:.15em;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">DNTRNG</span>
   <span style="width:4px;height:4px;border-radius:50%;background:var(--border2);display:inline-block"></span>
   <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em">QuizFlow v2.0</span>
 </div>
