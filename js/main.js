@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════
 //  CONFIG — change URL here when you redeploy
 // ═══════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAuEkoaeG4uDFtp7TtHFdKgXcBRD-DVFy9nYXOoaI3XC9D1AMKV4CvH2fpmnu0wBaN/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0YSPyzR7wvG_nxMS15ALWP6Z6yTAl6m4OdlYeQA79N9Oqfcyv7kTEYwg_qSKXgN-o/exec';
 
 // ═══════════════════════════════════════════════════
 //  THEME — apply saved preference immediately
